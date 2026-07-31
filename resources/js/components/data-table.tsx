@@ -29,6 +29,9 @@ interface DataTableProps<T> {
         direction?: string;
         per_page?: number;
     };
+    routeName?: string;
+    searchPlaceholder?: string;
+    extraParams?: Record<string, string | number | undefined>;
     actions?: (row: T) => ReactNode;
 }
 
@@ -48,21 +51,30 @@ function useDebounce<T>(value: T, delay: number): T {
     return debouncedValue;
 }
 
-export function DataTable<T extends Record<string, any>>({ columns, data, filters, actions }: DataTableProps<T>) {
+export function DataTable<T extends Record<string, any>>({
+    columns,
+    data,
+    filters,
+    routeName = 'classes.index',
+    searchPlaceholder = 'Search...',
+    extraParams = {},
+    actions,
+}: DataTableProps<T>) {
     const [searchInput, setSearchInput] = useState(filters.search || '');
     const debouncedSearch = useDebounce(searchInput, 300);
 
     useEffect(() => {
         if (debouncedSearch !== filters.search) {
-            router.get(route('classes.index'), {
+            router.get(route(routeName), {
                 search: debouncedSearch,
                 page: 1,
                 sort: filters.sort || 'created_at',
                 direction: filters.direction || 'desc',
                 per_page: filters.per_page || 10,
+                ...extraParams,
             }, { preserveState: true, preserveScroll: true });
         }
-    }, [debouncedSearch, filters.sort, filters.direction, filters.per_page]);
+    }, [debouncedSearch, filters.sort, filters.direction, filters.per_page, routeName, extraParams]);
 
     const handleSort = useCallback((key: string) => {
         const col = columns.find((c) => c.key === key);
@@ -72,34 +84,37 @@ export function DataTable<T extends Record<string, any>>({ columns, data, filter
         const currentDirection = filters.direction;
         const newDirection = currentSort === key && currentDirection === 'asc' ? 'desc' : 'asc';
 
-        router.get(route('classes.index'), {
+        router.get(route(routeName), {
             sort: key,
             direction: newDirection,
             page: 1,
             per_page: filters.per_page || 10,
             search: filters.search || '',
+            ...extraParams,
         }, { preserveState: true, preserveScroll: true });
-    }, [columns, filters.sort, filters.direction, filters.per_page, filters.search]);
+    }, [columns, filters.sort, filters.direction, filters.per_page, filters.search, routeName, extraParams]);
 
     const handlePageChange = useCallback((newPage: number) => {
-        router.get(route('classes.index'), {
+        router.get(route(routeName), {
             page: newPage,
             sort: filters.sort || 'created_at',
             direction: filters.direction || 'desc',
             per_page: filters.per_page || 10,
             search: filters.search || '',
+            ...extraParams,
         }, { preserveState: true, preserveScroll: true });
-    }, [filters.sort, filters.direction, filters.per_page, filters.search]);
+    }, [filters.sort, filters.direction, filters.per_page, filters.search, routeName, extraParams]);
 
     const handlePerPageChange = useCallback((newPerPage: number) => {
-        router.get(route('classes.index'), {
+        router.get(route(routeName), {
             per_page: newPerPage,
             page: 1,
             sort: filters.sort || 'created_at',
             direction: filters.direction || 'desc',
             search: filters.search || '',
+            ...extraParams,
         }, { preserveState: true, preserveScroll: true });
-    }, [filters.sort, filters.direction, filters.search]);
+    }, [filters.sort, filters.direction, filters.search, routeName, extraParams]);
 
     return (
         <div className="rounded-lg border">
@@ -107,13 +122,16 @@ export function DataTable<T extends Record<string, any>>({ columns, data, filter
                 <div className="flex-1 min-w-[200px] max-w-[300px]">
                     <input
                         type="text"
-                        placeholder="Search classes..."
+                        placeholder={searchPlaceholder}
                         value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
                         className="w-full h-9 px-3 py-2 text-sm border border-input bg-background rounded-md placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                 </div>
                 <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                        {data.total} {data.total === 1 ? 'record' : 'records'}
+                    </span>
                     <Select value={String(filters.per_page || 10)} onValueChange={(v) => handlePerPageChange(parseInt(v))}>
                         <SelectTrigger className="h-9 w-[110px]">
                             <SelectValue placeholder="10" />

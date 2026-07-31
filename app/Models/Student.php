@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Student extends Model
 {
@@ -15,6 +17,7 @@ class Student extends Model
         'user_id',
         'school_id',
         'section_id',
+        'name',
         'admission_number',
         'date_of_birth',
         'gender',
@@ -50,5 +53,17 @@ class Student extends Model
         return $this->belongsToMany(Guardian::class, 'student_guardian')
             ->withPivot('relationship', 'is_primary')
             ->withTimestamps();
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function attendanceStatusOn(Carbon|string $date): ?string
+    {
+        return $this->attendances()
+            ->whereDate('date', $date)
+            ->value('status');
     }
 }

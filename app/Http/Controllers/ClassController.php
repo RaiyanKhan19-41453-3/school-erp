@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\RestrictsTeacherAccess;
 use App\Http\Requests\StoreClassRequest;
 use App\Http\Requests\UpdateClassRequest;
 use App\Models\SchoolClass;
 use App\Models\Section;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ClassController extends Controller
 {
+    use RestrictsTeacherAccess;
+
     public function index(): Response
     {
         $this->authorize('viewAny', SchoolClass::class);
@@ -28,8 +32,15 @@ class ClassController extends Controller
         }
         $direction = in_array(strtolower($direction), ['asc', 'desc']) ? $direction : 'desc';
 
-        $query = SchoolClass::with('sections')
-            ->where('school_id', auth()->user()->school_id);
+        $query = SchoolClass::where('school_id', auth()->user()->school_id);
+
+        if (auth()->user()->hasRole('teacher')) {
+            $sectionIds = $this->assignedSectionIds();
+            $query->with(['sections' => fn ($q) => $q->whereIn('sections.id', $sectionIds)->orderBy('name')])
+                ->whereHas('sections', fn (Builder $q) => $q->whereIn('sections.id', $sectionIds));
+        } else {
+            $query->with('sections');
+        }
 
         if ($search) {
             $query->where('name', 'like', "%{$search}%");

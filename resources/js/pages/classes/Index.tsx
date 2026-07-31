@@ -9,6 +9,7 @@ import { CreateClassModal } from '@/components/create-class-modal';
 import { EditClassModal } from '@/components/edit-class-modal';
 import { ManageSectionsModal } from '@/components/manage-sections-modal';
 import { Layers, Pencil } from 'lucide-react';
+import { formatDMY } from '@/lib/format';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -91,7 +92,7 @@ export default function ClassesIndex({
                         key: 'created_at',
                         label: 'Created',
                         sortable: true,
-                        render: (date: string) => new Date(date).toLocaleDateString(),
+                        render: (date: string) => formatDMY(date),
                     },
                 ]}
                 data={classes}
