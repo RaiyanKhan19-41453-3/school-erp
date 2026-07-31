@@ -53,6 +53,7 @@ export default function CreateClass() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Class" />
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
 
             <div className="mb-6">
                 <h2 className="text-xl font-semibold tracking-tight">Create Class</h2>
@@ -122,6 +123,7 @@ export default function CreateClass() {
                     </Link>
                 </div>
             </form>
+            </div>
         </AppLayout>
     );
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreClassRequest;
+use App\Http\Requests\UpdateClassRequest;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use Illuminate\Http\RedirectResponse;
@@ -15,13 +16,36 @@ class ClassController extends Controller
     {
         $this->authorize('viewAny', SchoolClass::class);
 
-        $classes = SchoolClass::with('sections')
-            ->where('school_id', auth()->user()->school_id)
-            ->latest()
-            ->get();
+        $perPage = request()->integer('per_page', 10);
+        $page = request()->integer('page', 1);
+        $sort = request()->string('sort', 'created_at')->value();
+        $direction = request()->string('direction', 'desc')->value();
+        $search = request()->string('search')->value();
+
+        $allowedSorts = ['name', 'created_at'];
+        if (! in_array($sort, $allowedSorts)) {
+            $sort = 'created_at';
+        }
+        $direction = in_array(strtolower($direction), ['asc', 'desc']) ? $direction : 'desc';
+
+        $query = SchoolClass::with('sections')
+            ->where('school_id', auth()->user()->school_id);
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $classes = $query->orderBy($sort, $direction)
+            ->paginate($perPage, ['*'], 'page', $page);
 
         return Inertia::render('classes/Index', [
             'classes' => $classes,
+            'filters' => [
+                'search' => $search,
+                'sort' => $sort,
+                'direction' => $direction,
+                'per_page' => $perPage,
+            ],
         ]);
     }
 
@@ -50,5 +74,36 @@ class ClassController extends Controller
 
         return to_route('classes.index')
             ->with('success', 'Class and sections created successfully.');
+    }
+
+    public function update(UpdateClassRequest $request, SchoolClass $class): RedirectResponse
+    {
+        $class->update([
+            'name' => $request->name,
+        ]);
+
+        $incomingIds = collect($request->sections)->pluck('id')->filter()->all();
+
+        $class->sections()->whereNotIn('id', $incomingIds)->delete();
+
+        foreach ($request->sections as $sectionData) {
+            if (isset($sectionData['id'])) {
+                Section::where('id', $sectionData['id'])
+                    ->where('class_id', $class->id)
+                    ->update([
+                        'name' => $sectionData['name'],
+                        'capacity' => $sectionData['capacity'],
+                    ]);
+            } else {
+                Section::create([
+                    'class_id' => $class->id,
+                    'name' => $sectionData['name'],
+                    'capacity' => $sectionData['capacity'],
+                ]);
+            }
+        }
+
+        return to_route('classes.index')
+            ->with('success', 'Class updated successfully.');
     }
 }

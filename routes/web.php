@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClassController;
+use App\Http\Controllers\SectionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -14,7 +15,10 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     Route::resource('classes', ClassController::class)
-        ->only(['index', 'create', 'store']);
+        ->only(['index', 'create', 'store', 'update']);
+
+    Route::post('classes/{class}/sections', [SectionController::class, 'store'])->name('classes.sections.store');
+    Route::delete('sections/{section}', [SectionController::class, 'destroy'])->name('sections.destroy');
 });
 
 require __DIR__.'/settings.php';

@@ -1,10 +1,14 @@
-import { Link, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { CreateClassModal } from '@/components/create-class-modal';
+import { EditClassModal } from '@/components/edit-class-modal';
+import { ManageSectionsModal } from '@/components/manage-sections-modal';
+import { Layers, Pencil } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -24,33 +28,55 @@ interface SchoolClass {
     created_at: string;
 }
 
-export default function ClassesIndex({ classes }: { classes: SchoolClass[] }) {
-    const { props } = usePage();
-    const flash = (props as any).flash;
+interface PaginatedData<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+}
+
+export default function ClassesIndex({ 
+    classes, 
+    filters 
+}: { 
+    classes: PaginatedData<SchoolClass>; 
+    filters: { search: string; sort: string; direction: string; per_page: number };
+}) {
+    const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [editingClass, setEditingClass] = useState<SchoolClass | null>(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [sectionsClassId, setSectionsClassId] = useState<number | null>(null);
+    const [sectionsModalOpen, setSectionsModalOpen] = useState(false);
+
+    const openEditModal = (row: SchoolClass) => {
+        setEditingClass(row);
+        setEditModalOpen(true);
+    };
+
+    const openSectionsModal = (row: SchoolClass) => {
+        setSectionsClassId(row.id);
+        setSectionsModalOpen(true);
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Classes" />
-
-            {flash?.success && (
-                <div className="mb-4 rounded-md bg-green-50 p-4 text-sm text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                    {flash.success}
-                </div>
-            )}
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
 
             <div className="mb-6 flex items-center justify-between">
                 <div>
                     <h2 className="text-xl font-semibold tracking-tight">Classes</h2>
                     <p className="text-muted-foreground text-sm">Manage classes and their sections</p>
                 </div>
-                <Link href={route('classes.create')}>
-                    <Button>Add Class</Button>
-                </Link>
+                <Button onClick={() => setCreateModalOpen(true)}>Add Class</Button>
             </div>
 
             <DataTable
                 columns={[
-                    { key: 'name', label: 'Class Name' },
+                    { key: 'name', label: 'Class Name', sortable: true },
                     {
                         key: 'sections',
                         label: 'Sections',
@@ -64,10 +90,35 @@ export default function ClassesIndex({ classes }: { classes: SchoolClass[] }) {
                     {
                         key: 'created_at',
                         label: 'Created',
+                        sortable: true,
                         render: (date: string) => new Date(date).toLocaleDateString(),
                     },
                 ]}
                 data={classes}
+                filters={filters}
+                actions={(row) => (
+                    <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => openSectionsModal(row)} title="Manage sections">
+                            <Layers className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => openEditModal(row)} title="Edit">
+                            <Pencil className="h-4 w-4" />
+                        </Button>
+                    </div>
+                )}
+            />
+            </div>
+
+            <CreateClassModal open={createModalOpen} onOpenChange={setCreateModalOpen} />
+            <EditClassModal
+                class={editingClass}
+                open={editModalOpen}
+                onOpenChange={setEditModalOpen}
+            />
+            <ManageSectionsModal
+                classId={sectionsClassId}
+                open={sectionsModalOpen}
+                onOpenChange={setSectionsModalOpen}
             />
         </AppLayout>
     );
