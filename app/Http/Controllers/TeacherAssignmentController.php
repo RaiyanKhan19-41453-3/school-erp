@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ResolvesAcademicYear;
 use App\Http\Requests\StoreTeacherAssignmentRequest;
 use App\Models\AcademicYear;
 use App\Models\SchoolClass;
@@ -15,12 +16,14 @@ use Inertia\Response;
 
 class TeacherAssignmentController extends Controller
 {
+    use ResolvesAcademicYear;
+
     public function index(): Response
     {
         $this->authorize('viewAny', Section::class);
 
         $schoolId = auth()->user()->school_id;
-        $academicYearId = $this->currentAcademicYearId($schoolId);
+        $academicYearId = $this->selectedAcademicYearId($schoolId);
 
         $perPage = request()->integer('per_page', 10);
         $page = request()->integer('page', 1);
@@ -93,7 +96,10 @@ class TeacherAssignmentController extends Controller
                 'class_id' => $classId,
                 'section_id' => $sectionId,
                 'teacher_id' => $teacherId,
+                'year_id' => $academicYearId,
             ],
+            'academicYears' => $this->academicYears($schoolId),
+            'selectedYearIsCurrent' => $this->selectedYearIsCurrent($schoolId, $academicYearId),
             'staff' => Staff::with('user')
                 ->where('school_id', $schoolId)
                 ->orderBy('employee_id')

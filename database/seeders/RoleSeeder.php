@@ -10,6 +10,6 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         collect(['super-admin', 'admin', 'teacher', 'student', 'parent'])
-            ->each(fn (string $role) => Role::create(['name' => $role, 'guard_name' => 'web']));
+            ->each(fn (string $role) => Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']));
     }
 }

@@ -4,7 +4,12 @@ namespace Database\Seeders;
 
 use App\Models\AcademicYear;
 use App\Models\Attendance;
+use App\Models\FeeCategory;
+use App\Models\FeeStructure;
 use App\Models\Guardian;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
+use App\Models\Payment;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Section;
@@ -220,6 +225,92 @@ class DatabaseSeeder extends Seeder
                     'marked_by' => $sectionTeachers[$student->section_id][array_rand($sectionTeachers[$student->section_id])],
                     'remarks' => random_int(1, 100) <= 15 ? fake()->sentence(4) : null,
                 ]);
+            }
+        }
+
+        $this->seedFees($school, $academicYear, $classes, $students);
+    }
+
+    private function seedFees(School $school, AcademicYear $academicYear, array $classes, array $students): void
+    {
+        $categories = collect([
+            ['name' => 'Tuition', 'amount' => 2500.00, 'frequency' => FeeStructure::FREQUENCY_MONTHLY],
+            ['name' => 'Transport', 'amount' => 800.00, 'frequency' => FeeStructure::FREQUENCY_MONTHLY],
+            ['name' => 'Library', 'amount' => 300.00, 'frequency' => FeeStructure::FREQUENCY_ANNUAL],
+            ['name' => 'Admission', 'amount' => 5000.00, 'frequency' => FeeStructure::FREQUENCY_ONE_TIME],
+        ])->map(function (array $definition) use ($school) {
+            return FeeCategory::create([
+                'school_id' => $school->id,
+                'name' => $definition['name'],
+            ]);
+        });
+
+        foreach ($classes as $class) {
+            foreach ($categories as $index => $category) {
+                FeeStructure::create([
+                    'school_id' => $school->id,
+                    'academic_year_id' => $academicYear->id,
+                    'class_id' => $class->id,
+                    'fee_category_id' => $category->id,
+                    'amount' => match ($index) {
+                        0 => 2500.00,
+                        1 => 800.00,
+                        2 => 300.00,
+                        default => 5000.00,
+                    },
+                    'frequency' => $category->name === 'Admission' ? FeeStructure::FREQUENCY_ONE_TIME : ($category->name === 'Library' ? FeeStructure::FREQUENCY_ANNUAL : FeeStructure::FREQUENCY_MONTHLY),
+                    'due_day' => 10,
+                ]);
+            }
+        }
+
+        $admin = User::where('email', 'admin@school-erp.test')->first();
+
+        foreach ($students as $student) {
+            if ($student->status !== 'active') {
+                continue;
+            }
+
+            $feeStructures = FeeStructure::where('school_id', $school->id)
+                ->where('academic_year_id', $academicYear->id)
+                ->where('class_id', $student->section->class_id)
+                ->get();
+
+            if ($feeStructures->isEmpty()) {
+                continue;
+            }
+
+            $total = $feeStructures->sum(fn (FeeStructure $structure) => (float) $structure->amount);
+
+            $invoice = Invoice::create([
+                'student_id' => $student->id,
+                'academic_year_id' => $academicYear->id,
+                'invoice_number' => 'INV-2026-'.str_pad((string) (count(Invoice::all()) + 1), 5, '0', STR_PAD_LEFT),
+                'period' => $academicYear->name,
+                'due_date' => '2026-05-10',
+                'total_amount' => $total,
+                'status' => Invoice::STATUS_UNPAID,
+            ]);
+
+            foreach ($feeStructures as $structure) {
+                InvoiceItem::create([
+                    'invoice_id' => $invoice->id,
+                    'fee_structure_id' => $structure->id,
+                    'description' => $structure->feeCategory->name,
+                    'amount' => $structure->amount,
+                ]);
+            }
+
+            if ($student->id % 4 === 0) {
+                Payment::create([
+                    'invoice_id' => $invoice->id,
+                    'amount' => 2500.00,
+                    'payment_method' => Payment::METHOD_CASH,
+                    'status' => Payment::STATUS_COMPLETED,
+                    'paid_at' => now(),
+                    'recorded_by' => $admin?->id,
+                ]);
+                $invoice->recalculateStatus();
             }
         }
     }

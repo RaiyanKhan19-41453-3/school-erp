@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ResolvesAcademicYear;
 use App\Http\Controllers\Concerns\RestrictsTeacherAccess;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
@@ -17,11 +18,15 @@ use Inertia\Response;
 
 class StudentController extends Controller
 {
+    use ResolvesAcademicYear;
     use RestrictsTeacherAccess;
 
     public function index(): Response
     {
         $this->authorize('viewAny', Student::class);
+
+        $schoolId = auth()->user()->school_id;
+        $academicYearId = $this->selectedAcademicYearId($schoolId);
 
         $perPage = request()->integer('per_page', 10);
         $page = request()->integer('page', 1);
@@ -41,10 +46,14 @@ class StudentController extends Controller
         $direction = in_array(strtolower($direction), ['asc', 'desc']) ? $direction : 'desc';
 
         $query = Student::with(['section.class', 'guardians'])
-            ->where('school_id', auth()->user()->school_id);
+            ->where('school_id', $schoolId);
+
+        if ($academicYearId) {
+            $query->whereHas('section.class', fn (Builder $q) => $q->where('academic_year_id', $academicYearId));
+        }
 
         if (auth()->user()->hasRole('teacher')) {
-            $query->whereIn('section_id', $this->assignedSectionIds());
+            $query->whereIn('section_id', $this->assignedSectionIds($academicYearId));
         }
 
         if ($search) {
@@ -79,10 +88,11 @@ class StudentController extends Controller
         $students = $query->orderBy($sort, $direction)
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $classesQuery = SchoolClass::where('school_id', auth()->user()->school_id);
+        $classesQuery = SchoolClass::where('school_id', $schoolId)
+            ->where('academic_year_id', $academicYearId);
 
         if (auth()->user()->hasRole('teacher')) {
-            $sectionIds = $this->assignedSectionIds();
+            $sectionIds = $this->assignedSectionIds($academicYearId);
             $classesQuery->with(['sections' => fn ($q) => $q->whereIn('sections.id', $sectionIds)])
                 ->whereHas('sections', fn (Builder $q) => $q->whereIn('sections.id', $sectionIds));
         } else {
@@ -101,7 +111,10 @@ class StudentController extends Controller
                 'gender' => $gender ?: null,
                 'admission_from' => $admissionFrom?->toDateString(),
                 'admission_to' => $admissionTo?->toDateString(),
+                'year_id' => $academicYearId,
             ],
+            'academicYears' => $this->academicYears($schoolId),
+            'selectedYearIsCurrent' => $this->selectedYearIsCurrent($schoolId, $academicYearId),
             'classes' => $classesQuery->orderBy('name')->get(['id', 'name']),
         ]);
     }

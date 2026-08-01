@@ -5,7 +5,8 @@ import { Head, router } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
+import { AcademicYearFilter } from '@/components/academic-year-filter';
 import { AssignTeacherModal } from '@/components/assign-teacher-modal';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { toast } from 'sonner';
@@ -47,6 +48,12 @@ interface SchoolClass {
     }[];
 }
 
+interface AcademicYear {
+    id: number;
+    name: string;
+    is_current: boolean;
+}
+
 interface PaginatedData<T> {
     data: T[];
     current_page: number;
@@ -62,23 +69,48 @@ export default function TeacherAssignmentsIndex({
     filters,
     staff,
     classes,
+    academicYears,
+    selectedYearIsCurrent,
 }: {
     sections: PaginatedData<SectionRow>;
-    filters: { search: string; sort: string; direction: string; per_page: number; class_id: number | null; section_id: number | null; teacher_id: number | null };
+    filters: { search: string; sort: string; direction: string; per_page: number; class_id: number | null; section_id: number | null; teacher_id: number | null; year_id: number | null };
     staff: StaffMember[];
     classes: SchoolClass[];
+    academicYears: AcademicYear[];
+    selectedYearIsCurrent: boolean;
 }) {
     const [assigningSection, setAssigningSection] = useState<SectionRow | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [removingTeacher, setRemovingTeacher] = useState<{ section: SectionRow; teacher: AssignedTeacher } | null>(null);
     const [promotingTeacher, setPromotingTeacher] = useState<{ section: SectionRow; teacher: AssignedTeacher } | null>(null);
 
+    const [selectedYear, setSelectedYear] = useState<string>(filters.year_id ? String(filters.year_id) : '');
     const [selectedClass, setSelectedClass] = useState<string>(filters.class_id ? String(filters.class_id) : 'all');
     const [selectedSection, setSelectedSection] = useState<string>(filters.section_id ? String(filters.section_id) : 'all');
     const [selectedTeacher, setSelectedTeacher] = useState<string>(filters.teacher_id ? String(filters.teacher_id) : 'all');
 
     const activeClass = classes.find((c) => c.id === parseInt(selectedClass));
     const cleanValue = (value: string) => (value === 'all' ? '' : value);
+
+    function applyYearFilter(value: string) {
+        setSelectedYear(value);
+        setSelectedClass('all');
+        setSelectedSection('all');
+        setSelectedTeacher('all');
+
+        router.get(
+            route('teacher-assignments.index'),
+            {
+                search: filters.search,
+                page: 1,
+                sort: filters.sort,
+                direction: filters.direction,
+                per_page: filters.per_page,
+                year_id: value,
+            },
+            { preserveState: true, preserveScroll: true },
+        );
+    }
 
     const teacherOptions = useMemo(() => {
         if (!activeClass) {
@@ -116,6 +148,7 @@ export default function TeacherAssignmentsIndex({
                 sort: filters.sort,
                 direction: filters.direction,
                 per_page: filters.per_page,
+                year_id: selectedYear,
                 class_id: key === 'class_id' ? cleanValue(value) : cleanValue(selectedClass),
                 section_id: key === 'class_id' ? '' : key === 'section_id' ? cleanValue(value) : cleanValue(selectedSection),
                 teacher_id: key === 'class_id' ? '' : key === 'teacher_id' ? cleanValue(value) : cleanValue(selectedTeacher),
@@ -175,57 +208,44 @@ export default function TeacherAssignmentsIndex({
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-6">
                     <h2 className="text-xl font-semibold tracking-tight">Teacher Assignments</h2>
-                    <p className="text-muted-foreground text-sm">Assign teachers to sections for the current academic year</p>
+                    <p className="text-muted-foreground text-sm">Assign teachers to sections for the selected academic year</p>
                 </div>
 
                 <div className="mb-4 flex flex-wrap items-end gap-4">
+                    <AcademicYearFilter academicYears={academicYears} value={selectedYear} onValueChange={applyYearFilter} />
                     <div className="w-56 space-y-1.5">
                         <span className="text-sm font-medium">Class</span>
-                        <Select value={selectedClass} onValueChange={(v) => applyFilter('class_id', v)}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="All classes" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All</SelectItem>
-                                {classes.map((c) => (
-                                    <SelectItem key={c.id} value={String(c.id)}>
-                                        {c.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Combobox
+                            options={[{ value: 'all', label: 'All' }, ...classes.map((c) => ({ value: String(c.id), label: c.name }))]}
+                            value={selectedClass}
+                            onValueChange={(v) => applyFilter('class_id', v)}
+                            placeholder="All classes"
+                            searchPlaceholder="Search classes..."
+                            emptyText="No class found."
+                        />
                     </div>
                     <div className="w-56 space-y-1.5">
                         <span className="text-sm font-medium">Section</span>
-                        <Select value={selectedSection} onValueChange={(v) => applyFilter('section_id', v)}>
-                            <SelectTrigger className="w-full" disabled={!activeClass}>
-                                <SelectValue placeholder="All sections" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All</SelectItem>
-                                {activeClass?.sections.map((s) => (
-                                    <SelectItem key={s.id} value={String(s.id)}>
-                                        {s.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Combobox
+                            options={[{ value: 'all', label: 'All' }, ...(activeClass?.sections ?? []).map((s) => ({ value: String(s.id), label: s.name }))]}
+                            value={selectedSection}
+                            onValueChange={(v) => applyFilter('section_id', v)}
+                            disabled={!activeClass}
+                            placeholder="All sections"
+                            searchPlaceholder="Search sections..."
+                            emptyText="No section found."
+                        />
                     </div>
                     <div className="w-56 space-y-1.5">
                         <span className="text-sm font-medium">Teacher</span>
-                        <Select value={selectedTeacher} onValueChange={(v) => applyFilter('teacher_id', v)}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="All teachers" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All</SelectItem>
-                                {teacherOptions.map((s) => (
-                                    <SelectItem key={s.id} value={String(s.id)}>
-                                        {s.user.name} ({s.employee_id})
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Combobox
+                            options={[{ value: 'all', label: 'All' }, ...teacherOptions.map((s) => ({ value: String(s.id), label: `${s.user.name} (${s.employee_id})` }))]}
+                            value={selectedTeacher}
+                            onValueChange={(v) => applyFilter('teacher_id', v)}
+                            placeholder="All teachers"
+                            searchPlaceholder="Search teachers..."
+                            emptyText="No teacher found."
+                        />
                     </div>
                 </div>
 
@@ -233,6 +253,7 @@ export default function TeacherAssignmentsIndex({
                     routeName="teacher-assignments.index"
                     searchPlaceholder="Search by class or section..."
                     extraParams={{
+                        year_id: selectedYear,
                         class_id: cleanValue(selectedClass),
                         section_id: cleanValue(selectedSection),
                         teacher_id: cleanValue(selectedTeacher),
@@ -257,17 +278,18 @@ export default function TeacherAssignmentsIndex({
                                             <Badge key={teacher.id} variant={teacher.pivot.is_class_teacher ? 'default' : 'secondary'} className="gap-1">
                                                 <button
                                                     type="button"
-                                                    disabled={teacher.pivot.is_class_teacher}
+                                                    disabled={teacher.pivot.is_class_teacher || !selectedYearIsCurrent}
                                                     onClick={() => promoteClassTeacher(row, teacher)}
                                                     title={teacher.pivot.is_class_teacher ? 'Class teacher' : 'Make class teacher'}
-                                                    className={teacher.pivot.is_class_teacher ? 'text-yellow-400' : 'text-muted-foreground cursor-pointer transition-colors hover:text-yellow-500'}
+                                                    className={teacher.pivot.is_class_teacher ? 'text-yellow-400' : 'text-muted-foreground cursor-pointer transition-colors hover:text-yellow-500 disabled:cursor-not-allowed'}
                                                 >
                                                     <Star className="h-3 w-3" fill={teacher.pivot.is_class_teacher ? 'currentColor' : 'none'} />
                                                 </button>
                                                 {teacher.user.name}
                                                 <button
                                                     type="button"
-                                                    className="ml-1 text-muted-foreground hover:text-destructive"
+                                                    disabled={!selectedYearIsCurrent}
+                                                    className="ml-1 text-muted-foreground hover:text-destructive disabled:cursor-not-allowed"
                                                     onClick={() => setRemovingTeacher({ section: row, teacher })}
                                                     title="Remove teacher"
                                                 >
@@ -282,7 +304,7 @@ export default function TeacherAssignmentsIndex({
                     data={sections}
                     filters={filters}
                     actions={(row) => (
-                        <Button variant="ghost" size="icon" onClick={() => openAssignModal(row)} title="Assign teacher">
+                        <Button variant="ghost" size="icon" onClick={() => openAssignModal(row)} title="Assign teacher" disabled={!selectedYearIsCurrent}>
                             <UserPlus className="h-4 w-4" />
                         </Button>
                     )}

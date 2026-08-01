@@ -66,4 +66,9 @@ class Student extends Model
             ->whereDate('date', $date)
             ->value('status');
     }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

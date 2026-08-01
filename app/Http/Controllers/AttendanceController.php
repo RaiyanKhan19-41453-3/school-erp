@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ResolvesAcademicYear;
 use App\Http\Requests\StoreAttendanceRequest;
-use App\Models\AcademicYear;
 use App\Models\Attendance;
 use App\Models\Section;
 use App\Models\Student;
@@ -16,15 +16,15 @@ use Inertia\Response;
 
 class AttendanceController extends Controller
 {
+    use ResolvesAcademicYear;
+
     public function index(): Response
     {
         $this->authorize('viewAny', Attendance::class);
 
         $user = auth()->user();
         $schoolId = $user->school_id;
-        $academicYearId = AcademicYear::where('school_id', $schoolId)
-            ->where('is_current', true)
-            ->value('id');
+        $academicYearId = $this->selectedAcademicYearId($schoolId);
 
         $date = request()->string('date', now()->toDateString())->value();
 
@@ -66,6 +66,9 @@ class AttendanceController extends Controller
         }
 
         return Inertia::render('attendance/Index', [
+            'academicYears' => $this->academicYears($schoolId),
+            'selectedYearId' => $academicYearId,
+            'selectedYearIsCurrent' => $this->selectedYearIsCurrent($schoolId, $academicYearId),
             'sections' => $sections->map(fn (Section $section) => [
                 'id' => $section->id,
                 'name' => $section->name,

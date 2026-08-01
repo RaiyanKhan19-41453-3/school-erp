@@ -4,7 +4,8 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
+import { AcademicYearFilter } from '@/components/academic-year-filter';
 import { DatePicker } from '@/components/date-picker';
 import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight, Save } from 'lucide-react';
@@ -39,6 +40,8 @@ const STATUS_OPTIONS = [
 type StatusValue = (typeof STATUS_OPTIONS)[number]['value'];
 
 export default function AttendanceIndex({
+    academicYears,
+    selectedYearId,
     sections,
     selectedSectionId,
     date,
@@ -48,6 +51,8 @@ export default function AttendanceIndex({
     prevDate,
     nextDate,
 }: {
+    academicYears: { id: number; name: string; is_current: boolean }[];
+    selectedYearId: number | null;
     sections: SectionOption[];
     selectedSectionId: number | null;
     date: string;
@@ -69,14 +74,22 @@ export default function AttendanceIndex({
 
     const selectedSection = sections.find((s) => s.id === selectedSectionId);
 
+    function applyYear(yearId: string) {
+        router.get(
+            route('attendance.index'),
+            { year_id: yearId, date },
+            { preserveState: true, preserveScroll: true },
+        );
+    }
+
     function applySection(sectionId: string) {
-        router.get(route('attendance.index'), { section_id: sectionId, date }, { preserveState: true, preserveScroll: true });
+        router.get(route('attendance.index'), { year_id: selectedYearId || '', section_id: sectionId, date }, { preserveState: true, preserveScroll: true });
     }
 
     function applyDate(newDate: string) {
         router.get(
             route('attendance.index'),
-            { section_id: selectedSectionId || '', date: newDate },
+            { year_id: selectedYearId || '', section_id: selectedSectionId || '', date: newDate },
             { preserveState: true, preserveScroll: true },
         );
     }
@@ -110,20 +123,21 @@ export default function AttendanceIndex({
                 </div>
 
                 <div className="mb-4 flex flex-wrap items-end gap-4">
+                    <AcademicYearFilter
+                        academicYears={academicYears}
+                        value={selectedYearId ? String(selectedYearId) : ''}
+                        onValueChange={applyYear}
+                    />
                     <div className="w-64 space-y-2">
                         <label className="text-sm font-medium">Section</label>
-                        <Select value={selectedSectionId ? String(selectedSectionId) : ''} onValueChange={applySection}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select a section" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {sections.map((s) => (
-                                    <SelectItem key={s.id} value={String(s.id)}>
-                                        {s.class} - {s.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Combobox
+                            options={sections.map((s) => ({ value: String(s.id), label: `${s.class} - ${s.name}` }))}
+                            value={selectedSectionId ? String(selectedSectionId) : ''}
+                            onValueChange={applySection}
+                            placeholder="Select a section"
+                            searchPlaceholder="Search sections..."
+                            emptyText="No section found."
+                        />
                     </div>
 
                     <div className="w-64 space-y-2">

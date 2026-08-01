@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ResolvesAcademicYear;
 use App\Http\Controllers\Concerns\RestrictsTeacherAccess;
 use App\Http\Requests\StoreClassRequest;
 use App\Http\Requests\UpdateClassRequest;
@@ -14,11 +15,15 @@ use Inertia\Response;
 
 class ClassController extends Controller
 {
+    use ResolvesAcademicYear;
     use RestrictsTeacherAccess;
 
     public function index(): Response
     {
         $this->authorize('viewAny', SchoolClass::class);
+
+        $schoolId = auth()->user()->school_id;
+        $academicYearId = $this->selectedAcademicYearId($schoolId);
 
         $perPage = request()->integer('per_page', 10);
         $page = request()->integer('page', 1);
@@ -32,10 +37,11 @@ class ClassController extends Controller
         }
         $direction = in_array(strtolower($direction), ['asc', 'desc']) ? $direction : 'desc';
 
-        $query = SchoolClass::where('school_id', auth()->user()->school_id);
+        $query = SchoolClass::where('school_id', $schoolId)
+            ->where('academic_year_id', $academicYearId);
 
         if (auth()->user()->hasRole('teacher')) {
-            $sectionIds = $this->assignedSectionIds();
+            $sectionIds = $this->assignedSectionIds($academicYearId);
             $query->with(['sections' => fn ($q) => $q->whereIn('sections.id', $sectionIds)->orderBy('name')])
                 ->whereHas('sections', fn (Builder $q) => $q->whereIn('sections.id', $sectionIds));
         } else {
@@ -56,7 +62,10 @@ class ClassController extends Controller
                 'sort' => $sort,
                 'direction' => $direction,
                 'per_page' => $perPage,
+                'year_id' => $academicYearId,
             ],
+            'academicYears' => $this->academicYears($schoolId),
+            'selectedYearIsCurrent' => $this->selectedYearIsCurrent($schoolId, $academicYearId),
         ]);
     }
 

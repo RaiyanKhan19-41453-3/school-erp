@@ -7,11 +7,11 @@ use App\Models\AcademicYear;
 trait RestrictsTeacherAccess
 {
     /**
-     * Section ids assigned to the authenticated teacher in the current academic year.
+     * Section ids assigned to the authenticated teacher for the given academic year.
      *
      * @return array<int, int>
      */
-    private function assignedSectionIds(): array
+    private function assignedSectionIds(?int $academicYearId = null): array
     {
         $user = auth()->user();
 
@@ -25,7 +25,7 @@ trait RestrictsTeacherAccess
             return [];
         }
 
-        $academicYearId = AcademicYear::where('school_id', $user->school_id)
+        $academicYearId ??= AcademicYear::where('school_id', $user->school_id)
             ->where('is_current', true)
             ->value('id');
 

@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -48,5 +49,10 @@ class User extends Authenticatable
     public function staff(): HasMany
     {
         return $this->hasMany(Staff::class);
+    }
+
+    public function guardian(): HasOne
+    {
+        return $this->hasOne(Guardian::class);
     }
 }

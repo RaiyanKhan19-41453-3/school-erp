@@ -7,6 +7,9 @@ interface Column<T> {
     key: string;
     label: string;
     sortable?: boolean;
+    // Cell values are heterogeneous (columns use computed keys like `student_name`);
+    // each caller narrows the value to its own type in the render callback.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render?: (value: any, row: T) => ReactNode;
 }
 
@@ -51,8 +54,7 @@ function useDebounce<T>(value: T, delay: number): T {
     return debouncedValue;
 }
 
-export function DataTable<T extends Record<string, any>>({
-    columns,
+export function DataTable<T extends Record<string, unknown>>({    columns,
     data,
     filters,
     routeName = 'classes.index',
@@ -178,10 +180,10 @@ export function DataTable<T extends Record<string, any>>({
                             </tr>
                         ) : (
                             data.data.map((row, rowIndex) => (
-                                <tr key={row.id ?? rowIndex} className="border-t transition-colors hover:bg-muted/30">
+                                <tr key={String(row.id ?? rowIndex)} className="border-t transition-colors hover:bg-muted/30">
                                     {columns.map((col) => (
                                         <td key={col.key} className="px-4 py-3 text-sm">
-                                            {col.render ? col.render(row[col.key], row) : (row[col.key] ?? '—')}
+                                            {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? '—')}
                                         </td>
                                     ))}
                                     {actions && <td className="px-4 py-3 text-right">{actions(row)}</td>}

@@ -3,6 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
@@ -184,33 +185,26 @@ export default function EditStudent({
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="class_id">Class</Label>
-                            <Select value={selectedClass} onValueChange={(v) => setSelectedClass(v)}>
-                                <SelectTrigger id="class_id" className="w-full">
-                                    <SelectValue placeholder="Select class" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {classes.map((c) => (
-                                        <SelectItem key={c.id} value={String(c.id)}>
-                                            {c.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Combobox
+                                options={classes.map((c) => ({ value: String(c.id), label: c.name }))}
+                                value={selectedClass}
+                                onValueChange={setSelectedClass}
+                                placeholder="Select class"
+                                searchPlaceholder="Search classes..."
+                                emptyText="No class found."
+                            />
                         </div>
                         <div className="space-y-2 sm:col-span-2">
                             <Label htmlFor="section_id">Section</Label>
-                            <Select value={data.section_id} onValueChange={(v) => setData('section_id', v)} disabled={!activeClass}>
-                                <SelectTrigger id="section_id" className="w-full">
-                                    <SelectValue placeholder={activeClass ? 'Select section' : 'Select a class first'} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {activeClass?.sections.map((s) => (
-                                        <SelectItem key={s.id} value={String(s.id)}>
-                                            {s.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Combobox
+                                options={(activeClass?.sections ?? []).map((s) => ({ value: String(s.id), label: s.name }))}
+                                value={data.section_id}
+                                onValueChange={(v) => setData('section_id', v)}
+                                disabled={!activeClass}
+                                placeholder={activeClass ? 'Select section' : 'Select a class first'}
+                                searchPlaceholder="Search sections..."
+                                emptyText="No section found."
+                            />
                             <InputError message={errors.section_id} />
                         </div>
                     </div>

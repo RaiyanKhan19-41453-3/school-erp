@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ClassController;
+use App\Http\Controllers\FeeCategoryController;
+use App\Http\Controllers\FeeStructureController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherAssignmentController;
@@ -33,6 +37,23 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+
+    Route::get('academic-years', [AcademicYearController::class, 'index'])->name('academic-years.index');
+    Route::post('academic-years', [AcademicYearController::class, 'store'])->name('academic-years.store');
+    Route::put('academic-years/{academicYear}/activate', [AcademicYearController::class, 'activate'])->name('academic-years.activate');
+
+    Route::resource('fee-categories', FeeCategoryController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::resource('fee-structures', FeeStructureController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::get('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate');
+    Route::post('invoices/generate', [InvoiceController::class, 'store'])->name('invoices.generate.store');
+    Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('invoices/my', [InvoiceController::class, 'myInvoices'])->name('invoices.my');
+    Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::post('invoices/{invoice}/payments', [InvoiceController::class, 'recordPayment'])->name('invoices.payments.store');
 });
 
 require __DIR__.'/settings.php';

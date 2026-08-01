@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { DataTable } from '@/components/data-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { AcademicYearFilter } from '@/components/academic-year-filter';
 import { CreateClassModal } from '@/components/create-class-modal';
 import { EditClassModal } from '@/components/edit-class-modal';
 import { ManageSectionsModal } from '@/components/manage-sections-modal';
@@ -29,6 +30,12 @@ interface SchoolClass {
     created_at: string;
 }
 
+interface AcademicYear {
+    id: number;
+    name: string;
+    is_current: boolean;
+}
+
 interface PaginatedData<T> {
     data: T[];
     current_page: number;
@@ -39,18 +46,23 @@ interface PaginatedData<T> {
     to: number | null;
 }
 
-export default function ClassesIndex({ 
-    classes, 
-    filters 
-}: { 
-    classes: PaginatedData<SchoolClass>; 
-    filters: { search: string; sort: string; direction: string; per_page: number };
+export default function ClassesIndex({
+    classes,
+    filters,
+    academicYears,
+    selectedYearIsCurrent,
+}: {
+    classes: PaginatedData<SchoolClass>;
+    filters: { search: string; sort: string; direction: string; per_page: number; year_id: number | null };
+    academicYears: AcademicYear[];
+    selectedYearIsCurrent: boolean;
 }) {
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [editingClass, setEditingClass] = useState<SchoolClass | null>(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [sectionsClassId, setSectionsClassId] = useState<number | null>(null);
     const [sectionsModalOpen, setSectionsModalOpen] = useState(false);
+    const [selectedYear, setSelectedYear] = useState<string>(filters.year_id ? String(filters.year_id) : '');
 
     const openEditModal = (row: SchoolClass) => {
         setEditingClass(row);
@@ -62,6 +74,22 @@ export default function ClassesIndex({
         setSectionsModalOpen(true);
     };
 
+    function applyYearFilter(value: string) {
+        setSelectedYear(value);
+        router.get(
+            route('classes.index'),
+            {
+                search: filters.search,
+                page: 1,
+                sort: filters.sort,
+                direction: filters.direction,
+                per_page: filters.per_page,
+                year_id: value,
+            },
+            { preserveState: true, preserveScroll: true },
+        );
+    }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Classes" />
@@ -72,10 +100,25 @@ export default function ClassesIndex({
                     <h2 className="text-xl font-semibold tracking-tight">Classes</h2>
                     <p className="text-muted-foreground text-sm">Manage classes and their sections</p>
                 </div>
-                <Button onClick={() => setCreateModalOpen(true)}>Add Class</Button>
+                {selectedYearIsCurrent ? (
+                    <Button onClick={() => setCreateModalOpen(true)}>Add Class</Button>
+                ) : (
+                    <Button disabled title="Classes are created for the current academic year only">
+                        Add Class
+                    </Button>
+                )}
+            </div>
+
+            <div className="mb-4 flex flex-wrap items-end gap-4">
+                <AcademicYearFilter academicYears={academicYears} value={selectedYear} onValueChange={applyYearFilter} />
             </div>
 
             <DataTable
+                routeName="classes.index"
+                searchPlaceholder="Search classes..."
+                extraParams={{
+                    year_id: selectedYear,
+                }}
                 columns={[
                     { key: 'name', label: 'Class Name', sortable: true },
                     {

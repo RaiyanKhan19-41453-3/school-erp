@@ -3,6 +3,7 @@
 import { Plus, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
@@ -76,25 +77,18 @@ export function GuardiansEditor({ guardians, existingGuardians, errors, onAdd, o
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor={`guardian-${index}-select`}>Existing Guardian</Label>
-                            <Select
+                            <Combobox
+                                options={existingGuardians.map((g) => ({ value: String(g.id), label: g.name }))}
                                 value={guardian.guardian_id ? String(guardian.guardian_id) : ''}
                                 onValueChange={(v) => {
                                     const existing = existingGuardians.find((g) => g.id === parseInt(v));
                                     onFieldChange(index, 'guardian_id', v ? parseInt(v) : null);
                                     onFieldChange(index, 'name', existing?.name ?? '');
                                 }}
-                            >
-                                <SelectTrigger id={`guardian-${index}-select`} className="w-full">
-                                    <SelectValue placeholder="Select an existing guardian" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {existingGuardians.map((g) => (
-                                        <SelectItem key={g.id} value={String(g.id)}>
-                                            {g.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                placeholder="Select an existing guardian"
+                                searchPlaceholder="Search guardians..."
+                                emptyText="No guardian found."
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor={`guardian-${index}-relationship`}>Relationship</Label>

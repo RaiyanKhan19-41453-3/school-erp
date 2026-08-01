@@ -4,8 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, CalendarCheck, Folder, GraduationCap, LayoutGrid, UserCog, Users } from 'lucide-react';
-import AppLogo from './app-logo';
+import { BookOpen, CalendarCheck, CalendarCheck2, FileText, Folder, GraduationCap, LayoutGrid, ReceiptText, UserCog, Users, Wallet } from 'lucide-react';import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
@@ -36,6 +35,34 @@ const adminNavItems: NavItem[] = [
         url: '/teacher-assignments',
         icon: UserCog,
     },
+    {
+        title: 'Academic Years',
+        url: '/academic-years',
+        icon: CalendarCheck2,
+    },
+    {
+        title: 'Fee Categories',
+        url: '/fee-categories',
+        icon: Wallet,
+    },
+    {
+        title: 'Fee Structures',
+        url: '/fee-structures',
+        icon: ReceiptText,
+    },
+    {
+        title: 'Invoices',
+        url: '/invoices',
+        icon: FileText,
+    },
+];
+
+const studentParentNavItems: NavItem[] = [
+    {
+        title: 'My Invoices',
+        url: '/invoices/my',
+        icon: FileText,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
@@ -52,7 +79,11 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-    const isAdmin = usePage<{ auth: { roles?: string[] } }>().props.auth.roles?.some((r) => ['super-admin', 'admin'].includes(r));
+    const roles = usePage<{ auth: { roles?: string[] } }>().props.auth.roles ?? [];
+    const isAdmin = roles.some((r) => ['super-admin', 'admin'].includes(r));
+    const isStudentOrParent = roles.some((r) => ['student', 'parent'].includes(r));
+
+    const extraNav = isAdmin ? adminNavItems : isStudentOrParent ? studentParentNavItems : [];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -69,7 +100,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={[...mainNavItems, ...(isAdmin ? adminNavItems : [])]} />
+                <NavMain items={[...mainNavItems, ...extraNav]} />
             </SidebarContent>
 
             <SidebarFooter>
