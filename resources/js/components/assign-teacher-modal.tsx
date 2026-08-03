@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Combobox } from '@/components/ui/combobox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -96,16 +96,20 @@ export function AssignTeacherModal({ section, staff, open, onOpenChange }: Assig
                 >
                     <div className="space-y-2">
                         <Label htmlFor="staff_id">Teacher</Label>
-                        <Combobox
-                            options={staff
-                                .filter((s) => !assignedStaffIds.has(s.user?.id))
-                                .map((s) => ({ value: String(s.id), label: `${s.user?.name} (${s.employee_id})` }))}
-                            value={data.staff_id}
-                            onValueChange={(v) => setData('staff_id', v)}
-                            placeholder="Select a teacher"
-                            searchPlaceholder="Search teachers..."
-                            emptyText="No teacher found."
-                        />
+                        <Select value={data.staff_id} onValueChange={(v) => setData('staff_id', v)}>
+                            <SelectTrigger id="staff_id">
+                                <SelectValue placeholder="Select a teacher" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {staff
+                                    .filter((s) => !assignedStaffIds.has(s.user?.id))
+                                    .map((s) => (
+                                        <SelectItem key={s.id} value={String(s.id)}>
+                                            {s.user?.name} ({s.employee_id})
+                                        </SelectItem>
+                                    ))}
+                            </SelectContent>
+                        </Select>
                         <InputError message={errors.staff_id} />
                     </div>
 

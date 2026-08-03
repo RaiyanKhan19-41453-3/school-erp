@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, CalendarCheck, CalendarCheck2, FileText, Folder, GraduationCap, LayoutGrid, ReceiptText, UserCog, Users, Wallet } from 'lucide-react';import AppLogo from './app-logo';
+import { Award, BookOpen, CalendarCheck, CalendarCheck2, ClipboardList, FileText, Folder, GraduationCap, LayoutGrid, ListChecks, PencilLine, ReceiptText, UserCog, Users, Wallet } from 'lucide-react';import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
@@ -29,6 +29,19 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
+const staffNavItems: NavItem[] = [
+    {
+        title: 'Mark Entry',
+        url: '/marks/entry',
+        icon: PencilLine,
+    },
+    {
+        title: 'Report Cards',
+        url: '/report-cards',
+        icon: Award,
+    },
+];
+
 const adminNavItems: NavItem[] = [
     {
         title: 'Teacher Assignments',
@@ -39,6 +52,21 @@ const adminNavItems: NavItem[] = [
         title: 'Academic Years',
         url: '/academic-years',
         icon: CalendarCheck2,
+    },
+    {
+        title: 'Subjects',
+        url: '/subjects',
+        icon: BookOpen,
+    },
+    {
+        title: 'Grading Scales',
+        url: '/grading-scales',
+        icon: ListChecks,
+    },
+    {
+        title: 'Exams',
+        url: '/exams',
+        icon: ClipboardList,
     },
     {
         title: 'Fee Categories',
@@ -63,6 +91,11 @@ const studentParentNavItems: NavItem[] = [
         url: '/invoices/my',
         icon: FileText,
     },
+    {
+        title: 'Report Cards',
+        url: '/report-cards',
+        icon: Award,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
@@ -82,8 +115,10 @@ export function AppSidebar() {
     const roles = usePage<{ auth: { roles?: string[] } }>().props.auth.roles ?? [];
     const isAdmin = roles.some((r) => ['super-admin', 'admin'].includes(r));
     const isStudentOrParent = roles.some((r) => ['student', 'parent'].includes(r));
+    const isStaff = roles.some((r) => ['super-admin', 'admin', 'teacher'].includes(r));
 
     const extraNav = isAdmin ? adminNavItems : isStudentOrParent ? studentParentNavItems : [];
+    const staffNav = isStaff ? staffNavItems : [];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -100,7 +135,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={[...mainNavItems, ...extraNav]} />
+                <NavMain items={[...mainNavItems, ...staffNav, ...extraNav]} />
             </SidebarContent>
 
             <SidebarFooter>

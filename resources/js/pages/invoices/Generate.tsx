@@ -75,7 +75,6 @@ export default function GenerateInvoices({
                 <div className="max-w-2xl rounded-lg border p-6">
                     <form onSubmit={submit} className="space-y-6">
                         <div className="space-y-2">
-                            <Label>Academic Year</Label>
                             <AcademicYearFilter
                                 academicYears={academicYears}
                                 value={data.year_id}

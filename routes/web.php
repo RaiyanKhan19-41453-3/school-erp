@@ -3,11 +3,17 @@
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ClassController;
+use App\Http\Controllers\ClassSubjectController;
+use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FeeCategoryController;
 use App\Http\Controllers\FeeStructureController;
+use App\Http\Controllers\GradingScaleController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\MarkEntryController;
+use App\Http\Controllers\ReportCardController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherAssignmentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,6 +32,18 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('classes/{class}/sections', [SectionController::class, 'store'])->name('classes.sections.store');
     Route::delete('sections/{section}', [SectionController::class, 'destroy'])->name('sections.destroy');
+    Route::put('classes/{class}/subjects', [ClassSubjectController::class, 'sync'])->name('classes.subjects.sync');
+
+    Route::resource('subjects', SubjectController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::resource('grading-scales', GradingScaleController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+    Route::post('grading-scales/{grading_scale}/bands', [GradingScaleController::class, 'storeBands'])->name('grading-scales.bands.store');
+
+    Route::resource('exams', ExamController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+    Route::post('exams/{exam}/subjects', [ExamController::class, 'storeSubjects'])->name('exams.subjects.store');
 
     Route::resource('students', StudentController::class)
         ->only(['index', 'create', 'store', 'edit', 'update', 'show']);
@@ -37,6 +55,13 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+
+    Route::get('marks/entry', [MarkEntryController::class, 'index'])->name('mark-entry.index');
+    Route::post('marks/entry', [MarkEntryController::class, 'store'])->name('mark-entry.store');
+
+    Route::get('report-cards', [ReportCardController::class, 'index'])->name('report-cards.index');
+    Route::get('report-cards/{exam}/{student}', [ReportCardController::class, 'show'])->name('report-cards.show');
+    Route::get('report-cards/{exam}/{student}/pdf', [ReportCardController::class, 'pdf'])->name('report-cards.pdf');
 
     Route::get('academic-years', [AcademicYearController::class, 'index'])->name('academic-years.index');
     Route::post('academic-years', [AcademicYearController::class, 'store'])->name('academic-years.store');

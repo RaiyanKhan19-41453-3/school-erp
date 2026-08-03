@@ -8,6 +8,7 @@ use App\Http\Requests\StoreClassRequest;
 use App\Http\Requests\UpdateClassRequest;
 use App\Models\SchoolClass;
 use App\Models\Section;
+use App\Models\Subject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -48,6 +49,8 @@ class ClassController extends Controller
             $query->with('sections');
         }
 
+        $query->with('subjects');
+
         if ($search) {
             $query->where('name', 'like', "%{$search}%");
         }
@@ -57,6 +60,7 @@ class ClassController extends Controller
 
         return Inertia::render('classes/Index', [
             'classes' => $classes,
+            'subjects' => Subject::where('school_id', $schoolId)->orderBy('name')->get(['id', 'name', 'code']),
             'filters' => [
                 'search' => $search,
                 'sort' => $sort,

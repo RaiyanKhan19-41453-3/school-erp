@@ -3,11 +3,10 @@
 import { useForm } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Combobox } from '@/components/ui/combobox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
     Dialog,
     DialogContent,
@@ -121,28 +120,36 @@ export function FeeStructureModal({ open, onOpenChange, structure, classes, cate
                     className="space-y-6"
                 >
                     <div className="space-y-2">
-                        <Label>Class</Label>
-                        <Combobox
-                            options={classes.map((c) => ({ value: String(c.id), label: c.name }))}
-                            value={data.class_id}
-                            onValueChange={(v) => setData('class_id', v)}
-                            placeholder="Select class"
-                            searchPlaceholder="Search classes..."
-                            emptyText="No class found."
-                        />
+                        <Label htmlFor="class_id">Class</Label>
+                        <Select value={data.class_id} onValueChange={(v) => setData('class_id', v)}>
+                            <SelectTrigger id="class_id">
+                                <SelectValue placeholder="Select class" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {classes.map((c) => (
+                                    <SelectItem key={c.id} value={String(c.id)}>
+                                        {c.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <InputError message={errors.class_id} />
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Fee Category</Label>
-                        <Combobox
-                            options={categories.map((c) => ({ value: String(c.id), label: c.name }))}
-                            value={data.fee_category_id}
-                            onValueChange={(v) => setData('fee_category_id', v)}
-                            placeholder="Select category"
-                            searchPlaceholder="Search categories..."
-                            emptyText="No category found."
-                        />
+                        <Label htmlFor="fee_category_id">Fee Category</Label>
+                        <Select value={data.fee_category_id} onValueChange={(v) => setData('fee_category_id', v)}>
+                            <SelectTrigger id="fee_category_id">
+                                <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories.map((c) => (
+                                    <SelectItem key={c.id} value={String(c.id)}>
+                                        {c.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <InputError message={errors.fee_category_id} />
                     </div>
 

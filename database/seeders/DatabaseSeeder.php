@@ -4,17 +4,23 @@ namespace Database\Seeders;
 
 use App\Models\AcademicYear;
 use App\Models\Attendance;
+use App\Models\Exam;
+use App\Models\ExamSubject;
 use App\Models\FeeCategory;
 use App\Models\FeeStructure;
+use App\Models\GradeBand;
+use App\Models\GradingScale;
 use App\Models\Guardian;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\Mark;
 use App\Models\Payment;
 use App\Models\School;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Staff;
 use App\Models\Student;
+use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -229,6 +235,8 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->seedFees($school, $academicYear, $classes, $students);
+
+        $this->seedExamsAndGrading($school, $academicYear, $classes, $students);
     }
 
     private function seedFees(School $school, AcademicYear $academicYear, array $classes, array $students): void
@@ -311,6 +319,155 @@ class DatabaseSeeder extends Seeder
                     'recorded_by' => $admin?->id,
                 ]);
                 $invoice->recalculateStatus();
+            }
+        }
+    }
+
+    private function seedExamsAndGrading(School $school, AcademicYear $academicYear, array $classes, array $students): void
+    {
+        $subjectPool = collect([
+            ['name' => 'Mathematics', 'code' => 'MATH'],
+            ['name' => 'English', 'code' => 'ENG'],
+            ['name' => 'Science', 'code' => 'SCI'],
+            ['name' => 'Social Studies', 'code' => 'SOC'],
+            ['name' => 'Hindi', 'code' => 'HIN'],
+            ['name' => 'Computer Science', 'code' => 'CS'],
+            ['name' => 'Art & Craft', 'code' => 'ART'],
+            ['name' => 'Physical Education', 'code' => 'PE'],
+            ['name' => 'Music', 'code' => 'MUS'],
+            ['name' => 'Environmental Studies', 'code' => 'EVS'],
+        ])->mapWithKeys(fn (array $subject) => [
+            $subject['name'] => Subject::create([
+                'school_id' => $school->id,
+                'name' => $subject['name'],
+                'code' => $subject['code'],
+            ]),
+        ]);
+
+        $lowerPrimary = ['Mathematics', 'English', 'Environmental Studies', 'Art & Craft', 'Physical Education', 'Music'];
+        $upperPrimary = ['Mathematics', 'English', 'Science', 'Social Studies', 'Hindi', 'Computer Science', 'Art & Craft', 'Physical Education'];
+
+        foreach ($classes as $index => $class) {
+            $isLower = $index < 2;
+            $assignedNames = $isLower ? $lowerPrimary : $upperPrimary;
+
+            $class->subjects()->attach(
+                collect($assignedNames)->map(fn (string $name) => $subjectPool[$name]->id)->all(),
+            );
+        }
+
+        $standardScale = GradingScale::create(['school_id' => $school->id, 'name' => 'Standard (A-F)']);
+        $honorsScale = GradingScale::create(['school_id' => $school->id, 'name' => 'Honors (Percentage)']);
+
+        $standardBands = [
+            ['label' => 'A+', 'min' => 90, 'max' => 100, 'point' => 4.0, 'remarks' => 'Outstanding'],
+            ['label' => 'A', 'min' => 80, 'max' => 89.99, 'point' => 3.7, 'remarks' => 'Excellent'],
+            ['label' => 'B+', 'min' => 70, 'max' => 79.99, 'point' => 3.3, 'remarks' => 'Very Good'],
+            ['label' => 'B', 'min' => 60, 'max' => 69.99, 'point' => 3.0, 'remarks' => 'Good'],
+            ['label' => 'C', 'min' => 50, 'max' => 59.99, 'point' => 2.0, 'remarks' => 'Satisfactory'],
+            ['label' => 'D', 'min' => 40, 'max' => 49.99, 'point' => 1.0, 'remarks' => 'Needs Improvement'],
+            ['label' => 'F', 'min' => 0, 'max' => 39.99, 'point' => 0.0, 'remarks' => 'Fail'],
+        ];
+        foreach ($standardBands as $band) {
+            GradeBand::create([
+                'grading_scale_id' => $standardScale->id,
+                'label' => $band['label'],
+                'min_percentage' => $band['min'],
+                'max_percentage' => $band['max'],
+                'grade_point' => $band['point'],
+                'remarks' => $band['remarks'],
+            ]);
+        }
+
+        $honorsBands = [
+            ['label' => 'Distinction', 'min' => 85, 'max' => 100, 'point' => 4.0, 'remarks' => 'Distinction'],
+            ['label' => 'First Class', 'min' => 60, 'max' => 84.99, 'point' => 3.0, 'remarks' => 'First Class'],
+            ['label' => 'Second Class', 'min' => 50, 'max' => 59.99, 'point' => 2.0, 'remarks' => 'Second Class'],
+            ['label' => 'Pass', 'min' => 40, 'max' => 49.99, 'point' => 1.0, 'remarks' => 'Pass'],
+            ['label' => 'Fail', 'min' => 0, 'max' => 39.99, 'point' => 0.0, 'remarks' => 'Fail'],
+        ];
+        foreach ($honorsBands as $band) {
+            GradeBand::create([
+                'grading_scale_id' => $honorsScale->id,
+                'label' => $band['label'],
+                'min_percentage' => $band['min'],
+                'max_percentage' => $band['max'],
+                'grade_point' => $band['point'],
+                'remarks' => $band['remarks'],
+            ]);
+        }
+
+        $examNames = [
+            'Term 1 Mid-Terms',
+            'Term 1 Finals',
+            'Term 2 Mid-Terms',
+        ];
+
+        $scales = [$standardScale, $honorsScale, $standardScale];
+
+        $examSubjectsByClass = [];
+        foreach ($classes as $classIndex => $class) {
+            $assignedSubjects = $class->subjects->values();
+            $isLower = $classIndex < 2;
+
+            foreach ($examNames as $examIndex => $examName) {
+                $exam = Exam::create([
+                    'school_id' => $school->id,
+                    'academic_year_id' => $academicYear->id,
+                    'class_id' => $class->id,
+                    'name' => $examName.' ('.$class->name.')',
+                    'grading_scale_id' => $scales[$examIndex]->id,
+                    'start_date' => Carbon::create(2025, [10, 12, 2][$examIndex], rand(1, 28))->format('Y-m-d'),
+                    'end_date' => Carbon::create(2025, [10, 12, 2][$examIndex], rand(3, 30))->format('Y-m-d'),
+                ]);
+
+                foreach ($assignedSubjects as $subjectIndex => $subject) {
+                    $fullMarks = $isLower ? 50 : 100;
+                    $examSubject = ExamSubject::create([
+                        'exam_id' => $exam->id,
+                        'subject_id' => $subject->id,
+                        'full_marks' => $fullMarks,
+                        'pass_marks' => $isLower ? 20 : 40,
+                        'exam_date' => Carbon::create(2025, [10, 12, 2][$examIndex], rand(1, 28))->format('Y-m-d'),
+                    ]);
+
+                    $examSubjectsByClass[$class->id][] = $examSubject;
+                }
+            }
+        }
+
+        $teachers = Staff::where('school_id', $school->id)->get();
+
+        $activeStudents = collect($students)->filter(fn (Student $student) => $student->status === 'active');
+
+        foreach ($examSubjectsByClass as $classId => $classExamSubjects) {
+            $classStudents = $activeStudents->filter(fn (Student $student) => $student->section->class_id === $classId);
+
+            foreach ($classExamSubjects as $examSubject) {
+                $markingTeacher = $teachers->random();
+
+                foreach ($classStudents as $student) {
+                    $fullMarks = (float) $examSubject->full_marks;
+                    $passMarks = (float) $examSubject->pass_marks;
+
+                    $ability = random_int(1, 100);
+                    $percentage = match (true) {
+                        $ability <= 15 => random_int(25, 45),
+                        $ability <= 45 => random_int(45, 65),
+                        $ability <= 75 => random_int(65, 80),
+                        default => random_int(80, 97),
+                    };
+
+                    $marksObtained = round($fullMarks * $percentage / 100, 2);
+
+                    Mark::create([
+                        'exam_subject_id' => $examSubject->id,
+                        'student_id' => $student->id,
+                        'marks_obtained' => $marksObtained,
+                        'entered_by' => $markingTeacher->user_id,
+                        'remarks' => random_int(1, 100) <= 20 ? fake()->sentence(4) : null,
+                    ]);
+                }
             }
         }
     }
