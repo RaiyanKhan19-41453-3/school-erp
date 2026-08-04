@@ -59,6 +59,9 @@ const staffNavItems: NavItem[] = [
         url: '/report-cards',
         icon: Award,
     },
+];
+
+const teacherNavItems: NavItem[] = [
     {
         title: 'My Timetable',
         url: '/timetable/my',
@@ -155,9 +158,11 @@ export function AppSidebar() {
     const isAdmin = roles.some((r) => ['super-admin', 'admin'].includes(r));
     const isStudentOrParent = roles.some((r) => ['student', 'parent'].includes(r));
     const isStaff = roles.some((r) => ['super-admin', 'admin', 'teacher'].includes(r));
+    const isTeacher = roles.some((r) => r === 'teacher');
 
     const extraNav = isAdmin ? adminNavItems : isStudentOrParent ? studentParentNavItems : [];
     const staffNav = isStaff ? staffNavItems : [];
+    const teacherNav = isTeacher ? teacherNavItems : [];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -174,7 +179,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={[...mainNavItems, ...staffNav, ...extraNav]} />
+                <NavMain items={[...mainNavItems, ...staffNav, ...teacherNav, ...extraNav]} />
             </SidebarContent>
 
             <SidebarFooter>

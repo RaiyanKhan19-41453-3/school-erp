@@ -30,39 +30,40 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $school = School::create([
-            'name' => 'Demo International School',
-            'address' => '123 Education Lane, Learning City',
-            'phone' => '+1-555-0100',
-            'email' => 'info@demo-school.test',
+            'name' => 'Dhaka Ideal School & College',
+            'address' => '12/A, Mirpur Road, Dhanmondi, Dhaka-1205',
+            'phone' => '+880-2-87145678',
+            'email' => 'info@dhaka-ideal.test',
         ]);
 
         $academicYear = AcademicYear::create([
             'school_id' => $school->id,
             'name' => '2025-2026',
-            'start_date' => '2025-09-01',
-            'end_date' => '2026-06-30',
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-12-31',
             'is_current' => true,
         ]);
 
         $classes = [];
-        for ($i = 1; $i <= 5; $i++) {
+        $classNames = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5'];
+        foreach ($classNames as $className) {
             $classes[] = SchoolClass::create([
                 'school_id' => $school->id,
                 'academic_year_id' => $academicYear->id,
-                'name' => "Grade {$i}",
+                'name' => $className,
             ]);
         }
 
         $sections = [];
         foreach ($classes as $class) {
-            $sections[] = Section::create(['class_id' => $class->id, 'name' => 'Section A', 'capacity' => 30]);
-            $sections[] = Section::create(['class_id' => $class->id, 'name' => 'Section B', 'capacity' => 30]);
+            $sections[] = Section::create(['class_id' => $class->id, 'name' => 'Section A', 'capacity' => 40]);
+            $sections[] = Section::create(['class_id' => $class->id, 'name' => 'Section B', 'capacity' => 40]);
         }
 
         $this->call(RoleSeeder::class);
 
         $admin = User::factory()->create([
-            'name' => 'Super Admin',
+            'name' => 'Mohammad Rafiqul Islam',
             'email' => 'admin@school-erp.test',
             'password' => bcrypt('password'),
             'school_id' => $school->id,
@@ -70,14 +71,14 @@ class DatabaseSeeder extends Seeder
         $admin->assignRole('super-admin');
 
         $teacherDefinitions = [
-            ['name' => 'Test Teacher', 'email' => 'teacher@school-erp.test'],
-            ['name' => 'Sarah Johnson', 'email' => 'sarah@school-erp.test'],
-            ['name' => 'Aarav Mehta', 'email' => 'aarav@school-erp.test'],
-            ['name' => 'Diya Iyer', 'email' => 'diya@school-erp.test'],
-            ['name' => 'Kabir Nair', 'email' => 'kabir@school-erp.test'],
-            ['name' => 'Ananya Rao', 'email' => 'ananya@school-erp.test'],
-            ['name' => 'Vihaan Gupta', 'email' => 'vihaan@school-erp.test'],
-            ['name' => 'Ishita Kulkarni', 'email' => 'ishita@school-erp.test'],
+            ['name' => 'Fatema Begum', 'email' => 'fatema@school-erp.test'],
+            ['name' => 'Abdul Karim Chowdhury', 'email' => 'karim@school-erp.test'],
+            ['name' => 'Nasreen Akhter', 'email' => 'nasreen@school-erp.test'],
+            ['name' => 'Md. Kamal Hossain', 'email' => 'kamal@school-erp.test'],
+            ['name' => 'Rashida Parveen', 'email' => 'rashida@school-erp.test'],
+            ['name' => 'Shahjalal Mia', 'email' => 'shahjalal@school-erp.test'],
+            ['name' => 'Anwara Khatun', 'email' => 'anwara@school-erp.test'],
+            ['name' => 'Jahangir Alam', 'email' => 'jahangir@school-erp.test'],
         ];
 
         $teachers = [];
@@ -95,7 +96,7 @@ class DatabaseSeeder extends Seeder
                 'school_id' => $school->id,
                 'employee_id' => 'EMP-'.str_pad((string) ($index + 1), 3, '0', STR_PAD_LEFT),
                 'designation' => 'Teacher',
-                'joining_date' => Carbon::create(2025, rand(6, 9), rand(1, 28))->format('Y-m-d'),
+                'joining_date' => Carbon::create(2024, rand(1, 6), rand(1, 28))->format('Y-m-d'),
             ]);
         }
 
@@ -120,26 +121,34 @@ class DatabaseSeeder extends Seeder
         }
 
         $guardianPool = [];
-        $occupations = ['Business Owner', 'Engineer', 'Doctor', 'Teacher', 'Lawyer', 'Civil Servant', 'Homemaker', 'Farmer', 'Software Developer', 'Accountant'];
+        $occupations = ['Business', 'Doctor', 'Engineer', 'Government Officer', 'Teacher', 'Lawyer', 'Banker', 'Farmer', 'Private Service', 'Homemaker'];
+        $guardianNames = [
+            'Abdul Hamid', 'Kamruzzaman', 'Mizanur Rahman', 'Shafiqul Islam', 'Anisur Rahman',
+            'Abdur Rashid', 'Mokhlesur Rahman', 'Nazrul Islam', 'Abul Kalam', 'Abdus Sattar',
+            'Bashir Ahmed', 'Fazlur Rahman', 'Golam Mostafa', 'Hashem Ali', 'Ishtiaq Ahmed',
+            'Jamal Hossain', 'Kazi Abdul', 'Lutfur Rahman', 'Monirul Islam', 'Nurul Haque',
+            'Obaidul Quader', 'Qamrul Islam', 'Ruhul Amin', 'Sohel Rana', 'Toufik Ahmed',
+            'Umar Faruque', 'Wahidul Haque', 'Yasin Mia', 'Zahurul Haque', 'Zillur Rahman',
+        ];
 
         for ($i = 0; $i < 30; $i++) {
             $guardianPool[] = Guardian::create([
-                'name' => fake()->name(),
-                'phone' => fake()->unique()->numerify('+91-####-###-###'),
+                'name' => $guardianNames[$i],
+                'phone' => '+880-1'.rand(7, 9).'-'.rand(10000000, 99999999),
                 'email' => fake()->unique()->safeEmail(),
                 'occupation' => $occupations[$i % count($occupations)],
             ]);
         }
 
         $demoGuardian = Guardian::create([
-            'name' => 'Demo Guardian',
-            'phone' => '+1-555-0199',
+            'name' => 'Abdul Hamid',
+            'phone' => '+880-1712345678',
             'email' => 'guardian@example.test',
-            'occupation' => 'Business Owner',
+            'occupation' => 'Business',
         ]);
 
         $parentUser = User::factory()->create([
-            'name' => 'Demo Guardian',
+            'name' => 'Abdul Hamid',
             'email' => 'parent@school-erp.test',
             'password' => bcrypt('password'),
             'school_id' => $school->id,
@@ -147,8 +156,31 @@ class DatabaseSeeder extends Seeder
         $parentUser->assignRole('parent');
         $demoGuardian->update(['user_id' => $parentUser->id]);
 
-        $maleNames = ['Arjun Sharma', 'Rahul Verma', 'Rohan Gupta', 'Ayaan Khan', 'Advait Joshi', 'Shaurya Singh', 'Kabir Malhotra', 'Ved Patel', 'Ishaan Reddy', 'Manav Iyer', 'Yash Desai', 'Neil Kapoor'];
-        $femaleNames = ['Priya Patel', 'Ananya Singh', 'Diya Sharma', 'Saanvi Gupta', 'Aarohi Nair', 'Meera Reddy', 'Ishita Verma', 'Navya Iyer', 'Aditi Joshi', 'Riya Kapoor', 'Tanvi Desai', 'Kiara Malhotra'];
+        $maleNames = [
+            'Tanvir Hasan', 'Imran Hossain', 'Rafiq Uddin', 'Jamal Mia', 'Karim Sarker',
+            'Alamgir Kabir', 'Hossain Ali', 'Rahman Sheikh', 'Ahmed Siddiqui', 'Islam Khan',
+            'Rakibul Hasan', 'Mominul Haque', 'Shakib Al', 'Mushfiqur Rahim', 'Tamim Iqbal',
+            'Mahmudullah Riyad', 'Shakib Hasan', 'Nasir Hossain', 'Mashrafe Mortaza', 'Sabbir Rahman',
+            'Soumya Sarkar', 'Liton Das', 'Anamul Haque', 'Mithun Ali', 'Rony Talukdar',
+            'Nurul Hasan Sohan', 'Mosaddek Hossain', 'Ariful Haque', 'Rubel Hossain', 'Mustafizur Rahman',
+            'Taskin Ahmed', 'Shafiul Islam', 'Al-Amin Hossain', 'Subashis Roy', 'Abu Jayed',
+            'Ebadot Hossain', 'Khaled Ahmed', 'Shoriful Islam', 'Yasir Ali', 'Najmul Hossain',
+            'Shamim Hossain', 'Afif Hossain', 'Mahedi Hasan', 'Afif Hossain', 'Nurul Hasan',
+            'Yushar Ali', 'Jaker Ali', 'Mahmudul Hasan', 'Amite Hossain', 'Saif Hassan',
+        ];
+
+        $femaleNames = [
+            'Fatema Khatun', 'Nasrin Akhter', 'Shirin Begum', 'Razia Sultana', 'Salma Khatun',
+            'Rosy Akter', 'Farida Begum', 'Monira Khatun', 'Jahanara Begum', 'Anwara Khatun',
+            'Hamida Khatun', 'Rabeya Khatun', 'Momtaz Begum', 'Shahana Parveen', 'Laila Khatun',
+            'Ruma Khatun', 'Nargis Akter', 'Reshma Begum', 'Sumaiya Khatun', 'Roksana Khatun',
+            'Hasina Begum', 'Khaleda Zia', 'Sheikh Hasina', 'Kamrun Nahar', 'Fazilatun Nessa',
+            'Begum Rokeya', 'Begum Sufia', 'Begum Bodrunnessa', 'Begum Hamida', 'Begum Mahfuza',
+            'Nusrat Jahan', 'Taslima Nasrin', 'Arundhati Devi', 'Sufia Kamal', 'Begum Khaleda',
+            'Shahela Khatun', 'Rokia Khatun', 'Nasima Khatun', 'Salma Khatun', 'Halima Khatun',
+            'Amena Khatun', 'Zulekha Khatun', 'Rahima Khatun', 'Jamila Khatun', 'Ayesha Khatun',
+            'Noorjahan Khatun', 'Shaharbanu', 'Jesminara', 'Tahsina', 'Musammat',
+        ];
 
         $students = [];
         for ($i = 0; $i < 48; $i++) {
@@ -157,15 +189,15 @@ class DatabaseSeeder extends Seeder
             $gender = $i % 2 === 0 ? 'male' : 'female';
             $name = $i % 2 === 0 ? $maleNames[$i % count($maleNames)] : $femaleNames[$i % count($femaleNames)];
 
-            $dobYear = 2020 - $gradeIndex;
+            $dobYear = 2018 - $gradeIndex;
             $students[] = Student::create([
                 'school_id' => $school->id,
                 'section_id' => $section->id,
                 'name' => $name,
-                'admission_number' => 'ADM-2026-'.str_pad((string) ($i + 1), 3, '0', STR_PAD_LEFT),
+                'admission_number' => 'ADM-2025-'.str_pad((string) ($i + 1), 3, '0', STR_PAD_LEFT),
                 'date_of_birth' => Carbon::create($dobYear, rand(1, 12), rand(1, 28))->format('Y-m-d'),
                 'gender' => $gender,
-                'admission_date' => Carbon::create(2026, rand(1, 7), rand(1, 28))->format('Y-m-d'),
+                'admission_date' => Carbon::create(2025, rand(1, 3), rand(1, 28))->format('Y-m-d'),
                 'status' => random_int(1, 100) <= 90 ? 'active' : 'inactive',
             ]);
         }
@@ -196,7 +228,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $studentUser = User::factory()->create([
-            'name' => 'Arjun Sharma',
+            'name' => 'Tanvir Hasan',
             'email' => 'student@school-erp.test',
             'password' => bcrypt('password'),
             'school_id' => $school->id,
@@ -242,10 +274,10 @@ class DatabaseSeeder extends Seeder
     private function seedFees(School $school, AcademicYear $academicYear, array $classes, array $students): void
     {
         $categories = collect([
-            ['name' => 'Tuition', 'amount' => 2500.00, 'frequency' => FeeStructure::FREQUENCY_MONTHLY],
-            ['name' => 'Transport', 'amount' => 800.00, 'frequency' => FeeStructure::FREQUENCY_MONTHLY],
-            ['name' => 'Library', 'amount' => 300.00, 'frequency' => FeeStructure::FREQUENCY_ANNUAL],
-            ['name' => 'Admission', 'amount' => 5000.00, 'frequency' => FeeStructure::FREQUENCY_ONE_TIME],
+            ['name' => 'Tuition Fee', 'amount' => 5000.00, 'frequency' => FeeStructure::FREQUENCY_MONTHLY],
+            ['name' => 'Session Fee', 'amount' => 2000.00, 'frequency' => FeeStructure::FREQUENCY_ANNUAL],
+            ['name' => 'Library Fee', 'amount' => 500.00, 'frequency' => FeeStructure::FREQUENCY_ANNUAL],
+            ['name' => 'Lab Fee', 'amount' => 800.00, 'frequency' => FeeStructure::FREQUENCY_MONTHLY],
         ])->map(function (array $definition) use ($school) {
             return FeeCategory::create([
                 'school_id' => $school->id,
@@ -261,12 +293,12 @@ class DatabaseSeeder extends Seeder
                     'class_id' => $class->id,
                     'fee_category_id' => $category->id,
                     'amount' => match ($index) {
-                        0 => 2500.00,
-                        1 => 800.00,
-                        2 => 300.00,
-                        default => 5000.00,
+                        0 => 5000.00,
+                        1 => 2000.00,
+                        2 => 500.00,
+                        default => 800.00,
                     },
-                    'frequency' => $category->name === 'Admission' ? FeeStructure::FREQUENCY_ONE_TIME : ($category->name === 'Library' ? FeeStructure::FREQUENCY_ANNUAL : FeeStructure::FREQUENCY_MONTHLY),
+                    'frequency' => $category->name === 'Session Fee' ? FeeStructure::FREQUENCY_ANNUAL : ($category->name === 'Library Fee' ? FeeStructure::FREQUENCY_ANNUAL : FeeStructure::FREQUENCY_MONTHLY),
                     'due_day' => 10,
                 ]);
             }
@@ -293,9 +325,9 @@ class DatabaseSeeder extends Seeder
             $invoice = Invoice::create([
                 'student_id' => $student->id,
                 'academic_year_id' => $academicYear->id,
-                'invoice_number' => 'INV-2026-'.str_pad((string) (count(Invoice::all()) + 1), 5, '0', STR_PAD_LEFT),
+                'invoice_number' => 'INV-2025-'.str_pad((string) (count(Invoice::all()) + 1), 5, '0', STR_PAD_LEFT),
                 'period' => $academicYear->name,
-                'due_date' => '2026-05-10',
+                'due_date' => '2025-06-10',
                 'total_amount' => $total,
                 'status' => Invoice::STATUS_UNPAID,
             ]);
@@ -312,7 +344,7 @@ class DatabaseSeeder extends Seeder
             if ($student->id % 4 === 0) {
                 Payment::create([
                     'invoice_id' => $invoice->id,
-                    'amount' => 2500.00,
+                    'amount' => 5000.00,
                     'payment_method' => Payment::METHOD_CASH,
                     'status' => Payment::STATUS_COMPLETED,
                     'paid_at' => now(),
@@ -328,14 +360,14 @@ class DatabaseSeeder extends Seeder
         $subjectPool = collect([
             ['name' => 'Mathematics', 'code' => 'MATH'],
             ['name' => 'English', 'code' => 'ENG'],
-            ['name' => 'Science', 'code' => 'SCI'],
+            ['name' => 'Bangla', 'code' => 'BAN'],
+            ['name' => 'General Science', 'code' => 'SCI'],
             ['name' => 'Social Studies', 'code' => 'SOC'],
-            ['name' => 'Hindi', 'code' => 'HIN'],
-            ['name' => 'Computer Science', 'code' => 'CS'],
-            ['name' => 'Art & Craft', 'code' => 'ART'],
+            ['name' => 'Islam & Moral Education', 'code' => 'IME'],
+            ['name' => 'Information & Communication Technology', 'code' => 'ICT'],
             ['name' => 'Physical Education', 'code' => 'PE'],
-            ['name' => 'Music', 'code' => 'MUS'],
-            ['name' => 'Environmental Studies', 'code' => 'EVS'],
+            ['name' => 'Art & Drawing', 'code' => 'ART'],
+            ['name' => 'Bangladesh & Global Studies', 'code' => 'BGS'],
         ])->mapWithKeys(fn (array $subject) => [
             $subject['name'] => Subject::create([
                 'school_id' => $school->id,
@@ -344,8 +376,8 @@ class DatabaseSeeder extends Seeder
             ]),
         ]);
 
-        $lowerPrimary = ['Mathematics', 'English', 'Environmental Studies', 'Art & Craft', 'Physical Education', 'Music'];
-        $upperPrimary = ['Mathematics', 'English', 'Science', 'Social Studies', 'Hindi', 'Computer Science', 'Art & Craft', 'Physical Education'];
+        $lowerPrimary = ['Mathematics', 'English', 'Bangla', 'Art & Drawing', 'Physical Education', 'Islam & Moral Education'];
+        $upperPrimary = ['Mathematics', 'English', 'Bangla', 'General Science', 'Social Studies', 'Information & Communication Technology', 'Art & Drawing', 'Physical Education'];
 
         foreach ($classes as $index => $class) {
             $isLower = $index < 2;
@@ -360,9 +392,9 @@ class DatabaseSeeder extends Seeder
         $honorsScale = GradingScale::create(['school_id' => $school->id, 'name' => 'Honors (Percentage)']);
 
         $standardBands = [
-            ['label' => 'A+', 'min' => 90, 'max' => 100, 'point' => 4.0, 'remarks' => 'Outstanding'],
-            ['label' => 'A', 'min' => 80, 'max' => 89.99, 'point' => 3.7, 'remarks' => 'Excellent'],
-            ['label' => 'B+', 'min' => 70, 'max' => 79.99, 'point' => 3.3, 'remarks' => 'Very Good'],
+            ['label' => 'A+', 'min' => 90, 'max' => 100, 'point' => 5.0, 'remarks' => 'Outstanding'],
+            ['label' => 'A', 'min' => 80, 'max' => 89.99, 'point' => 4.0, 'remarks' => 'Excellent'],
+            ['label' => 'A-', 'min' => 70, 'max' => 79.99, 'point' => 3.5, 'remarks' => 'Very Good'],
             ['label' => 'B', 'min' => 60, 'max' => 69.99, 'point' => 3.0, 'remarks' => 'Good'],
             ['label' => 'C', 'min' => 50, 'max' => 59.99, 'point' => 2.0, 'remarks' => 'Satisfactory'],
             ['label' => 'D', 'min' => 40, 'max' => 49.99, 'point' => 1.0, 'remarks' => 'Needs Improvement'],
@@ -380,10 +412,10 @@ class DatabaseSeeder extends Seeder
         }
 
         $honorsBands = [
-            ['label' => 'Distinction', 'min' => 85, 'max' => 100, 'point' => 4.0, 'remarks' => 'Distinction'],
-            ['label' => 'First Class', 'min' => 60, 'max' => 84.99, 'point' => 3.0, 'remarks' => 'First Class'],
-            ['label' => 'Second Class', 'min' => 50, 'max' => 59.99, 'point' => 2.0, 'remarks' => 'Second Class'],
-            ['label' => 'Pass', 'min' => 40, 'max' => 49.99, 'point' => 1.0, 'remarks' => 'Pass'],
+            ['label' => 'Distinction', 'min' => 85, 'max' => 100, 'point' => 5.0, 'remarks' => 'Distinction'],
+            ['label' => 'First Class', 'min' => 60, 'max' => 84.99, 'point' => 4.0, 'remarks' => 'First Class'],
+            ['label' => 'Second Class', 'min' => 50, 'max' => 59.99, 'point' => 3.0, 'remarks' => 'Second Class'],
+            ['label' => 'Pass', 'min' => 40, 'max' => 49.99, 'point' => 2.0, 'remarks' => 'Pass'],
             ['label' => 'Fail', 'min' => 0, 'max' => 39.99, 'point' => 0.0, 'remarks' => 'Fail'],
         ];
         foreach ($honorsBands as $band) {
@@ -398,9 +430,9 @@ class DatabaseSeeder extends Seeder
         }
 
         $examNames = [
-            'Term 1 Mid-Terms',
-            'Term 1 Finals',
-            'Term 2 Mid-Terms',
+            '1st Term Examination',
+            '2nd Term Examination',
+            'Final Examination',
         ];
 
         $scales = [$standardScale, $honorsScale, $standardScale];
@@ -417,8 +449,8 @@ class DatabaseSeeder extends Seeder
                     'class_id' => $class->id,
                     'name' => $examName.' ('.$class->name.')',
                     'grading_scale_id' => $scales[$examIndex]->id,
-                    'start_date' => Carbon::create(2025, [10, 12, 2][$examIndex], rand(1, 28))->format('Y-m-d'),
-                    'end_date' => Carbon::create(2025, [10, 12, 2][$examIndex], rand(3, 30))->format('Y-m-d'),
+                    'start_date' => Carbon::create(2025, [3, 6, 10][$examIndex], rand(1, 28))->format('Y-m-d'),
+                    'end_date' => Carbon::create(2025, [3, 6, 10][$examIndex], rand(3, 30))->format('Y-m-d'),
                 ]);
 
                 foreach ($assignedSubjects as $subjectIndex => $subject) {
@@ -428,7 +460,7 @@ class DatabaseSeeder extends Seeder
                         'subject_id' => $subject->id,
                         'full_marks' => $fullMarks,
                         'pass_marks' => $isLower ? 20 : 40,
-                        'exam_date' => Carbon::create(2025, [10, 12, 2][$examIndex], rand(1, 28))->format('Y-m-d'),
+                        'exam_date' => Carbon::create(2025, [3, 6, 10][$examIndex], rand(1, 28))->format('Y-m-d'),
                     ]);
 
                     $examSubjectsByClass[$class->id][] = $examSubject;
