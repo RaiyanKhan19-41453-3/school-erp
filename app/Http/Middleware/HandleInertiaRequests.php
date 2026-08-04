@@ -49,6 +49,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
+                'timetable_conflict' => $request->session()->get('timetable_conflict'),
             ],
         ]);
     }

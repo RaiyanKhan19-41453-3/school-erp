@@ -10,11 +10,13 @@ use App\Http\Controllers\FeeStructureController;
 use App\Http\Controllers\GradingScaleController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MarkEntryController;
+use App\Http\Controllers\PeriodController;
 use App\Http\Controllers\ReportCardController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherAssignmentController;
+use App\Http\Controllers\TimetableController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -40,6 +42,17 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('grading-scales', GradingScaleController::class)
         ->only(['index', 'store', 'update', 'destroy']);
     Route::post('grading-scales/{grading_scale}/bands', [GradingScaleController::class, 'storeBands'])->name('grading-scales.bands.store');
+
+    Route::resource('periods', PeriodController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::get('timetable', [TimetableController::class, 'index'])->name('timetable.index');
+    Route::post('timetable/slots', [TimetableController::class, 'store'])->name('timetable.slots.store');
+    Route::put('timetable/slots/{timetable_slot}', [TimetableController::class, 'update'])->name('timetable.slots.update');
+    Route::delete('timetable/slots/{timetable_slot}', [TimetableController::class, 'destroy'])->name('timetable.slots.destroy');
+
+    Route::get('timetable/section', [TimetableController::class, 'sectionTimetable'])->name('timetable.section');
+    Route::get('timetable/my', [TimetableController::class, 'myTimetable'])->name('timetable.my');
 
     Route::resource('exams', ExamController::class)
         ->only(['index', 'store', 'update', 'destroy']);

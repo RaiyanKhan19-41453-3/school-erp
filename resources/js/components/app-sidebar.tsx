@@ -4,7 +4,26 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Award, BookOpen, CalendarCheck, CalendarCheck2, ClipboardList, FileText, Folder, GraduationCap, LayoutGrid, ListChecks, PencilLine, ReceiptText, UserCog, Users, Wallet } from 'lucide-react';import AppLogo from './app-logo';
+import {
+    Award,
+    BookOpen,
+    CalendarCheck,
+    CalendarCheck2,
+    CalendarClock,
+    ClipboardList,
+    Clock,
+    FileText,
+    Folder,
+    GraduationCap,
+    LayoutGrid,
+    ListChecks,
+    PencilLine,
+    ReceiptText,
+    UserCog,
+    Users,
+    Wallet,
+} from 'lucide-react';
+import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
@@ -40,6 +59,11 @@ const staffNavItems: NavItem[] = [
         url: '/report-cards',
         icon: Award,
     },
+    {
+        title: 'My Timetable',
+        url: '/timetable/my',
+        icon: CalendarClock,
+    },
 ];
 
 const adminNavItems: NavItem[] = [
@@ -62,6 +86,16 @@ const adminNavItems: NavItem[] = [
         title: 'Grading Scales',
         url: '/grading-scales',
         icon: ListChecks,
+    },
+    {
+        title: 'Periods',
+        url: '/periods',
+        icon: Clock,
+    },
+    {
+        title: 'Timetable',
+        url: '/timetable',
+        icon: CalendarClock,
     },
     {
         title: 'Exams',
@@ -95,6 +129,11 @@ const studentParentNavItems: NavItem[] = [
         title: 'Report Cards',
         url: '/report-cards',
         icon: Award,
+    },
+    {
+        title: 'Timetable',
+        url: '/timetable/section',
+        icon: CalendarClock,
     },
 ];
 
