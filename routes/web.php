@@ -4,6 +4,7 @@ use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClassSubjectController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FeeCategoryController;
 use App\Http\Controllers\FeeStructureController;
@@ -25,9 +26,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('classes', ClassController::class)
         ->only(['index', 'create', 'store', 'update']);

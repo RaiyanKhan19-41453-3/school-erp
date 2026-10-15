@@ -18,7 +18,7 @@ class StoreExamSubjectsRequest extends FormRequest
         $schoolId = $this->user()->school_id;
 
         return [
-            'subjects' => ['array'],
+            'subjects' => ['present', 'array'],
             'subjects.*.subject_id' => [
                 'required',
                 'integer',
@@ -37,7 +37,7 @@ class StoreExamSubjectsRequest extends FormRequest
                 $exam = $this->route('exam');
                 $assignedSubjectIds = $exam->class->subjects()->pluck('subjects.id');
 
-                foreach ($this->input('subjects') as $index => $subject) {
+                foreach ($this->input('subjects', []) as $index => $subject) {
                     if (! $assignedSubjectIds->contains($subject['subject_id'])) {
                         $validator->errors()->add(
                             "subjects.{$index}.subject_id",

@@ -25,12 +25,15 @@ import {
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+const dashboardNavItem: NavItem[] = [
     {
         title: 'Dashboard',
         url: '/dashboard',
         icon: LayoutGrid,
     },
+];
+
+const staffMainNavItems: NavItem[] = [
     {
         title: 'Classes',
         url: '/classes',
@@ -163,6 +166,7 @@ export function AppSidebar() {
     const extraNav = isAdmin ? adminNavItems : isStudentOrParent ? studentParentNavItems : [];
     const staffNav = isStaff ? staffNavItems : [];
     const teacherNav = isTeacher ? teacherNavItems : [];
+    const mainNav = isStaff ? staffMainNavItems : [];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -179,7 +183,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={[...mainNavItems, ...staffNav, ...teacherNav, ...extraNav]} />
+                <NavMain items={[...dashboardNavItem, ...mainNav, ...staffNav, ...teacherNav, ...extraNav]} />
             </SidebarContent>
 
             <SidebarFooter>

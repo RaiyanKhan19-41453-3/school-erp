@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SyncClassSubjectsRequest;
 use App\Models\SchoolClass;
+use App\Models\Subject;
 use Illuminate\Http\RedirectResponse;
 
 class ClassSubjectController extends Controller

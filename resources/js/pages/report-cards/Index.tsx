@@ -31,6 +31,7 @@ export default function ReportCardsIndex({
     selectedSectionId,
     students,
     selectedStudentId,
+    studentIds = [],
     exams,
 }: {
     academicYears: { id: number; name: string; is_current: boolean }[];
@@ -42,6 +43,7 @@ export default function ReportCardsIndex({
     selectedSectionId: number | null;
     students: { id: number; name: string; admission_number: string }[];
     selectedStudentId: number | null;
+    studentIds?: number[];
     exams: Exam[];
 }) {
     const [selectedClass, setSelectedClass] = useState<string>(selectedClassId ? String(selectedClassId) : '');
@@ -155,27 +157,37 @@ export default function ReportCardsIndex({
                     </div>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {exams.map((exam) => (
-                            <Card key={exam.id} className="transition-shadow hover:shadow-md">
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="flex items-center gap-2 text-base">
-                                        <ClipboardList className="h-4 w-4" />
-                                        {exam.name}
-                                    </CardTitle>
-                                    <Badge variant="secondary">{exam.class?.name}</Badge>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="mb-3 text-xs text-muted-foreground">
-                                        {exam.grading_scale ? `Graded with "${exam.grading_scale.name}"` : 'Percentages only'}
-                                    </div>
-                                    <Link href={route('report-cards.show', { exam: exam.id, student: selectedStudentId ?? '' })}>
-                                        <Button size="sm" className="w-full">
-                                            View Report Card <ChevronRight className="h-4 w-4" />
-                                        </Button>
-                                    </Link>
-                                </CardContent>
-                            </Card>
-                        ))}
+                        {exams.map((exam) => {
+                            const studentId = selectedStudentId ?? studentIds[0] ?? null;
+
+                            return (
+                                <Card key={exam.id} className="transition-shadow hover:shadow-md">
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <CardTitle className="flex items-center gap-2 text-base">
+                                            <ClipboardList className="h-4 w-4" />
+                                            {exam.name}
+                                        </CardTitle>
+                                        <Badge variant="secondary">{exam.class?.name}</Badge>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="mb-3 text-xs text-muted-foreground">
+                                            {exam.grading_scale ? `Graded with "${exam.grading_scale.name}"` : 'Percentages only'}
+                                        </div>
+                                        {studentId ? (
+                                            <Link href={route('report-cards.show', { exam: exam.id, student: studentId })}>
+                                                <Button size="sm" className="w-full">
+                                                    View Report Card <ChevronRight className="h-4 w-4" />
+                                                </Button>
+                                            </Link>
+                                        ) : (
+                                            <Button size="sm" className="w-full" disabled>
+                                                Select a student
+                                            </Button>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
                     </div>
                 )}
             </div>

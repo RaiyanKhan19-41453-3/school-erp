@@ -28,10 +28,10 @@ class InvoiceController extends Controller
         $schoolId = auth()->user()->school_id;
         $academicYearId = $this->selectedAcademicYearId($schoolId);
 
-        $perPage = request()->integer('per_page', 10);
-        $page = request()->integer('page', 1);
+        $perPage = max(1, min(request()->integer('per_page', 10), 100));
+        $page = max(1, request()->integer('page', 1));
         $sort = request()->string('sort', 'created_at')->value();
-        $direction = request()->string('direction', 'desc')->value();
+        $direction = strtolower(request()->string('direction', 'desc')->value());
         $search = request()->string('search')->value();
         $classId = request()->integer('class_id');
         $status = request()->string('status')->value();
@@ -40,9 +40,10 @@ class InvoiceController extends Controller
         if (! in_array($sort, $allowedSorts)) {
             $sort = 'created_at';
         }
-        $direction = in_array(strtolower($direction), ['asc', 'desc']) ? $direction : 'desc';
+        $direction = in_array($direction, ['asc', 'desc']) ? $direction : 'desc';
 
-        $query = Invoice::with(['student.section.class', 'academicYear']);
+        $query = Invoice::with(['student.section.class', 'academicYear'])
+            ->whereHas('student', fn (Builder $q) => $q->where('school_id', $schoolId));
 
         if ($academicYearId) {
             $query->where('academic_year_id', $academicYearId);

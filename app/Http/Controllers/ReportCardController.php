@@ -87,6 +87,10 @@ class ReportCardController extends Controller
                 ->orderBy('id')
                 ->get(['id', 'name', 'class_id', 'academic_year_id']);
 
+        if (! $isStaff && $selectedStudentId === null && $studentIds->count() === 1) {
+            $selectedStudentId = $studentIds->first();
+        }
+
         return Inertia::render('report-cards/Index', [
             'academicYears' => $this->academicYears($schoolId),
             'selectedYearId' => $academicYearId,
@@ -97,6 +101,7 @@ class ReportCardController extends Controller
             'selectedSectionId' => $selectedSectionId,
             'students' => $students->values(),
             'selectedStudentId' => $selectedStudentId,
+            'studentIds' => $studentIds->values(),
             'exams' => $exams,
         ]);
     }
@@ -142,8 +147,8 @@ class ReportCardController extends Controller
                 $grade = $calculator->gradeFor($exam, $obtained, $fullMarks);
 
                 return [
-                    'subject' => $examSubject->subject->name,
-                    'code' => $examSubject->subject->code,
+                    'subject' => $examSubject->subject?->name ?? '—',
+                    'code' => $examSubject->subject?->code,
                     'full_marks' => $fullMarks,
                     'pass_marks' => (float) $examSubject->pass_marks,
                     'marks_obtained' => $obtained,
@@ -169,7 +174,7 @@ class ReportCardController extends Controller
             'exam' => [
                 'id' => $exam->id,
                 'name' => $exam->name,
-                'class' => $exam->class->name,
+                'class' => $exam->class?->name ?? '—',
                 'academic_year' => $exam->academicYear?->name,
                 'grading_scale' => $exam->gradingScale?->name,
             ],

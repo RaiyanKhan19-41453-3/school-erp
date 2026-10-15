@@ -20,6 +20,7 @@ class StoreClassRequest extends FormRequest
             'sections' => ['required', 'array', 'min:1'],
             'sections.*.name' => ['required', 'string', 'max:255'],
             'sections.*.capacity' => ['required', 'integer', 'min:1', 'max:100'],
+            'academic_year_id' => ['required', 'integer', 'exists:academic_years,id'],
         ];
     }
 
@@ -39,7 +40,7 @@ class StoreClassRequest extends FormRequest
         ]);
     }
 
-    private function getCurrentAcademicYearId(): int
+    private function getCurrentAcademicYearId(): ?int
     {
         return AcademicYear::where('school_id', $this->user()->school_id)
             ->where('is_current', true)

@@ -69,7 +69,8 @@ A comprehensive School ERP (Enterprise Resource Planning) system built for Bangl
 | Backend | Laravel 12, PHP 8.2 |
 | Frontend | React 19, Inertia.js 2 |
 | UI | Tailwind CSS 4, Radix UI, Lucide Icons |
-| Database | SQLite (default), MySQL/PostgreSQL supported |
+| Database | MySQL 8 / MariaDB 10.4+ (local via XAMPP on port 3306) |
+| Testing DB | SQLite in-memory (phpunit.xml) |
 | PDF | DomPDF |
 | Permissions | Spatie Laravel Permission |
 | Testing | Pest 3 |
@@ -95,8 +96,11 @@ composer install
 # Install JS dependencies
 npm install
 
-# Copy environment file
+# Copy environment file (defaults to MySQL: DB_DATABASE=school_erp, root/no password)
 cp .env.example .env
+
+# Create the MySQL database (if not exists)
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS school_erp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # Generate application key
 php artisan key:generate

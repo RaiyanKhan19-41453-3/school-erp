@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Combobox } from '@/components/ui/combobox';
@@ -70,7 +70,8 @@ export default function AttendanceIndex({
         return initial;
     });
 
-    const { post, processing, errors } = useForm();
+    const [saving, setSaving] = useState(false);
+    const { errors } = usePage<{ errors: Record<string, string> }>().props;
 
     const selectedSection = sections.find((s) => s.id === selectedSectionId);
 
@@ -95,20 +96,27 @@ export default function AttendanceIndex({
     }
 
     function saveAttendance() {
-        post(route('attendance.store'), {
-            section_id: selectedSectionId,
-            date,
-            records: students.map((s) => ({
-                student_id: s.id,
-                status: statuses[s.id] ?? 'present',
-            })),
-            onSuccess: () => {
-                toast.success('Attendance saved');
+        router.post(
+            route('attendance.store'),
+            {
+                section_id: selectedSectionId,
+                date,
+                records: students.map((s) => ({
+                    student_id: s.id,
+                    status: statuses[s.id] ?? 'present',
+                })),
             },
-            onError: () => {
-                toast.error('Failed to save attendance');
+            {
+                onStart: () => setSaving(true),
+                onFinish: () => setSaving(false),
+                onSuccess: () => {
+                    toast.success('Attendance saved');
+                },
+                onError: () => {
+                    toast.error('Failed to save attendance');
+                },
             },
-        });
+        );
     }
 
     return (
@@ -210,7 +218,7 @@ export default function AttendanceIndex({
                         {canMark && students.length > 0 && (
                             <div className="flex items-center justify-end gap-2 border-t px-4 py-3">
                                 {errors.records && <span className="text-sm text-destructive">{errors.records}</span>}
-                                <Button onClick={saveAttendance} disabled={processing}>
+                                <Button onClick={saveAttendance} disabled={saving}>
                                     <Save className="h-4 w-4" />
                                     Save Attendance
                                 </Button>

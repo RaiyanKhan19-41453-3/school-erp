@@ -118,6 +118,16 @@ class MarkEntryController extends Controller
 
         $this->authorize('enter-marks', [$section, $examSubject]);
 
+        $fullMarks = (float) $examSubject->full_marks;
+
+        foreach ($request->records as $record) {
+            if ((float) $record['marks_obtained'] > $fullMarks) {
+                return back()->withErrors([
+                    'records' => "Marks cannot exceed full marks ({$examSubject->full_marks}).",
+                ])->withInput();
+            }
+        }
+
         DB::transaction(function () use ($request, $examSubject) {
             foreach ($request->records as $record) {
                 $mark = Mark::where('exam_subject_id', $examSubject->id)

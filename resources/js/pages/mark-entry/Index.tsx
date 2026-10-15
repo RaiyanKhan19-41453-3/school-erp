@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Combobox } from '@/components/ui/combobox';
@@ -83,7 +83,8 @@ export default function MarkEntryIndex({
         return initial;
     });
 
-    const { post, processing, errors } = useForm();
+    const [saving, setSaving] = useState(false);
+    const { errors } = usePage<{ errors: Record<string, string> }>().props;
 
     const selectedSection = sections.find((s) => s.id === selectedSectionId);
     const selectedExam = exams.find((e) => e.id === selectedExamId);
@@ -122,7 +123,7 @@ export default function MarkEntryIndex({
     }
 
     function saveMarks() {
-        if (!selectedSection || !selectedExamSubject) return;
+        if (!selectedSection || !selectedSubject) return;
 
         const records = students.map((s) => ({
             student_id: s.id,
@@ -130,17 +131,24 @@ export default function MarkEntryIndex({
             remarks: remarks[s.id] ?? '',
         }));
 
-        post(route('mark-entry.store'), {
-            section_id: selectedSection.id,
-            exam_subject_id: selectedExamSubject.id,
-            records,
-            onSuccess: () => {
-                toast.success('Marks saved');
+        router.post(
+            route('mark-entry.store'),
+            {
+                section_id: selectedSection.id,
+                exam_subject_id: selectedSubject.id,
+                records,
             },
-            onError: () => {
-                toast.error('Failed to save marks');
+            {
+                onStart: () => setSaving(true),
+                onFinish: () => setSaving(false),
+                onSuccess: () => {
+                    toast.success('Marks saved');
+                },
+                onError: () => {
+                    toast.error('Failed to save marks');
+                },
             },
-        });
+        );
     }
 
     return (
@@ -280,7 +288,7 @@ export default function MarkEntryIndex({
                         {canEnter && students.length > 0 && (
                             <div className="flex items-center justify-end gap-2 border-t px-4 py-3">
                                 {errors.records && <span className="text-sm text-destructive">{errors.records}</span>}
-                                <Button onClick={saveMarks} disabled={processing}>
+                                <Button onClick={saveMarks} disabled={saving}>
                                     <Save className="h-4 w-4" />
                                     Save Marks
                                 </Button>
