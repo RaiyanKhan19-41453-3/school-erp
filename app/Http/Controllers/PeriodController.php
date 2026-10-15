@@ -15,8 +15,8 @@ class PeriodController extends Controller
     {
         $this->authorize('viewAny', Period::class);
 
-        $perPage = request()->integer('per_page', 10);
-        $page = request()->integer('page', 1);
+        $perPage = max(1, min(request()->integer('per_page', 10), 100));
+        $page = max(1, request()->integer('page', 1));
         $search = request()->string('search')->value();
         $allowedSorts = ['name', 'start_time', 'end_time', 'sort_order', 'created_at'];
         $sort = in_array(request()->string('sort')->value(), $allowedSorts) ? request()->string('sort')->value() : 'sort_order';

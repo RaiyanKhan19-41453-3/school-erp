@@ -92,7 +92,7 @@ export default function EditStudent({
         })) as GuardianForm[],
     });
 
-    const [selectedClass, setSelectedClass] = useState<string>(String(student.section.class_id));
+    const [selectedClass, setSelectedClass] = useState<string>(student.section ? String(student.section.class_id) : '');
     const activeClass = classes.find((c) => c.id === parseInt(selectedClass));
 
     function addGuardian() {

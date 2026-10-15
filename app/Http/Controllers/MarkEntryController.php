@@ -117,8 +117,11 @@ class MarkEntryController extends Controller
 
     public function store(StoreMarksRequest $request): RedirectResponse
     {
-        $examSubject = ExamSubject::findOrFail($request->exam_subject_id);
-        $section = Section::findOrFail($request->section_id);
+        $schoolId = $request->user()->school_id;
+        $examSubject = ExamSubject::whereHas('exam', fn ($q) => $q->where('school_id', $schoolId))
+            ->findOrFail($request->exam_subject_id);
+        $section = Section::whereHas('class', fn ($q) => $q->where('school_id', $schoolId))
+            ->findOrFail($request->section_id);
 
         $this->authorize('enter-marks', [$section, $examSubject]);
 
@@ -134,25 +137,14 @@ class MarkEntryController extends Controller
 
         DB::transaction(function () use ($request, $examSubject) {
             foreach ($request->records as $record) {
-                $mark = Mark::where('exam_subject_id', $examSubject->id)
-                    ->where('student_id', $record['student_id'])
-                    ->first();
-
-                if ($mark) {
-                    $mark->update([
+                Mark::updateOrCreate(
+                    ['exam_subject_id' => $examSubject->id, 'student_id' => $record['student_id']],
+                    [
                         'marks_obtained' => $record['marks_obtained'],
                         'entered_by' => $request->user()->id,
                         'remarks' => $record['remarks'] ?? null,
-                    ]);
-                } else {
-                    Mark::create([
-                        'exam_subject_id' => $examSubject->id,
-                        'student_id' => $record['student_id'],
-                        'marks_obtained' => $record['marks_obtained'],
-                        'entered_by' => $request->user()->id,
-                        'remarks' => $record['remarks'] ?? null,
-                    ]);
-                }
+                    ]
+                );
             }
         });
 

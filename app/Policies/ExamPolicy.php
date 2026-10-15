@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Exam;
 use App\Models\User;
+use App\Policies\Concerns\SameSchool;
 
 class ExamPolicy
 {
@@ -14,7 +15,7 @@ class ExamPolicy
 
     public function view(User $user, Exam $exam): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin', 'teacher']);
+        return $user->hasAnyRole(['super-admin', 'admin', 'teacher']) && SameSchool::check($user, $exam->school_id);
     }
 
     public function create(User $user): bool
@@ -24,11 +25,11 @@ class ExamPolicy
 
     public function update(User $user, Exam $exam): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $exam->school_id);
     }
 
     public function delete(User $user, Exam $exam): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $exam->school_id);
     }
 }

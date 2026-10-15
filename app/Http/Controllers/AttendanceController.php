@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\Section;
 use App\Models\Student;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -90,7 +91,8 @@ class AttendanceController extends Controller
 
     public function store(StoreAttendanceRequest $request): RedirectResponse
     {
-        $section = Section::findOrFail($request->section_id);
+        $section = Section::whereHas('class', fn ($q) => $q->where('school_id', $request->user()->school_id))
+            ->findOrFail($request->section_id);
         $date = $request->date;
 
         $this->authorize('mark-attendance', [$section, $date]);
@@ -109,14 +111,25 @@ class AttendanceController extends Controller
                         'remarks' => $record['remarks'] ?? null,
                     ]);
                 } else {
-                    Attendance::create([
-                        'student_id' => $record['student_id'],
-                        'section_id' => $section->id,
-                        'date' => $date,
-                        'status' => $record['status'],
-                        'marked_by' => $request->user()->id,
-                        'remarks' => $record['remarks'] ?? null,
-                    ]);
+                    try {
+                        Attendance::create([
+                            'student_id' => $record['student_id'],
+                            'section_id' => $section->id,
+                            'date' => $date,
+                            'status' => $record['status'],
+                            'marked_by' => $request->user()->id,
+                            'remarks' => $record['remarks'] ?? null,
+                        ]);
+                    } catch (UniqueConstraintViolationException) {
+                        Attendance::where('student_id', $record['student_id'])
+                            ->whereDate('date', $date)
+                            ->update([
+                                'section_id' => $section->id,
+                                'status' => $record['status'],
+                                'marked_by' => $request->user()->id,
+                                'remarks' => $record['remarks'] ?? null,
+                            ]);
+                    }
                 }
             }
         });

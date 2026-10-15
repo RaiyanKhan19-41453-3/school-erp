@@ -26,8 +26,8 @@ class ExamController extends Controller
         $schoolId = auth()->user()->school_id;
         $academicYearId = $this->selectedAcademicYearId($schoolId);
 
-        $perPage = request()->integer('per_page', 10);
-        $page = request()->integer('page', 1);
+        $perPage = max(1, min(request()->integer('per_page', 10), 100));
+        $page = max(1, request()->integer('page', 1));
         $sort = request()->string('sort', 'start_date')->value();
         $direction = request()->string('direction', 'desc')->value();
         $search = request()->string('search')->value();

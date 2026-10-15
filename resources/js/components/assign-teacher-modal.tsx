@@ -52,7 +52,7 @@ export function AssignTeacherModal({ section, staff, open, onOpenChange }: Assig
         is_class_teacher: false as boolean,
     });
 
-    const assignedStaffIds = new Set((section?.teachers ?? []).map((t) => t.user?.id));
+    const assignedStaffIds = new Set((section?.teachers ?? []).map((t) => t.id));
 
     useEffect(() => {
         if (section) {

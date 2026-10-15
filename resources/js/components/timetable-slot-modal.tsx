@@ -104,6 +104,7 @@ export function TimetableSlotModal({
             return;
         }
 
+        transform((d) => ({ ...d, force: false }));
         onOpenChange(false);
         toast.success(slot ? 'Timetable slot updated successfully' : 'Timetable slot created successfully');
     }

@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\ExamSubject;
 use App\Models\Section;
 use App\Models\User;
+use App\Policies\Concerns\SameSchool;
 
 class MarkPolicy
 {
@@ -15,6 +16,10 @@ class MarkPolicy
 
     public function enter(User $user, Section $section, ExamSubject $examSubject): bool
     {
+        if (! SameSchool::check($user, $section->class?->school_id) || ! SameSchool::check($user, $examSubject->exam?->school_id)) {
+            return false;
+        }
+
         if ($user->hasAnyRole(['super-admin', 'admin'])) {
             return true;
         }

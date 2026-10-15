@@ -25,8 +25,8 @@ class TeacherAssignmentController extends Controller
         $schoolId = auth()->user()->school_id;
         $academicYearId = $this->selectedAcademicYearId($schoolId);
 
-        $perPage = request()->integer('per_page', 10);
-        $page = request()->integer('page', 1);
+        $perPage = max(1, min(request()->integer('per_page', 10), 100));
+        $page = max(1, request()->integer('page', 1));
         $sort = request()->string('sort', 'name')->value();
         $direction = request()->string('direction', 'asc')->value();
         $search = request()->string('search')->value();
@@ -119,6 +119,10 @@ class TeacherAssignmentController extends Controller
         $schoolId = $request->user()->school_id;
         $academicYearId = $this->currentAcademicYearId($schoolId);
 
+        if (! $academicYearId) {
+            return back()->withErrors(['section_id' => 'No active academic year. Activate one first.'])->withInput();
+        }
+
         $section = Section::whereHas('class', fn (Builder $q) => $q->where('school_id', $schoolId))
             ->findOrFail($request->section_id);
 
@@ -159,6 +163,11 @@ class TeacherAssignmentController extends Controller
         $this->authorize('update', $section->class);
 
         $schoolId = auth()->user()->school_id;
+
+        if ($staff->school_id !== $schoolId || $section->class->school_id !== $schoolId) {
+            abort(403);
+        }
+
         $academicYearId = $this->currentAcademicYearId($schoolId);
 
         $section->teachers()

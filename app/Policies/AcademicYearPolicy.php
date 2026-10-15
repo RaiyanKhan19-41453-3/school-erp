@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\AcademicYear;
 use App\Models\User;
+use App\Policies\Concerns\SameSchool;
 
 class AcademicYearPolicy
 {
@@ -14,7 +15,7 @@ class AcademicYearPolicy
 
     public function view(User $user, AcademicYear $academicYear): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $academicYear->school_id);
     }
 
     public function create(User $user): bool
@@ -24,6 +25,6 @@ class AcademicYearPolicy
 
     public function activate(User $user, AcademicYear $academicYear): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $academicYear->school_id);
     }
 }

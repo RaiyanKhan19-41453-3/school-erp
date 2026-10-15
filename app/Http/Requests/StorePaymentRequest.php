@@ -24,7 +24,7 @@ class StorePaymentRequest extends FormRequest
             'amount' => ['required', 'numeric', 'gt:0', 'max:'.$balanceDue],
             'payment_method' => ['required', Rule::in(Payment::methods())],
             'remarks' => ['nullable', 'string', 'max:255'],
-            'paid_at' => ['nullable', 'date'],
+            'paid_at' => ['nullable', 'date', 'before_or_equal:today'],
         ];
     }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -72,6 +72,14 @@ export default function AttendanceIndex({
 
     const [saving, setSaving] = useState(false);
     const { errors } = usePage<{ errors: Record<string, string> }>().props;
+
+    useEffect(() => {
+        const next: Record<number, StatusValue> = {};
+        students.forEach((s) => {
+            if (s.status) next[s.id] = s.status as StatusValue;
+        });
+        setStatuses(next);
+    }, [students]);
 
     const selectedSection = sections.find((s) => s.id === selectedSectionId);
 
@@ -216,8 +224,16 @@ export default function AttendanceIndex({
                         )}
 
                         {canMark && students.length > 0 && (
-                            <div className="flex items-center justify-end gap-2 border-t px-4 py-3">
+                            <div className="flex flex-col items-end gap-2 border-t px-4 py-3">
                                 {errors.records && <span className="text-sm text-destructive">{errors.records}</span>}
+                                {Object.entries(errors)
+                                    .filter(([key]) => key.startsWith('records.'))
+                                    .slice(0, 3)
+                                    .map(([key, message]) => (
+                                        <span key={key} className="text-sm text-destructive">
+                                            {String(message)}
+                                        </span>
+                                    ))}
                                 <Button onClick={saveAttendance} disabled={saving}>
                                     <Save className="h-4 w-4" />
                                     Save Attendance

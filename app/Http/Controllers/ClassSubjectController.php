@@ -11,6 +11,10 @@ class ClassSubjectController extends Controller
 {
     public function sync(SyncClassSubjectsRequest $request, SchoolClass $class): RedirectResponse
     {
+        if ($class->school_id !== $request->user()->school_id) {
+            abort(403);
+        }
+
         $this->authorize('assign', Subject::class);
 
         $class->subjects()->sync($request->subject_ids);

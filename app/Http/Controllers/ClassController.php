@@ -11,6 +11,7 @@ use App\Models\Section;
 use App\Models\Subject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,8 +27,8 @@ class ClassController extends Controller
         $schoolId = auth()->user()->school_id;
         $academicYearId = $this->selectedAcademicYearId($schoolId);
 
-        $perPage = request()->integer('per_page', 10);
-        $page = request()->integer('page', 1);
+        $perPage = max(1, min(request()->integer('per_page', 10), 100));
+        $page = max(1, request()->integer('page', 1));
         $sort = request()->string('sort', 'created_at')->value();
         $direction = request()->string('direction', 'desc')->value();
         $search = request()->string('search')->value();
@@ -82,19 +83,21 @@ class ClassController extends Controller
 
     public function store(StoreClassRequest $request): RedirectResponse
     {
-        $class = SchoolClass::create([
-            'school_id' => $request->user()->school_id,
-            'academic_year_id' => $request->academic_year_id,
-            'name' => $request->name,
-        ]);
-
-        foreach ($request->sections as $sectionData) {
-            Section::create([
-                'class_id' => $class->id,
-                'name' => $sectionData['name'],
-                'capacity' => $sectionData['capacity'],
+        DB::transaction(function () use ($request) {
+            $class = SchoolClass::create([
+                'school_id' => $request->user()->school_id,
+                'academic_year_id' => $request->academic_year_id,
+                'name' => $request->name,
             ]);
-        }
+
+            foreach ($request->sections as $sectionData) {
+                Section::create([
+                    'class_id' => $class->id,
+                    'name' => $sectionData['name'],
+                    'capacity' => $sectionData['capacity'],
+                ]);
+            }
+        });
 
         return to_route('classes.index')
             ->with('success', 'Class and sections created successfully.');
@@ -102,6 +105,8 @@ class ClassController extends Controller
 
     public function update(UpdateClassRequest $request, SchoolClass $class): RedirectResponse
     {
+        $this->authorize('update', $class);
+
         $class->update([
             'name' => $request->name,
         ]);

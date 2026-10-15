@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Period;
 use App\Models\User;
+use App\Policies\Concerns\SameSchool;
 
 class PeriodPolicy
 {
@@ -14,7 +15,7 @@ class PeriodPolicy
 
     public function view(User $user, Period $period): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $period->school_id);
     }
 
     public function create(User $user): bool
@@ -24,11 +25,11 @@ class PeriodPolicy
 
     public function update(User $user, Period $period): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $period->school_id);
     }
 
     public function delete(User $user, Period $period): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $period->school_id);
     }
 }

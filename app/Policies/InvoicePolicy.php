@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Invoice;
 use App\Models\User;
+use App\Policies\Concerns\SameSchool;
 
 class InvoicePolicy
 {
@@ -19,6 +20,10 @@ class InvoicePolicy
 
     public function view(User $user, Invoice $invoice): bool
     {
+        if (! SameSchool::check($user, $invoice->student?->school_id)) {
+            return false;
+        }
+
         if ($user->hasAnyRole(['super-admin', 'admin'])) {
             return true;
         }
@@ -41,7 +46,7 @@ class InvoicePolicy
 
     public function recordPayment(User $user, Invoice $invoice): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $invoice->student?->school_id);
     }
 
     private function isParentOfStudent(User $user, Invoice $invoice): bool

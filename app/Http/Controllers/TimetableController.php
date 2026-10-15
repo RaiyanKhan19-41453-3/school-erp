@@ -161,6 +161,14 @@ class TimetableController extends Controller
         $schoolId = $request->user()->school_id;
         $period = Period::where('school_id', $schoolId)->findOrFail($request->period_id);
 
+        if ($request->subject_id) {
+            Subject::where('school_id', $schoolId)->findOrFail($request->subject_id);
+        }
+
+        if ($request->staff_id) {
+            Staff::where('school_id', $schoolId)->findOrFail($request->staff_id);
+        }
+
         $this->guardDuplicates($timetableSlot->section, $period, $request->day_of_week, $timetableSlot->id);
 
         $data = $this->payload($request, $period);

@@ -187,7 +187,10 @@ class InvoiceController extends Controller
     public function recordPayment(StorePaymentRequest $request, Invoice $invoice): RedirectResponse
     {
         DB::transaction(function () use ($request, $invoice) {
-            $locked = Invoice::whereKey($invoice->id)->lockForUpdate()->firstOrFail();
+            $locked = Invoice::whereKey($invoice->id)
+                ->whereHas('student', fn ($q) => $q->where('school_id', $request->user()->school_id))
+                ->lockForUpdate()
+                ->firstOrFail();
 
             if ((float) $locked->balanceDue() <= 0) {
                 abort(422, 'This invoice is already fully paid.');

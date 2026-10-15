@@ -68,7 +68,7 @@ export default function StudentShow({ student }: { student: StudentData }) {
                     <div>
                         <h2 className="text-xl font-semibold tracking-tight">{student.name}</h2>
                         <p className="text-muted-foreground text-sm">
-                            {student.section.class.name} · {student.section.name}
+                            {student.section ? `${student.section.class?.name ?? '—'} · ${student.section.name}` : 'No section assigned'}
                         </p>
                     </div>
                     <Link href={route('students.edit', student.id)}>
@@ -88,12 +88,12 @@ export default function StudentShow({ student }: { student: StudentData }) {
                         <CardContent className="divide-y">
                             <InfoRow label="Admission No" value={student.admission_number} />
                             <InfoRow label="Date of Birth" value={formatDMY(student.date_of_birth)} />
-                            <InfoRow label="Gender" value={student.gender.charAt(0).toUpperCase() + student.gender.slice(1)} />
+                            <InfoRow label="Gender" value={student.gender ? student.gender.charAt(0).toUpperCase() + student.gender.slice(1) : '—'} />
                             <InfoRow label="Admission Date" value={formatDMY(student.admission_date)} />
                             <div className="flex justify-between gap-4 py-2">
                                 <span className="text-sm text-muted-foreground">Status</span>
                                 <Badge variant={student.status === 'active' ? 'default' : 'secondary'}>
-                                    {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
+                                    {student.status ? student.status.charAt(0).toUpperCase() + student.status.slice(1) : '—'}
                                 </Badge>
                             </div>
                         </CardContent>

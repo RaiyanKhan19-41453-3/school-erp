@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -85,6 +85,17 @@ export default function MarkEntryIndex({
 
     const [saving, setSaving] = useState(false);
     const { errors } = usePage<{ errors: Record<string, string> }>().props;
+
+    useEffect(() => {
+        const nextMarks: Record<number, string> = {};
+        const nextRemarks: Record<number, string> = {};
+        students.forEach((s) => {
+            if (s.marks_obtained !== null && s.marks_obtained !== undefined) nextMarks[s.id] = String(s.marks_obtained);
+            if (s.remarks) nextRemarks[s.id] = s.remarks;
+        });
+        setMarks(nextMarks);
+        setRemarks(nextRemarks);
+    }, [students]);
 
     const selectedSection = sections.find((s) => s.id === selectedSectionId);
     const selectedExam = exams.find((e) => e.id === selectedExamId);
@@ -286,8 +297,16 @@ export default function MarkEntryIndex({
                         )}
 
                         {canEnter && students.length > 0 && (
-                            <div className="flex items-center justify-end gap-2 border-t px-4 py-3">
+                            <div className="flex flex-col items-end gap-2 border-t px-4 py-3">
                                 {errors.records && <span className="text-sm text-destructive">{errors.records}</span>}
+                                {Object.entries(errors)
+                                    .filter(([key]) => key.startsWith('records.'))
+                                    .slice(0, 3)
+                                    .map(([key, message]) => (
+                                        <span key={key} className="text-sm text-destructive">
+                                            {String(message)}
+                                        </span>
+                                    ))}
                                 <Button onClick={saveMarks} disabled={saving}>
                                     <Save className="h-4 w-4" />
                                     Save Marks

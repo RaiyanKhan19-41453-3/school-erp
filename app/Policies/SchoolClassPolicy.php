@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\SchoolClass;
 use App\Models\User;
+use App\Policies\Concerns\SameSchool;
 
 class SchoolClassPolicy
 {
@@ -14,7 +15,7 @@ class SchoolClassPolicy
 
     public function view(User $user, SchoolClass $schoolClass): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin', 'teacher']);
+        return $user->hasAnyRole(['super-admin', 'admin', 'teacher']) && SameSchool::check($user, $schoolClass->school_id);
     }
 
     public function create(User $user): bool
@@ -24,11 +25,11 @@ class SchoolClassPolicy
 
     public function update(User $user, SchoolClass $schoolClass): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $schoolClass->school_id);
     }
 
     public function delete(User $user, SchoolClass $schoolClass): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $schoolClass->school_id);
     }
 }

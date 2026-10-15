@@ -275,3 +275,46 @@ test('report card flags missing marks as incomplete', function () {
             ->where('totals.missing_subjects', 1)
             ->where('totals.is_complete', false));
 });
+
+test('admin of one school cannot view another school invoice', function () {
+    ['school' => $school, 'year' => $year, 'section' => $section] = bugFixSchool();
+    $other = School::create(['name' => 'Other']);
+    $otherYear = AcademicYear::create(['school_id' => $other->id, 'name' => 'Y', 'start_date' => '2025-01-01', 'end_date' => '2025-12-31', 'is_current' => true]);
+    $otherClass = SchoolClass::create(['school_id' => $other->id, 'academic_year_id' => $otherYear->id, 'name' => 'C1']);
+    $otherSection = Section::create(['class_id' => $otherClass->id, 'name' => 'A', 'capacity' => 10]);
+    $otherStudent = Student::create(['school_id' => $other->id, 'section_id' => $otherSection->id, 'name' => 'O', 'admission_number' => 'OX1', 'date_of_birth' => '2015-01-01', 'gender' => 'male', 'admission_date' => '2025-01-01', 'status' => 'active']);
+    $invoice = Invoice::create(['student_id' => $otherStudent->id, 'academic_year_id' => $otherYear->id, 'invoice_number' => 'INV-X-1', 'period' => 'Y', 'due_date' => '2025-06-10', 'total_amount' => 50, 'status' => 'unpaid']);
+
+    $admin = User::factory()->create(['school_id' => $school->id])->assignRole('admin');
+
+    $this->actingAs($admin)->get(route('invoices.show', $invoice->id))->assertForbidden();
+    $this->actingAs($admin)->post(route('invoices.payments.store', $invoice->id), ['amount' => 10, 'payment_method' => 'cash'])->assertForbidden();
+    expect(Payment::where('invoice_id', $invoice->id)->count())->toBe(0);
+});
+
+test('admin cannot update another school subject or exam', function () {
+    ['school' => $school] = bugFixSchool();
+    $other = School::create(['name' => 'Other2']);
+    $subject = Subject::create(['school_id' => $other->id, 'name' => 'Physics', 'code' => 'P']);
+
+    $admin = User::factory()->create(['school_id' => $school->id])->assignRole('admin');
+
+    $this->actingAs($admin)->put(route('subjects.update', $subject->id), ['name' => 'Hacked'])->assertForbidden();
+    expect(Subject::find($subject->id)->name)->toBe('Physics');
+});
+
+test('teacher cannot view cross-school report card', function () {
+    ['school' => $school, 'year' => $year, 'class' => $class, 'section' => $section] = bugFixSchool();
+    $other = School::create(['name' => 'Other3']);
+    $otherYear = AcademicYear::create(['school_id' => $other->id, 'name' => 'Y', 'start_date' => '2025-01-01', 'end_date' => '2025-12-31', 'is_current' => true]);
+    $otherClass = SchoolClass::create(['school_id' => $other->id, 'academic_year_id' => $otherYear->id, 'name' => 'C1']);
+    $otherSection = Section::create(['class_id' => $otherClass->id, 'name' => 'A', 'capacity' => 10]);
+    $otherStudent = Student::create(['school_id' => $other->id, 'section_id' => $otherSection->id, 'name' => 'O', 'admission_number' => 'OX2', 'date_of_birth' => '2015-01-01', 'gender' => 'male', 'admission_date' => '2025-01-01', 'status' => 'active']);
+    $subject = Subject::create(['school_id' => $other->id, 'name' => 'Math', 'code' => 'M']);
+    $exam = Exam::create(['school_id' => $other->id, 'academic_year_id' => $otherYear->id, 'class_id' => $otherClass->id, 'name' => 'Final']);
+
+    $teacherUser = User::factory()->create(['school_id' => $school->id])->assignRole('teacher');
+    Staff::create(['user_id' => $teacherUser->id, 'school_id' => $school->id, 'employee_id' => 'EX1', 'designation' => 'Teacher', 'joining_date' => '2025-01-01']);
+
+    $this->actingAs($teacherUser)->get(route('report-cards.show', ['exam' => $exam->id, 'student' => $otherStudent->id]))->assertForbidden();
+});

@@ -17,8 +17,8 @@ class GradingScaleController extends Controller
     {
         $this->authorize('viewAny', GradingScale::class);
 
-        $perPage = request()->integer('per_page', 10);
-        $page = request()->integer('page', 1);
+        $perPage = max(1, min(request()->integer('per_page', 10), 100));
+        $page = max(1, request()->integer('page', 1));
         $search = request()->string('search')->value();
 
         $query = GradingScale::where('school_id', auth()->user()->school_id)

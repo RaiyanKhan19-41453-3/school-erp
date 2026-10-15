@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\AcademicYear;
 use App\Models\Student;
 use App\Models\User;
+use App\Policies\Concerns\SameSchool;
 
 class StudentPolicy
 {
@@ -15,6 +16,10 @@ class StudentPolicy
 
     public function view(User $user, Student $student): bool
     {
+        if (! SameSchool::check($user, $student->school_id)) {
+            return false;
+        }
+
         if ($user->hasAnyRole(['super-admin', 'admin'])) {
             return true;
         }
@@ -41,7 +46,7 @@ class StudentPolicy
 
     public function update(User $user, Student $student): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin']) && SameSchool::check($user, $student->school_id);
     }
 
     private function isTeacherAssignedToStudent(User $user, Student $student): bool

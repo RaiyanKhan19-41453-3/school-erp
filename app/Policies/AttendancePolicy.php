@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\AcademicYear;
 use App\Models\Section;
 use App\Models\User;
+use App\Policies\Concerns\SameSchool;
 
 class AttendancePolicy
 {
@@ -15,6 +16,10 @@ class AttendancePolicy
 
     public function mark(User $user, Section $section, string $date): bool
     {
+        if (! SameSchool::check($user, $section->class?->school_id)) {
+            return false;
+        }
+
         if ($user->hasAnyRole(['super-admin', 'admin'])) {
             return true;
         }
