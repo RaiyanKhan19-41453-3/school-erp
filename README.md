@@ -86,7 +86,7 @@ A comprehensive School ERP (Enterprise Resource Planning) system built for Bangl
 
 ```bash
 # Clone the repository
-git clone https://github.com/blinxpace-labs/school-erp.git
+git clone https://github.com/RaiyanKhan19-41453-3/school-erp.git
 cd school-erp
 
 # Install PHP dependencies
