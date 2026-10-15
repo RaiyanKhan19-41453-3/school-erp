@@ -354,7 +354,9 @@ test('teacher cannot enter marks for an unassigned section', function () {
                 ['student_id' => $otherStudent->id, 'marks_obtained' => 85],
             ],
         ])
-        ->assertForbidden();
+        ->assertRedirect();
+
+    expect(Mark::count())->toBe(0);
 });
 
 test('mark entry index only lists sections the teacher is assigned to', function () {

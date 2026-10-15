@@ -125,18 +125,22 @@ class TeacherAssignmentController extends Controller
         $staff = Staff::where('school_id', $schoolId)->findOrFail($request->staff_id);
 
         DB::transaction(function () use ($section, $staff, $academicYearId, $request) {
-            $section->teachers()->syncWithoutDetaching([
-                $staff->id => [
+            $existing = DB::table('teacher_section')
+                ->where('section_id', $section->id)
+                ->where('staff_id', $staff->id)
+                ->where('academic_year_id', $academicYearId)
+                ->first();
+
+            if ($existing) {
+                DB::table('teacher_section')
+                    ->where('id', $existing->id)
+                    ->update(['is_class_teacher' => $request->boolean('is_class_teacher')]);
+            } else {
+                $section->teachers()->attach($staff->id, [
                     'academic_year_id' => $academicYearId,
                     'is_class_teacher' => $request->boolean('is_class_teacher'),
-                ],
-            ]);
-
-            $section->teachers()
-                ->wherePivot('academic_year_id', $academicYearId)
-                ->updateExistingPivot($staff->id, [
-                    'is_class_teacher' => $request->boolean('is_class_teacher'),
                 ]);
+            }
 
             if ($request->boolean('is_class_teacher')) {
                 DB::table('teacher_section')
@@ -176,12 +180,24 @@ class TeacherAssignmentController extends Controller
         }
 
         DB::transaction(function () use ($section, $staff, $academicYearId) {
-            $section->teachers()->syncWithoutDetaching([
-                $staff->id => [
+            $exists = DB::table('teacher_section')
+                ->where('section_id', $section->id)
+                ->where('staff_id', $staff->id)
+                ->where('academic_year_id', $academicYearId)
+                ->exists();
+
+            if (! $exists) {
+                $section->teachers()->attach($staff->id, [
                     'academic_year_id' => $academicYearId,
                     'is_class_teacher' => true,
-                ],
-            ]);
+                ]);
+            } else {
+                DB::table('teacher_section')
+                    ->where('section_id', $section->id)
+                    ->where('staff_id', $staff->id)
+                    ->where('academic_year_id', $academicYearId)
+                    ->update(['is_class_teacher' => true]);
+            }
 
             DB::table('teacher_section')
                 ->where('section_id', $section->id)

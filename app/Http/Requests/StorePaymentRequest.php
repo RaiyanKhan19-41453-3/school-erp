@@ -18,7 +18,7 @@ class StorePaymentRequest extends FormRequest
     public function rules(): array
     {
         $invoice = $this->route('invoice');
-        $balanceDue = (float) $invoice->balanceDue();
+        $balanceDue = number_format((float) $invoice->balanceDue(), 2, '.', '');
 
         return [
             'amount' => ['required', 'numeric', 'gt:0', 'max:'.$balanceDue],

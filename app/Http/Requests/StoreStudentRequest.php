@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Section;
 use App\Models\Student;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreStudentRequest extends FormRequest
 {
@@ -15,13 +17,15 @@ class StoreStudentRequest extends FormRequest
 
     public function rules(): array
     {
+        $schoolId = $this->user()->school_id;
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'admission_number' => [
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('students', 'admission_number')->where('school_id', $this->user()->school_id),
+                Rule::unique('students', 'admission_number')->where('school_id', $schoolId),
             ],
             'date_of_birth' => ['required', 'date', 'before_or_equal:today'],
             'gender' => ['required', 'string', 'in:male,female,other'],
@@ -43,6 +47,23 @@ class StoreStudentRequest extends FormRequest
         return [
             'guardians.*.name.required_without' => 'Provide a guardian name or select an existing guardian.',
             'guardians.*.relationship.required' => 'Each guardian must have a relationship.',
+        ];
+    }
+
+    public function after(): array
+    {
+        return [
+            function (Validator $validator) {
+                if (! $this->integer('section_id')) {
+                    return;
+                }
+
+                $section = Section::with('class')->find($this->integer('section_id'));
+
+                if ($section && $section->class?->school_id !== $this->user()->school_id) {
+                    $validator->errors()->add('section_id', 'The selected section is invalid.');
+                }
+            },
         ];
     }
 }

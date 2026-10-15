@@ -76,7 +76,9 @@ class Invoice extends Model
 
     public function balanceDue(): string
     {
-        return number_format((float) $this->total_amount - (float) $this->amountPaid(), 2, '.', '');
+        $due = (float) $this->total_amount - (float) $this->amountPaid();
+
+        return number_format(max(0, $due), 2, '.', '');
     }
 
     public function recalculateStatus(): void
@@ -85,7 +87,8 @@ class Invoice extends Model
         $total = (float) $this->total_amount;
 
         $status = match (true) {
-            $amountPaid >= $total && $total > 0 => self::STATUS_PAID,
+            $total <= 0 => self::STATUS_PAID,
+            $amountPaid >= $total => self::STATUS_PAID,
             $amountPaid > 0 => self::STATUS_PARTIAL,
             $this->due_date?->lt(Carbon::today()) => self::STATUS_OVERDUE,
             default => self::STATUS_UNPAID,

@@ -10,6 +10,7 @@ use App\Models\SchoolClass;
 use App\Models\Student;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -32,6 +33,10 @@ class GenerateInvoicesJob implements ShouldQueue
     {
         $class = SchoolClass::with('sections')->findOrFail($this->classId);
         $academicYear = AcademicYear::findOrFail($this->academicYearId);
+
+        if ($class->school_id !== $this->schoolId || $academicYear->school_id !== $this->schoolId) {
+            return;
+        }
 
         $structures = FeeStructure::with('feeCategory')
             ->where('school_id', $this->schoolId)
@@ -67,15 +72,29 @@ class GenerateInvoicesJob implements ShouldQueue
 
                 $total = $structures->sum(fn (FeeStructure $structure) => (float) $structure->amount);
 
-                $invoice = Invoice::create([
-                    'student_id' => $student->id,
-                    'academic_year_id' => $academicYear->id,
-                    'invoice_number' => $this->nextInvoiceNumber(),
-                    'period' => $period,
-                    'due_date' => $dueDate,
-                    'total_amount' => $total,
-                    'status' => Invoice::STATUS_UNPAID,
-                ]);
+                $invoice = null;
+                for ($attempt = 0; $attempt < 3; $attempt++) {
+                    try {
+                        $invoice = Invoice::create([
+                            'student_id' => $student->id,
+                            'academic_year_id' => $academicYear->id,
+                            'invoice_number' => $this->nextInvoiceNumber(),
+                            'period' => $period,
+                            'due_date' => $dueDate,
+                            'total_amount' => $total,
+                            'status' => Invoice::STATUS_UNPAID,
+                        ]);
+                        break;
+                    } catch (UniqueConstraintViolationException $e) {
+                        if ($attempt === 2) {
+                            throw $e;
+                        }
+                    }
+                }
+
+                if (! $invoice) {
+                    continue;
+                }
 
                 foreach ($structures as $structure) {
                     InvoiceItem::create([

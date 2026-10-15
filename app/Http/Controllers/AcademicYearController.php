@@ -73,6 +73,7 @@ class AcademicYearController extends Controller
         }
 
         DB::transaction(function () use ($academicYear, $schoolId) {
+            AcademicYear::where('school_id', $schoolId)->lockForUpdate()->get();
             AcademicYear::where('school_id', $schoolId)->update(['is_current' => false]);
             $academicYear->update(['is_current' => true]);
         });

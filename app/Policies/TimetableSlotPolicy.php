@@ -14,7 +14,8 @@ class TimetableSlotPolicy
 
     public function view(User $user, TimetableSlot $slot): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin'])
+            && $slot->section?->class?->school_id === $user->school_id;
     }
 
     public function create(User $user): bool
@@ -24,11 +25,13 @@ class TimetableSlotPolicy
 
     public function update(User $user, TimetableSlot $slot): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin'])
+            && $slot->section?->class?->school_id === $user->school_id;
     }
 
     public function delete(User $user, TimetableSlot $slot): bool
     {
-        return $user->hasAnyRole(['super-admin', 'admin']);
+        return $user->hasAnyRole(['super-admin', 'admin'])
+            && $slot->section?->class?->school_id === $user->school_id;
     }
 }

@@ -108,6 +108,17 @@ class ClassController extends Controller
 
         $incomingIds = collect($request->sections)->pluck('id')->filter()->all();
 
+        $sectionsWithStudents = $class->sections()
+            ->whereNotIn('id', $incomingIds)
+            ->whereHas('students')
+            ->count();
+
+        if ($sectionsWithStudents > 0) {
+            return back()->withErrors([
+                'sections' => 'Cannot remove sections that still have students. Move the students first.',
+            ])->withInput();
+        }
+
         $class->sections()->whereNotIn('id', $incomingIds)->delete();
 
         foreach ($request->sections as $sectionData) {

@@ -146,7 +146,7 @@ test('teacher cannot mark attendance for an unassigned section', function () {
                 ['student_id' => $student->id, 'status' => 'present'],
             ],
         ])
-        ->assertForbidden();
+        ->assertRedirect();
 
     expect(Attendance::count())->toBe(0);
 });

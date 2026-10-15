@@ -206,7 +206,12 @@ class StudentController extends Controller
 
     private function guardiansForForm()
     {
-        return Guardian::orderBy('name')->get(['id', 'name', 'phone']);
+        $schoolId = auth()->user()->school_id;
+
+        return Guardian::where(function ($q) use ($schoolId) {
+            $q->whereHas('students', fn ($s) => $s->where('students.school_id', $schoolId))
+                ->orWhereDoesntHave('students');
+        })->orderBy('name')->get(['id', 'name', 'phone']);
     }
 
     private function syncGuardians(Student $student, array $guardians): void
@@ -215,7 +220,17 @@ class StudentController extends Controller
 
         foreach ($guardians as $guardianData) {
             if (! empty($guardianData['guardian_id'])) {
-                $guardianId = $guardianData['guardian_id'];
+                $guardian = Guardian::findOrFail($guardianData['guardian_id']);
+
+                $otherSchoolStudent = $guardian->students()
+                    ->where('students.school_id', '!=', $student->school_id)
+                    ->exists();
+
+                if ($otherSchoolStudent) {
+                    abort(422, 'The selected guardian belongs to another school.');
+                }
+
+                $guardianId = $guardian->id;
             } else {
                 $guardian = Guardian::create([
                     'name' => $guardianData['name'],

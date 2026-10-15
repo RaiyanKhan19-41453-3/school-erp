@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Concerns\ResolvesAcademicYear;
 use App\Http\Requests\StoreTimetableSlotRequest;
 use App\Http\Requests\UpdateTimetableSlotRequest;
+use App\Models\AcademicYear;
 use App\Models\Period;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Staff;
+use App\Models\Subject;
 use App\Models\TimetableSlot;
 use App\Models\User;
 use App\Policies\TimetableViewPolicy;
@@ -106,6 +108,16 @@ class TimetableController extends Controller
             ->findOrFail($request->section_id);
 
         $period = Period::where('school_id', $schoolId)->findOrFail($request->period_id);
+
+        $academicYear = AcademicYear::where('school_id', $schoolId)->findOrFail($request->academic_year_id);
+
+        if ($request->staff_id) {
+            Staff::where('school_id', $schoolId)->findOrFail($request->staff_id);
+        }
+
+        if ($request->subject_id) {
+            Subject::where('school_id', $schoolId)->findOrFail($request->subject_id);
+        }
 
         $this->guardDuplicates($section, $period, $request->day_of_week);
 
@@ -277,6 +289,8 @@ class TimetableController extends Controller
         $academicYearId = $this->selectedAcademicYearId($schoolId);
 
         $staff = $user->staff()->first();
+
+        abort_unless($staff, 403);
 
         $periods = Period::where('school_id', $schoolId)
             ->orderBy('sort_order')

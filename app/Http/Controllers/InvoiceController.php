@@ -187,8 +187,18 @@ class InvoiceController extends Controller
     public function recordPayment(StorePaymentRequest $request, Invoice $invoice): RedirectResponse
     {
         DB::transaction(function () use ($request, $invoice) {
+            $locked = Invoice::whereKey($invoice->id)->lockForUpdate()->firstOrFail();
+
+            if ((float) $locked->balanceDue() <= 0) {
+                abort(422, 'This invoice is already fully paid.');
+            }
+
+            if ((float) $request->amount > (float) $locked->balanceDue()) {
+                abort(422, 'The payment amount cannot exceed the remaining balance due.');
+            }
+
             Payment::create([
-                'invoice_id' => $invoice->id,
+                'invoice_id' => $locked->id,
                 'amount' => $request->amount,
                 'payment_method' => $request->payment_method,
                 'status' => Payment::STATUS_COMPLETED,
@@ -197,7 +207,7 @@ class InvoiceController extends Controller
                 'remarks' => $request->remarks,
             ]);
 
-            $invoice->recalculateStatus();
+            $locked->recalculateStatus();
         });
 
         return back()->with('success', 'Payment recorded successfully.');
