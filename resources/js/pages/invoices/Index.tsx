@@ -195,7 +195,7 @@ export default function InvoicesIndex({
                             key: 'total_amount',
                             label: 'Amount',
                             sortable: true,
-                            render: (amount: string) => `$${parseFloat(amount || '0').toFixed(2)}`,
+                            render: (amount: string) => `৳${parseFloat(amount || '0').toFixed(2)}`,
                         },
                         {
                             key: 'status',

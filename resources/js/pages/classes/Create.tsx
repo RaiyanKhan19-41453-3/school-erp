@@ -15,6 +15,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface SectionForm {
+    [key: string]: string | number;
     name: string;
     capacity: number;
 }
@@ -91,7 +92,7 @@ export default function CreateClass() {
                                     onChange={(e) => setSection(index, 'name', e.target.value)}
                                     placeholder="e.g. Section A"
                                 />
-                                <InputError message={errors[`sections.${index}.name`]} />
+                                <InputError message={(errors as Record<string, string>)[`sections.${index}.name`]} />
                             </div>
                             <div className="w-24 space-y-2">
                                 <Label htmlFor={`section-capacity-${index}`}>Capacity</Label>
@@ -101,7 +102,7 @@ export default function CreateClass() {
                                     value={section.capacity}
                                     onChange={(e) => setSection(index, 'capacity', parseInt(e.target.value) || 0)}
                                 />
-                                <InputError message={errors[`sections.${index}.capacity`]} />
+                                <InputError message={(errors as Record<string, string>)[`sections.${index}.capacity`]} />
                             </div>
                             {data.sections.length > 1 && (
                                 <Button type="button" variant="destructive" size="sm" onClick={() => removeSection(index)}>

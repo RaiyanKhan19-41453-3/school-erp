@@ -30,6 +30,7 @@ interface SchoolClass {
 }
 
 interface PageProps {
+    [key: string]: unknown;
     classes: {
         data: SchoolClass[];
     };
@@ -59,6 +60,8 @@ export function ManageSectionsModal({ classId, open, onOpenChange }: ManageSecti
 
     function addSection(e: React.FormEvent) {
         e.preventDefault();
+        if (!classId) return;
+
         post(route('classes.sections.store', classId), {
             onSuccess: () => {
                 reset('name');

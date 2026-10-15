@@ -45,24 +45,28 @@ class AttendanceController extends Controller
         if ($selectedSection) {
             $canMark = $user->can('mark-attendance', [$selectedSection, $date]);
 
-            $students = Student::where('school_id', $schoolId)
+            $studentRows = Student::where('school_id', $schoolId)
                 ->where('section_id', $selectedSection->id)
                 ->where('status', 'active')
                 ->orderBy('name')
-                ->get(['id', 'name', 'admission_number'])
-                ->map(function (Student $student) use ($date) {
-                    $attendance = Attendance::where('student_id', $student->id)
-                        ->where('date', $date)
-                        ->first();
+                ->get(['id', 'name', 'admission_number']);
 
-                    return [
-                        'id' => $student->id,
-                        'name' => $student->name,
-                        'admission_number' => $student->admission_number,
-                        'status' => $attendance?->status,
-                        'remarks' => $attendance?->remarks,
-                    ];
-                });
+            $attendanceByStudent = Attendance::whereIn('student_id', $studentRows->pluck('id'))
+                ->where('date', $date)
+                ->get()
+                ->keyBy('student_id');
+
+            $students = $studentRows->map(function (Student $student) use ($attendanceByStudent) {
+                $attendance = $attendanceByStudent->get($student->id);
+
+                return [
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'admission_number' => $student->admission_number,
+                    'status' => $attendance?->status,
+                    'remarks' => $attendance?->remarks,
+                ];
+            });
         }
 
         return Inertia::render('attendance/Index', [

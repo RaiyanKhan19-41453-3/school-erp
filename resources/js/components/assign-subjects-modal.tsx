@@ -42,7 +42,7 @@ export function AssignSubjectsModal({ open, onOpenChange, classId, className, su
         if (open) {
             setData('subject_ids', assignedSubjectIds);
         }
-    }, [open, assignedSubjectIds]);
+    }, [open, assignedSubjectIds, setData]);
 
     function toggle(subjectId: number) {
         setData(

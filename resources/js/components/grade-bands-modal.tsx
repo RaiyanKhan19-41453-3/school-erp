@@ -19,12 +19,13 @@ import {
 } from '@/components/ui/dialog';
 
 interface Band {
+    [key: string]: string | number | null;
     id: number | null;
     label: string;
     min_percentage: string;
     max_percentage: string;
-    grade_point: string;
-    remarks: string;
+    grade_point: string | null;
+    remarks: string | null;
 }
 
 interface GradeBandsModalProps {
@@ -71,7 +72,7 @@ export function GradeBandsModal({ open, onOpenChange, scaleId, scaleName, bands 
                 })),
             );
         }
-    }, [open, bands]);
+    }, [open, bands, setData]);
 
     function updateBand(index: number, field: keyof Band, value: string) {
         setData(
@@ -291,7 +292,7 @@ export function GradeBandsModal({ open, onOpenChange, scaleId, scaleName, bands 
                                                         type="number"
                                                         step="0.01"
                                                         min="0"
-                                                        value={band.grade_point}
+                                                        value={band.grade_point ?? ''}
                                                         onChange={(e) => updateBand(index, 'grade_point', e.target.value)}
                                                         placeholder="—"
                                                         className="w-20"
@@ -300,7 +301,7 @@ export function GradeBandsModal({ open, onOpenChange, scaleId, scaleName, bands 
                                                 </td>
                                                 <td className="px-3 py-2">
                                                     <Input
-                                                        value={band.remarks}
+                                                        value={band.remarks ?? ''}
                                                         onChange={(e) => updateBand(index, 'remarks', e.target.value)}
                                                         placeholder="e.g. Outstanding"
                                                         className="w-40"

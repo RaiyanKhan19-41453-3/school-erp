@@ -192,7 +192,7 @@ export default function FeeStructuresIndex({
                             key: 'amount',
                             label: 'Amount',
                             sortable: true,
-                            render: (amount: string) => `$${parseFloat(amount || '0').toFixed(2)}`,
+                            render: (amount: string) => `৳${parseFloat(amount || '0').toFixed(2)}`,
                         },
                         {
                             key: 'frequency',

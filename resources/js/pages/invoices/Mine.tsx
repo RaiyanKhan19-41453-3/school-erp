@@ -60,7 +60,7 @@ export default function MyInvoices({ invoices }: { invoices: Invoice[] }) {
                                             <td className="px-4 py-3 font-medium">{invoice.invoice_number}</td>
                                             <td className="px-4 py-3 text-muted-foreground">{invoice.period ?? '—'}</td>
                                             <td className="px-4 py-3">{formatDMY(invoice.due_date)}</td>
-                                            <td className="px-4 py-3 text-right font-medium">${parseFloat(invoice.total_amount).toFixed(2)}</td>
+                                            <td className="px-4 py-3 text-right font-medium">৳{parseFloat(invoice.total_amount).toFixed(2)}</td>
                                             <td className="px-4 py-3">
                                                 <Badge variant={STATUS_VARIANTS[invoice.status] ?? 'secondary'}>
                                                     {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}

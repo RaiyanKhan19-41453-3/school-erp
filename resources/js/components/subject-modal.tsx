@@ -36,7 +36,7 @@ export function SubjectModal({ open, onOpenChange, subject }: SubjectModalProps)
                 setData('code', subject.code ?? '');
             }
         }
-    }, [open, subject]);
+    }, [open, subject, reset, setData]);
 
     function save() {
         const options = {
@@ -58,7 +58,7 @@ export function SubjectModal({ open, onOpenChange, subject }: SubjectModalProps)
 
     function handleKeyDown(e: KeyboardEvent<HTMLElement>) {
         if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-            const target = e.target as HTMLElement;
+            const target = e.target as HTMLInputElement;
 
             if (target.tagName === 'INPUT' && target.type !== 'button') {
                 e.preventDefault();

@@ -71,7 +71,7 @@ export function ExamModal({ open, onOpenChange, exam, classes, gradingScales, ac
                 });
             }
         }
-    }, [open, exam]);
+    }, [open, exam, academicYearId, reset, setData]);
 
     function save() {
         const options = {

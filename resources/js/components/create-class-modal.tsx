@@ -18,6 +18,7 @@ import {
 import { KeyboardEvent } from 'react';
 
 interface SectionForm {
+    [key: string]: string | number;
     name: string;
     capacity: number;
 }
@@ -66,7 +67,7 @@ export function CreateClassModal({ open, onOpenChange }: CreateClassModalProps) 
 
     function handleKeyDown(e: KeyboardEvent<HTMLElement>) {
         if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-            const target = e.target as HTMLElement;
+            const target = e.target as HTMLInputElement;
 
             if (target.tagName === 'INPUT' && target.type !== 'button') {
                 e.preventDefault();

@@ -15,6 +15,7 @@ interface ExistingGuardian {
 }
 
 export interface GuardianForm {
+    [key: string]: string | number | boolean | null;
     guardian_id: number | null;
     relationship: string;
     is_primary: boolean;

@@ -73,7 +73,7 @@ export function FeeStructureModal({ open, onOpenChange, structure, classes, cate
                 });
             }
         }
-    }, [open, structure]);
+    }, [open, structure, reset, setData]);
 
     function save() {
         const options = {
@@ -95,7 +95,7 @@ export function FeeStructureModal({ open, onOpenChange, structure, classes, cate
 
     function handleKeyDown(e: KeyboardEvent<HTMLElement>) {
         if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-            const target = e.target as HTMLElement;
+            const target = e.target as HTMLInputElement;
 
             if (target.tagName === 'INPUT' && target.type !== 'button') {
                 e.preventDefault();

@@ -34,7 +34,7 @@ export function GradingScaleModal({ open, onOpenChange, scale }: GradingScaleMod
                 setData('name', scale.name);
             }
         }
-    }, [open, scale]);
+    }, [open, scale, reset, setData]);
 
     function save() {
         const options = {
@@ -56,7 +56,7 @@ export function GradingScaleModal({ open, onOpenChange, scale }: GradingScaleMod
 
     function handleKeyDown(e: KeyboardEvent<HTMLElement>) {
         if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-            const target = e.target as HTMLElement;
+            const target = e.target as HTMLInputElement;
 
             if (target.tagName === 'INPUT' && target.type !== 'button') {
                 e.preventDefault();

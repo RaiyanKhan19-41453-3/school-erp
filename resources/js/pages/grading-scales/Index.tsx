@@ -18,6 +18,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface GradeBand {
+    [key: string]: string | number | null;
     id: number;
     label: string;
     min_percentage: string;

@@ -45,6 +45,7 @@ interface ExamSubjectsModalProps {
 }
 
 interface FormSubject {
+    [key: string]: string | number | boolean | null | undefined;
     subject_id: number;
     name: string;
     code: string | null;
@@ -96,7 +97,7 @@ export function ExamSubjectsModal({ open, onOpenChange, examId, examName, classS
             setValidation({});
             setPendingRemoval(null);
         }
-    }, [open, examSubjects, classSubjects]);
+    }, [open, examSubjects, classSubjects, setData]);
 
     const formSubjects = (data.subjects as FormSubject[]) ?? [];
     const selectedCount = formSubjects.filter((s) => s.checked).length;

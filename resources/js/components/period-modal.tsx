@@ -38,7 +38,7 @@ export function PeriodModal({ open, onOpenChange, period }: PeriodModalProps) {
         start_time: '',
         end_time: '',
         sort_order: '0',
-        is_break: false,
+        is_break: false as boolean,
     });
 
     useEffect(() => {
@@ -54,7 +54,7 @@ export function PeriodModal({ open, onOpenChange, period }: PeriodModalProps) {
                 });
             }
         }
-    }, [open, period]);
+    }, [open, period, reset, setData]);
 
     function save() {
         const options = {
@@ -76,7 +76,7 @@ export function PeriodModal({ open, onOpenChange, period }: PeriodModalProps) {
 
     function handleKeyDown(e: KeyboardEvent<HTMLElement>) {
         if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-            const target = e.target as HTMLElement;
+            const target = e.target as HTMLInputElement;
 
             if (target.tagName === 'INPUT' && target.type !== 'button') {
                 e.preventDefault();

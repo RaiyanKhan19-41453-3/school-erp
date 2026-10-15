@@ -305,27 +305,33 @@ class DashboardController extends Controller
             ->whereBetween('paid_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
             ->sum('amount');
 
-        $invoices = Invoice::whereHas('student', fn ($q) => $q->where('school_id', $schoolId))->get();
+        $invoiceStats = Invoice::whereHas('student', fn ($q) => $q->where('school_id', $schoolId))
+            ->selectRaw('COUNT(*) as total_count, COALESCE(SUM(total_amount), 0) as total_amount')
+            ->selectRaw("SUM(status = '".Invoice::STATUS_PAID."') as paid_count")
+            ->selectRaw("SUM(status = '".Invoice::STATUS_PARTIAL."') as partial_count")
+            ->selectRaw("SUM(status IN ('".Invoice::STATUS_UNPAID."', '".Invoice::STATUS_OVERDUE."')) as unpaid_count")
+            ->first();
 
-        $total = $invoices->sum(fn (Invoice $invoice) => (float) $invoice->total_amount);
-
-        $paidCount = $invoices->whereIn('status', [Invoice::STATUS_PAID])->count();
-        $partialCount = $invoices->whereIn('status', [Invoice::STATUS_PARTIAL])->count();
-        $unpaidCount = $invoices->whereIn('status', [Invoice::STATUS_UNPAID, Invoice::STATUS_OVERDUE])->count();
-
-        $outstanding = $invoices
-            ->whereIn('status', [Invoice::STATUS_UNPAID, Invoice::STATUS_PARTIAL, Invoice::STATUS_OVERDUE])
-            ->sum(fn (Invoice $invoice) => (float) $invoice->balanceDue());
+        $outstanding = (float) Invoice::whereHas('student', fn ($q) => $q->where('school_id', $schoolId))
+            ->whereIn('invoices.status', [Invoice::STATUS_UNPAID, Invoice::STATUS_PARTIAL, Invoice::STATUS_OVERDUE])
+            ->leftJoin('payments', function ($join) {
+                $join->on('payments.invoice_id', '=', 'invoices.id')
+                    ->where('payments.status', '=', Payment::STATUS_COMPLETED);
+            })
+            ->groupBy('invoices.id', 'invoices.total_amount')
+            ->selectRaw('CASE WHEN CAST(invoices.total_amount AS DECIMAL(12,2)) - COALESCE(SUM(payments.amount), 0) < 0 THEN 0 ELSE CAST(invoices.total_amount AS DECIMAL(12,2)) - COALESCE(SUM(payments.amount), 0) END as due')
+            ->get()
+            ->sum('due');
 
         return [
             'collected' => round($collected, 2),
             'outstanding' => round($outstanding, 2),
             'monthly_collected' => round($monthlyCollected, 2),
-            'total' => round($total, 2),
+            'total' => round((float) ($invoiceStats->total_amount ?? 0), 2),
             'counts' => [
-                'paid' => $paidCount,
-                'partial' => $partialCount,
-                'unpaid' => $unpaidCount,
+                'paid' => (int) ($invoiceStats->paid_count ?? 0),
+                'partial' => (int) ($invoiceStats->partial_count ?? 0),
+                'unpaid' => (int) ($invoiceStats->unpaid_count ?? 0),
             ],
         ];
     }

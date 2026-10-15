@@ -128,20 +128,20 @@ export default function InvoiceShow({
                                             {item.fee_structure ? item.fee_structure.fee_category?.name : 'Ad-hoc charge'}
                                         </div>
                                     </div>
-                                    <div className="font-medium">${parseFloat(item.amount).toFixed(2)}</div>
+                                    <div className="font-medium">৳{parseFloat(item.amount).toFixed(2)}</div>
                                 </div>
                             ))}
                             <div className="flex items-center justify-between pt-2 font-medium">
                                 <span>Total</span>
-                                <span>${parseFloat(invoice.total_amount).toFixed(2)}</span>
+                                <span>৳{parseFloat(invoice.total_amount).toFixed(2)}</span>
                             </div>
                             <div className="flex items-center justify-between text-sm text-muted-foreground">
                                 <span>Paid</span>
-                                <span>${parseFloat(amountPaid).toFixed(2)}</span>
+                                <span>৳{parseFloat(amountPaid).toFixed(2)}</span>
                             </div>
                             <div className="flex items-center justify-between pt-2 text-lg font-semibold">
                                 <span>Balance Due</span>
-                                <span className={parseFloat(balanceDue) > 0 ? 'text-destructive' : 'text-primary'}>${parseFloat(balanceDue).toFixed(2)}</span>
+                                <span className={parseFloat(balanceDue) > 0 ? 'text-destructive' : 'text-primary'}>৳{parseFloat(balanceDue).toFixed(2)}</span>
                             </div>
                             <div className="flex items-center justify-between text-sm text-muted-foreground">
                                 <span>Due Date</span>
@@ -167,7 +167,7 @@ export default function InvoiceShow({
                                         max={balanceDue}
                                         value={data.amount}
                                         onChange={(e) => setData('amount', e.target.value)}
-                                        placeholder={`Up to $${parseFloat(balanceDue).toFixed(2)}`}
+                                        placeholder={`Up to ৳${parseFloat(balanceDue).toFixed(2)}`}
                                     />
                                     <InputError message={errors.amount} />
                                 </div>
@@ -246,7 +246,7 @@ export default function InvoiceShow({
                                                     {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                                                 </Badge>
                                             </td>
-                                            <td className="px-4 py-3 text-right font-medium">${parseFloat(payment.amount).toFixed(2)}</td>
+                                            <td className="px-4 py-3 text-right font-medium">৳{parseFloat(payment.amount).toFixed(2)}</td>
                                             <td className="px-4 py-3">{payment.recorder?.name ?? '—'}</td>
                                             <td className="px-4 py-3 text-muted-foreground">{payment.remarks ?? '—'}</td>
                                         </tr>

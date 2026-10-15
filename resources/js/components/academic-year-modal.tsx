@@ -33,7 +33,7 @@ export function AcademicYearModal({ open, onOpenChange }: AcademicYearModalProps
         if (open) {
             reset();
         }
-    }, [open]);
+    }, [open, reset]);
 
     function save() {
         post(route('academic-years.store'), {
@@ -49,7 +49,7 @@ export function AcademicYearModal({ open, onOpenChange }: AcademicYearModalProps
 
     function handleKeyDown(e: KeyboardEvent<HTMLElement>) {
         if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-            const target = e.target as HTMLElement;
+            const target = e.target as HTMLInputElement;
 
             if (target.tagName === 'INPUT' && target.type !== 'button') {
                 e.preventDefault();

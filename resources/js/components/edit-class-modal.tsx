@@ -19,19 +19,14 @@ import {
 import { KeyboardEvent } from 'react';
 
 interface SectionForm {
+    [key: string]: string | number | undefined;
     id?: number;
     name: string;
     capacity: number;
 }
 
-interface ClassData {
-    id: number;
-    name: string;
-    sections: SectionForm[];
-}
-
 interface EditClassModalProps {
-    class: ClassData | null;
+    class: { id: number; name: string; sections?: { id?: number; name: string; capacity: number }[] } | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
@@ -46,14 +41,14 @@ export function EditClassModal({ class: classData, open, onOpenChange }: EditCla
         if (classData) {
             setData({
                 name: classData.name,
-                sections: classData.sections?.map((s) => ({
+                sections: (classData.sections ?? []).map((s) => ({
                     id: s.id,
                     name: s.name,
                     capacity: s.capacity,
                 })),
             });
         }
-    }, [classData]);
+    }, [classData, setData]);
 
     function addSection() {
         setData('sections', [...data.sections, { name: '', capacity: 30 }]);
@@ -74,6 +69,8 @@ export function EditClassModal({ class: classData, open, onOpenChange }: EditCla
     }
 
     function save() {
+        if (!classData) return;
+
         put(route('classes.update', classData.id), {
             onSuccess: () => {
                 reset();
@@ -88,7 +85,7 @@ export function EditClassModal({ class: classData, open, onOpenChange }: EditCla
 
     function handleKeyDown(e: KeyboardEvent<HTMLElement>) {
         if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-            const target = e.target as HTMLElement;
+            const target = e.target as HTMLInputElement;
 
             if (target.tagName === 'INPUT' && target.type !== 'button') {
                 e.preventDefault();

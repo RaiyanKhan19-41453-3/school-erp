@@ -16,7 +16,7 @@ interface SlotSubject {
 interface SlotStaff {
     id: number;
     employee_id: string;
-    designation: string;
+    designation?: string;
     user: { id: number; name: string };
 }
 

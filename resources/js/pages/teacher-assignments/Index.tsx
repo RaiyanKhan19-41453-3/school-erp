@@ -192,7 +192,7 @@ export default function TeacherAssignmentsIndex({
         const { section, teacher } = promotingTeacher;
         setPromotingTeacher(null);
 
-        router.put(route('teacher-assignments.set-class-teacher', [section.id, teacher.id]), {
+        router.put(route('teacher-assignments.set-class-teacher', [section.id, teacher.id]), {}, {
             onSuccess: () => {
                 toast.success(`${teacher.user.name} is now the class teacher`);
             },
@@ -239,7 +239,7 @@ export default function TeacherAssignmentsIndex({
                     <div className="w-56 space-y-1.5">
                         <span className="text-sm font-medium">Teacher</span>
                         <Combobox
-                            options={[{ value: 'all', label: 'All' }, ...teacherOptions.map((s) => ({ value: String(s.id), label: `${s.user.name} (${s.employee_id})` }))]}
+                            options={[{ value: 'all', label: 'All' }, ...teacherOptions.map((s) => ({ value: String(s.id), label: `${s.user.name}${'employee_id' in s && s.employee_id ? ` (${s.employee_id})` : ''}` }))]}
                             value={selectedTeacher}
                             onValueChange={(v) => applyFilter('teacher_id', v)}
                             placeholder="All teachers"

@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Models\Exam;
+use App\Models\SchoolClass;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreExamRequest extends FormRequest
 {
@@ -36,6 +38,19 @@ class StoreExamRequest extends FormRequest
             ],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+        ];
+    }
+
+    public function after(): array
+    {
+        return [
+            function (Validator $validator) {
+                $class = SchoolClass::find($this->integer('class_id'));
+
+                if ($class && (int) $class->academic_year_id !== (int) $this->integer('academic_year_id')) {
+                    $validator->errors()->add('class_id', 'The selected class does not belong to the selected academic year.');
+                }
+            },
         ];
     }
 }

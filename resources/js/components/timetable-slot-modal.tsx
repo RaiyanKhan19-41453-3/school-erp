@@ -96,7 +96,7 @@ export function TimetableSlotModal({
                 force: false,
             });
         }
-    }, [open, period, day, slot, sectionId, academicYearId]);
+    }, [open, period, day, slot, sectionId, academicYearId, reset, setData]);
 
     function handleSuccess(page: { props: { flash?: { timetable_conflict?: unknown[] } } }) {
         if (page.props.flash?.timetable_conflict?.length) {
@@ -113,7 +113,8 @@ export function TimetableSlotModal({
 
         const options = {
             preserveScroll: true,
-            onSuccess: handleSuccess,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onSuccess: handleSuccess as (page: any) => void,
             onError: () => {
                 toast.error('Failed to save timetable slot');
             },

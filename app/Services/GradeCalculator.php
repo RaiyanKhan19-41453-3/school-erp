@@ -31,6 +31,8 @@ class GradeCalculator
         return $gradingScale->gradeBands()
             ->where('min_percentage', '<=', $percentage)
             ->where('max_percentage', '>=', $percentage)
+            ->orderBy('min_percentage', 'desc')
+            ->orderBy('max_percentage', 'desc')
             ->first();
     }
 

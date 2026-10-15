@@ -49,7 +49,7 @@ export function AssignTeacherModal({ section, staff, open, onOpenChange }: Assig
     const { data, setData, post, processing, errors, reset } = useForm({
         section_id: '',
         staff_id: '',
-        is_class_teacher: false,
+        is_class_teacher: false as boolean,
     });
 
     const assignedStaffIds = new Set((section?.teachers ?? []).map((t) => t.user?.id));
@@ -59,7 +59,7 @@ export function AssignTeacherModal({ section, staff, open, onOpenChange }: Assig
             setData({
                 section_id: String(section.id),
                 staff_id: '',
-                is_class_teacher: false,
+                is_class_teacher: false as boolean,
             });
         }
     }, [section, setData]);

@@ -54,7 +54,7 @@ function useDebounce<T>(value: T, delay: number): T {
     return debouncedValue;
 }
 
-export function DataTable<T extends Record<string, unknown>>({    columns,
+export function DataTable<T>({    columns,
     data,
     filters,
     routeName = 'classes.index',
@@ -76,7 +76,7 @@ export function DataTable<T extends Record<string, unknown>>({    columns,
                 ...extraParams,
             }, { preserveState: true, preserveScroll: true });
         }
-    }, [debouncedSearch, filters.sort, filters.direction, filters.per_page, routeName, extraParams]);
+    }, [debouncedSearch, filters.search, filters.sort, filters.direction, filters.per_page, routeName, extraParams]);
 
     const handleSort = useCallback((key: string) => {
         const col = columns.find((c) => c.key === key);
@@ -179,16 +179,20 @@ export function DataTable<T extends Record<string, unknown>>({    columns,
                                 </td>
                             </tr>
                         ) : (
-                            data.data.map((row, rowIndex) => (
-                                <tr key={String(row.id ?? rowIndex)} className="border-t transition-colors hover:bg-muted/30">
-                                    {columns.map((col) => (
-                                        <td key={col.key} className="px-4 py-3 text-sm">
-                                            {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? '—')}
-                                        </td>
-                                    ))}
-                                    {actions && <td className="px-4 py-3 text-right">{actions(row)}</td>}
-                                </tr>
-                            ))
+                            data.data.map((row, rowIndex) => {
+                                const record = row as Record<string, unknown>;
+
+                                return (
+                                    <tr key={String(record.id ?? rowIndex)} className="border-t transition-colors hover:bg-muted/30">
+                                        {columns.map((col) => (
+                                            <td key={col.key} className="px-4 py-3 text-sm">
+                                                {col.render ? col.render(record[col.key], row) : String(record[col.key] ?? '—')}
+                                            </td>
+                                        ))}
+                                        {actions && <td className="px-4 py-3 text-right">{actions(row)}</td>}
+                                    </tr>
+                                );
+                            })
                         )}
                     </tbody>
                 </table>

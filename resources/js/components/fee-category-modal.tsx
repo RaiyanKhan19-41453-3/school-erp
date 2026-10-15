@@ -34,7 +34,7 @@ export function FeeCategoryModal({ open, onOpenChange, category }: FeeCategoryMo
                 setData('name', category.name);
             }
         }
-    }, [open, category]);
+    }, [open, category, reset, setData]);
 
     function save() {
         const options = {
@@ -56,7 +56,7 @@ export function FeeCategoryModal({ open, onOpenChange, category }: FeeCategoryMo
 
     function handleKeyDown(e: KeyboardEvent<HTMLElement>) {
         if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-            const target = e.target as HTMLElement;
+            const target = e.target as HTMLInputElement;
 
             if (target.tagName === 'INPUT' && target.type !== 'button') {
                 e.preventDefault();

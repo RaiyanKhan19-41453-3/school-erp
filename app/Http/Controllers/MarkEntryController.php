@@ -64,24 +64,28 @@ class MarkEntryController extends Controller
             if ($selectedExamSubject) {
                 $canEnter = $user->can('enter-marks', [$selectedSection, $selectedExamSubject]);
 
-                $students = Student::where('school_id', $schoolId)
+                $studentRows = Student::where('school_id', $schoolId)
                     ->where('section_id', $selectedSection->id)
                     ->where('status', 'active')
                     ->orderBy('name')
-                    ->get(['id', 'name', 'admission_number'])
-                    ->map(function (Student $student) use ($selectedExamSubject) {
-                        $mark = Mark::where('exam_subject_id', $selectedExamSubject->id)
-                            ->where('student_id', $student->id)
-                            ->first();
+                    ->get(['id', 'name', 'admission_number']);
 
-                        return [
-                            'id' => $student->id,
-                            'name' => $student->name,
-                            'admission_number' => $student->admission_number,
-                            'marks_obtained' => $mark?->marks_obtained,
-                            'remarks' => $mark?->remarks,
-                        ];
-                    });
+                $marksByStudent = Mark::where('exam_subject_id', $selectedExamSubject->id)
+                    ->whereIn('student_id', $studentRows->pluck('id'))
+                    ->get()
+                    ->keyBy('student_id');
+
+                $students = $studentRows->map(function (Student $student) use ($marksByStudent) {
+                    $mark = $marksByStudent->get($student->id);
+
+                    return [
+                        'id' => $student->id,
+                        'name' => $student->name,
+                        'admission_number' => $student->admission_number,
+                        'marks_obtained' => $mark?->marks_obtained,
+                        'remarks' => $mark?->remarks,
+                    ];
+                });
             }
         }
 
