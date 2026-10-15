@@ -12,7 +12,6 @@ use App\Models\School;
 use App\Models\SchoolProfile;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -67,12 +66,12 @@ class PublicSiteController extends Controller
         ]);
     }
 
-    public function notices(Request $request): Response
+    public function notices(): Response
     {
         $school = $this->school();
 
-        $category = $request->string('category')->value();
-        $search = mb_substr($request->string('search')->value(), 0, 100);
+        $category = $this->queryString('category');
+        $search = $this->queryString('search');
 
         if (! in_array($category, Notice::categories(), true)) {
             $category = null;
@@ -147,11 +146,11 @@ class PublicSiteController extends Controller
         ]);
     }
 
-    public function gallery(Request $request): Response
+    public function gallery(): Response
     {
         $school = $this->school();
 
-        $album = mb_substr($request->string('album')->value(), 0, 100);
+        $album = $this->queryString('album');
 
         $albums = $this->galleryQuery($school)->select('album')->distinct()->orderBy('album')->pluck('album');
 

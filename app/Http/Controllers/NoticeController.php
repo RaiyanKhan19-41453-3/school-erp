@@ -17,9 +17,9 @@ class NoticeController extends Controller
 
         $perPage = max(1, min(request()->integer('per_page', 10), 100));
         $page = max(1, request()->integer('page', 1));
-        $sort = request()->string('sort', 'created_at')->value();
-        $direction = request()->string('direction', 'desc')->value();
-        $search = request()->string('search')->value();
+        $sort = $this->queryString('sort', 'created_at');
+        $direction = $this->queryString('direction', 'desc');
+        $search = $this->queryString('search');
 
         $allowedSorts = ['title', 'category', 'published_at', 'created_at'];
         if (! in_array($sort, $allowedSorts, true)) {

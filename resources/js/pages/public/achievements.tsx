@@ -16,7 +16,13 @@ interface AchievementsProps {
 }
 
 export default function Achievements({ site, featured, achievements }: AchievementsProps) {
+    const featuredIds = new Set(featured.map((item) => item.id));
+
     const grouped = achievements.reduce<Record<string, PublicAchievement[]>>((acc, item) => {
+        if (featuredIds.has(item.id)) {
+            return acc;
+        }
+
         const key = item.achieved_on ? String(new Date(item.achieved_on).getFullYear()) : 'Earlier';
 
         (acc[key] ??= []).push(item);

@@ -231,3 +231,12 @@ test('contact form validates input and blocks honeypot spam', function () {
 
     expect(ContactMessage::count())->toBe(0);
 });
+
+test('public pages survive malformed array query parameters', function () {
+    $school = publicSiteSchool();
+    publicSiteNotice($school);
+
+    $this->get('/notices?search[]=a&category[]=x')->assertOk();
+    $this->get('/gallery?album[]=x')->assertOk();
+    $this->get('/events?page[]=1')->assertOk();
+});

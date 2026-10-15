@@ -51,10 +51,10 @@ export interface SiteInfo {
 }
 
 export interface SiteStats {
-    students: string;
-    teachers: string;
-    years: string;
-    pass_rate: string;
+    students?: string;
+    teachers?: string;
+    years?: string;
+    pass_rate?: string;
 }
 
 export interface PublicNotice {

@@ -303,3 +303,20 @@ test('admin cannot modify another school website records', function () {
     expect($notice->fresh()->title)->toBe('School B notice')
         ->and($message->fresh()->is_read)->toBeFalse();
 });
+
+test('website management lists survive malformed array query parameters', function () {
+    $school = School::create(['name' => 'Site School']);
+    $admin = websiteAdmin($school);
+
+    $this->actingAs($admin)
+        ->get(route('website.notices.index', ['search' => ['a'], 'sort' => ['title'], 'direction' => ['asc']]))
+        ->assertOk();
+
+    $this->actingAs($admin)
+        ->get(route('website.gallery-items.index', ['search' => ['a'], 'album' => ['x']]))
+        ->assertOk();
+
+    $this->actingAs($admin)
+        ->get(route('website.messages.index', ['search' => ['a']]))
+        ->assertOk();
+});

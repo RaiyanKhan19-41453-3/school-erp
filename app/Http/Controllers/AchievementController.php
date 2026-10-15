@@ -17,9 +17,9 @@ class AchievementController extends Controller
 
         $perPage = max(1, min(request()->integer('per_page', 10), 100));
         $page = max(1, request()->integer('page', 1));
-        $sort = request()->string('sort', 'achieved_on')->value();
-        $direction = request()->string('direction', 'desc')->value();
-        $search = request()->string('search')->value();
+        $sort = $this->queryString('sort', 'achieved_on');
+        $direction = $this->queryString('direction', 'desc');
+        $search = $this->queryString('search');
 
         $allowedSorts = ['title', 'student_name', 'category', 'achieved_on', 'created_at'];
         if (! in_array($sort, $allowedSorts, true)) {

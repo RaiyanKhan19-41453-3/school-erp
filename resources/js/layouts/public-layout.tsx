@@ -84,7 +84,7 @@ export default function PublicLayout({ site, children }: { site: SiteInfo; child
                         <span className="min-w-0">
                             <span className="font-display text-brand-950 block truncate text-lg leading-tight font-semibold">{site.name}</span>
                             <span className="text-gold-600 block truncate text-[11px] tracking-[0.22em] uppercase">
-                                {site.tagline ?? 'Est. 1998'}
+                                {site.tagline ?? 'Knowledge · Discipline · Character'}
                             </span>
                         </span>
                     </Link>
@@ -164,11 +164,13 @@ export default function PublicLayout({ site, children }: { site: SiteInfo; child
                             </span>
                             <div>
                                 <p className="font-display text-xl font-semibold">{site.name}</p>
-                                <p className="text-gold-400 text-xs tracking-[0.22em] uppercase">{site.tagline ?? 'Est. 1998'}</p>
+                                <p className="text-gold-400 text-xs tracking-[0.22em] uppercase">
+                                    {site.tagline ?? 'Knowledge · Discipline · Character'}
+                                </p>
                             </div>
                         </div>
                         <p className="text-cream-100/70 mt-5 max-w-md text-sm leading-relaxed">
-                            Committed to academic excellence, moral values and the holistic development of every child since our founding in 1998.
+                            Committed to academic excellence, moral values and the holistic development of every child.
                         </p>
                         <div className="mt-6 flex items-center gap-3">
                             {site.facebook_url && (

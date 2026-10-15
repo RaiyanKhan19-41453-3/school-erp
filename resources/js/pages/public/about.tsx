@@ -36,7 +36,7 @@ export default function About({ site, stats, profile }: AboutProps) {
             <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
                 <div className="grid gap-12 lg:grid-cols-[1.15fr_0.85fr]">
                     <div>
-                        <SectionHeading eyebrow="Who we are" title="A tradition of learning since 1998" />
+                        <SectionHeading eyebrow="Who we are" title="A tradition of learning" />
                         <div className="text-brand-900/75 mt-6 space-y-5 text-sm leading-relaxed sm:text-base">
                             {(profile.about ?? 'Our school has been a home of learning for thousands of students.')
                                 .split(/\n{2,}/)

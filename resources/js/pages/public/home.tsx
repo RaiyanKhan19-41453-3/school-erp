@@ -58,6 +58,8 @@ export default function Home({ site, stats, hero, aboutExcerpt, notices, events,
         { value: stats?.pass_rate ?? '—', label: 'SSC Pass Rate' },
     ];
 
+    const sessionYear = new Date().getFullYear();
+
     return (
         <PublicLayout site={site}>
             <Head title="Home" />
@@ -71,7 +73,7 @@ export default function Home({ site, stats, hero, aboutExcerpt, notices, events,
                     <div>
                         <p className="border-gold-300 bg-gold-100/80 text-gold-700 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold tracking-wide uppercase">
                             <Sparkles className="h-3.5 w-3.5" />
-                            Admissions open · Session 2026–2027
+                            Admissions open · Session {sessionYear}–{sessionYear + 1}
                         </p>
                         <h1 className="font-display text-brand-950 mt-6 text-4xl leading-[1.08] font-semibold sm:text-5xl lg:text-6xl">
                             {hero.title ?? `Welcome to ${site.name}`}
@@ -120,10 +122,10 @@ export default function Home({ site, stats, hero, aboutExcerpt, notices, events,
                                     <span className="bg-cream-50/10 font-display text-gold-300 ring-gold-400/60 flex h-14 w-14 items-center justify-center rounded-full text-xl font-semibold ring-1">
                                         {initials}
                                     </span>
-                                    <span className="text-gold-400 text-xs font-semibold tracking-[0.3em] uppercase">Est. 1998</span>
+                                    <span className="text-gold-400 text-xs font-semibold tracking-[0.3em] uppercase">Excellence in Learning</span>
                                 </div>
                                 <p className="font-display mt-14 text-3xl leading-snug font-medium">
-                                    A premier seat of learning in the heart of Dhaka.
+                                    A premier seat of learning built on curiosity, care and community.
                                 </p>
                                 <div className="mt-10 grid grid-cols-3 gap-3 text-center">
                                     {[

@@ -46,12 +46,16 @@ class SchoolProfile extends Model
     public function statHighlights(): array
     {
         $stats = $this->stats ?? [];
+        $highlights = [];
 
-        return [
-            'students' => (string) ($stats['students'] ?? '—'),
-            'teachers' => (string) ($stats['teachers'] ?? '—'),
-            'years' => (string) ($stats['years'] ?? '—'),
-            'pass_rate' => (string) ($stats['pass_rate'] ?? '—'),
-        ];
+        foreach (['students', 'teachers', 'years', 'pass_rate'] as $key) {
+            $value = $stats[$key] ?? null;
+
+            if ($value !== null && $value !== '') {
+                $highlights[$key] = (string) $value;
+            }
+        }
+
+        return $highlights;
     }
 }

@@ -16,10 +16,10 @@ class GalleryItemController extends Controller
     {
         $this->authorize('viewAny', GalleryItem::class);
 
-        $perPage = max(1, min(request()->integer('per_page', 20), 100));
+        $perPage = max(1, min(request()->integer('per_page', 10), 100));
         $page = max(1, request()->integer('page', 1));
-        $search = request()->string('search')->value();
-        $album = request()->string('album')->value();
+        $search = $this->queryString('search');
+        $album = $this->queryString('album');
 
         $albums = GalleryItem::query()
             ->where('school_id', auth()->user()->school_id)

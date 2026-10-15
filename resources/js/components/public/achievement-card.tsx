@@ -22,7 +22,7 @@ export function AchievementCard({ achievement, featured = false }: { achievement
         <article
             className={
                 featured
-                    ? 'border-gold-300 to-gold-100/70 relative flex h-full flex-col overflow-hidden rounded-2xl border bg-gradient-to-br from-white p-6 shadow-sm'
+                    ? 'border-gold-300 to-gold-100/70 relative flex h-full flex-col overflow-hidden rounded-2xl border bg-linear-to-br from-white p-6 shadow-sm'
                     : 'border-brand-900/10 hover:border-gold-400 flex h-full flex-col rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md'
             }
         >

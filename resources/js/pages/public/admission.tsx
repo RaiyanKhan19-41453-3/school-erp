@@ -77,7 +77,7 @@ export default function Admission({ site, admission }: AdmissionProps) {
                                 <SectionHeading
                                     eyebrow="Process"
                                     title="How to apply"
-                                    description="Five simple steps from first visit to first day of class."
+                                    description={`${admission.steps.length} simple step${admission.steps.length === 1 ? '' : 's'} from first visit to first day of class.`}
                                 />
                                 <ol className="mt-8 space-y-6">
                                     {admission.steps.map((step, index) => (
