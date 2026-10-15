@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { AcademicYearFilter } from '@/components/academic-year-filter';
 import { DataTable } from '@/components/data-table';
 import { DatePicker } from '@/components/date-picker';
-import { formatDMY } from '@/lib/format';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
-import { AcademicYearFilter } from '@/components/academic-year-filter';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
+import { formatDMY } from '@/lib/format';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
 import { Eye, Pencil } from 'lucide-react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -69,7 +69,18 @@ export default function StudentsIndex({
     selectedYearIsCurrent,
 }: {
     students: PaginatedData<Student>;
-    filters: { search: string; sort: string; direction: string; per_page: number; class_id: number | null; section_id: number | null; gender: string | null; admission_from: string | null; admission_to: string | null; year_id: number | null };
+    filters: {
+        search: string;
+        sort: string;
+        direction: string;
+        per_page: number;
+        class_id: number | null;
+        section_id: number | null;
+        gender: string | null;
+        admission_from: string | null;
+        admission_to: string | null;
+        year_id: number | null;
+    };
     classes: SchoolClass[];
     academicYears: AcademicYear[];
     selectedYearIsCurrent: boolean;
@@ -201,7 +212,10 @@ export default function StudentsIndex({
                     <div className="w-56 space-y-1.5">
                         <span className="text-sm font-medium">Section</span>
                         <Combobox
-                            options={[{ value: 'all', label: 'All' }, ...(activeClass?.sections ?? []).map((s) => ({ value: String(s.id), label: s.name }))]}
+                            options={[
+                                { value: 'all', label: 'All' },
+                                ...(activeClass?.sections ?? []).map((s) => ({ value: String(s.id), label: s.name })),
+                            ]}
                             value={selectedSection}
                             onValueChange={(v) => applyFilter('section_id', v)}
                             disabled={!activeClass}
@@ -256,8 +270,7 @@ export default function StudentsIndex({
                         {
                             key: 'section',
                             label: 'Section',
-                            render: (section: Student['section']) =>
-                                section ? `${section.class.name} - ${section.name}` : '—',
+                            render: (section: Student['section']) => (section ? `${section.class.name} - ${section.name}` : '—'),
                         },
                         {
                             key: 'gender',

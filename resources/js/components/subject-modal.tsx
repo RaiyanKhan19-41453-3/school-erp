@@ -1,20 +1,13 @@
 'use client';
 
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { useEffect, KeyboardEvent } from 'react';
+import { useForm } from '@inertiajs/react';
+import { KeyboardEvent, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface SubjectModalProps {
     open: boolean;
@@ -72,7 +65,9 @@ export function SubjectModal({ open, onOpenChange, subject }: SubjectModalProps)
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>{subject ? 'Edit Subject' : 'Create Subject'}</DialogTitle>
-                    <DialogDescription>{subject ? 'Update the subject details.' : 'Add a new subject (e.g. Mathematics, English).'}</DialogDescription>
+                    <DialogDescription>
+                        {subject ? 'Update the subject details.' : 'Add a new subject (e.g. Mathematics, English).'}
+                    </DialogDescription>
                 </DialogHeader>
                 <form
                     onSubmit={(e) => {
@@ -96,12 +91,7 @@ export function SubjectModal({ open, onOpenChange, subject }: SubjectModalProps)
 
                     <div className="space-y-2">
                         <Label htmlFor="code">Code</Label>
-                        <Input
-                            id="code"
-                            value={data.code}
-                            onChange={(e) => setData('code', e.target.value)}
-                            placeholder="e.g. MATH"
-                        />
+                        <Input id="code" value={data.code} onChange={(e) => setData('code', e.target.value)} placeholder="e.g. MATH" />
                         <InputError message={errors.code} />
                     </div>
 

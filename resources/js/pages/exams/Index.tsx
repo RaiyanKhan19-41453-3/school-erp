@@ -1,18 +1,17 @@
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { DataTable } from '@/components/data-table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ConfirmDialog } from '@/components/confirm-dialog';
 import { AcademicYearFilter } from '@/components/academic-year-filter';
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { DataTable } from '@/components/data-table';
 import { ExamModal } from '@/components/exam-modal';
 import { ExamSubjectsModal } from '@/components/exam-subjects-modal';
-import { Pencil, Trash2, BookOpenCheck } from 'lucide-react';
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
 import { formatDMY } from '@/lib/format';
+import { type BreadcrumbItem } from '@/types';
+import { Head, router, useForm } from '@inertiajs/react';
+import { BookOpenCheck, Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -189,7 +188,7 @@ export default function ExamsIndex({
                                 <Pencil className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="icon" onClick={() => setDeletingExam(row)} title="Delete">
-                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <Trash2 className="text-destructive h-4 w-4" />
                             </Button>
                         </div>
                     )}

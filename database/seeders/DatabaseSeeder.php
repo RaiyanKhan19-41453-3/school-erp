@@ -269,6 +269,8 @@ class DatabaseSeeder extends Seeder
         $this->seedFees($school, $academicYear, $classes, $students);
 
         $this->seedExamsAndGrading($school, $academicYear, $classes, $students);
+
+        $this->call(SchoolWebsiteSeeder::class);
     }
 
     private function seedFees(School $school, AcademicYear $academicYear, array $classes, array $students): void

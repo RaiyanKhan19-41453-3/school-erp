@@ -1,29 +1,44 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\ClassSubjectController;
+use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FeeCategoryController;
 use App\Http\Controllers\FeeStructureController;
+use App\Http\Controllers\GalleryItemController;
 use App\Http\Controllers\GradingScaleController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MarkEntryController;
+use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\PeriodController;
+use App\Http\Controllers\PublicSiteController;
 use App\Http\Controllers\ReportCardController;
+use App\Http\Controllers\SchoolProfileController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherAssignmentController;
 use App\Http\Controllers\TimetableController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+Route::get('/', [PublicSiteController::class, 'home'])->name('home');
+Route::get('about', [PublicSiteController::class, 'about'])->name('site.about');
+Route::get('notices', [PublicSiteController::class, 'notices'])->name('site.notices');
+Route::get('notices/{notice}', [PublicSiteController::class, 'notice'])->name('site.notices.show');
+Route::get('events', [PublicSiteController::class, 'events'])->name('site.events');
+Route::get('gallery', [PublicSiteController::class, 'gallery'])->name('site.gallery');
+Route::get('achievements', [PublicSiteController::class, 'achievements'])->name('site.achievements');
+Route::get('admission', [PublicSiteController::class, 'admission'])->name('site.admission');
+Route::get('contact', [PublicSiteController::class, 'contact'])->name('site.contact');
+Route::post('contact', [PublicSiteController::class, 'submitContact'])
+    ->middleware('throttle:5,1')
+    ->name('site.contact.store');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -91,6 +106,27 @@ Route::middleware(['auth'])->group(function () {
     Route::get('invoices/my', [InvoiceController::class, 'myInvoices'])->name('invoices.my');
     Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
     Route::post('invoices/{invoice}/payments', [InvoiceController::class, 'recordPayment'])->name('invoices.payments.store');
+
+    Route::prefix('website')->name('website.')->group(function () {
+        Route::resource('notices', NoticeController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        Route::resource('events', EventController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        Route::resource('achievements', AchievementController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        Route::resource('gallery-items', GalleryItemController::class)
+            ->only(['index', 'store', 'update', 'destroy']);
+
+        Route::get('content', [SchoolProfileController::class, 'edit'])->name('content.edit');
+        Route::put('content', [SchoolProfileController::class, 'update'])->name('content.update');
+
+        Route::get('messages', [ContactMessageController::class, 'index'])->name('messages.index');
+        Route::put('messages/{contact_message}', [ContactMessageController::class, 'update'])->name('messages.update');
+        Route::delete('messages/{contact_message}', [ContactMessageController::class, 'destroy'])->name('messages.destroy');
+    });
 });
 
 require __DIR__.'/settings.php';

@@ -27,11 +27,7 @@ function dmyToIso(input: string): string | null {
     const year = Number(match[3]);
     const date = new Date(year, month - 1, day);
 
-    if (
-        date.getFullYear() !== year ||
-        date.getMonth() !== month - 1 ||
-        date.getDate() !== day
-    ) {
+    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
         return null;
     }
 
@@ -56,13 +52,7 @@ function isoToNative(value: string): string {
     return `${match[1]}-${match[2]}-${match[3]}`;
 }
 
-export function DatePicker({
-    value,
-    onChange,
-    placeholder = 'DD/MM/YYYY',
-    id,
-    disabled,
-}: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder = 'DD/MM/YYYY', id, disabled }: DatePickerProps) {
     const [text, setText] = React.useState(isoToDmy(value));
     const nativeInputRef = React.useRef<HTMLInputElement>(null);
 

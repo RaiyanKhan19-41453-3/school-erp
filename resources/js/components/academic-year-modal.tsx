@@ -1,21 +1,14 @@
 'use client';
 
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
+import { DatePicker } from '@/components/date-picker';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
-import { DatePicker } from '@/components/date-picker';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { useEffect, KeyboardEvent } from 'react';
+import { useForm } from '@inertiajs/react';
+import { KeyboardEvent, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface AcademicYearModalProps {
     open: boolean;
@@ -75,13 +68,7 @@ export function AcademicYearModal({ open, onOpenChange }: AcademicYearModalProps
                 >
                     <div className="space-y-2">
                         <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            placeholder="e.g. 2026-2027"
-                            autoFocus
-                        />
+                        <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="e.g. 2026-2027" autoFocus />
                         <InputError message={errors.name} />
                     </div>
 

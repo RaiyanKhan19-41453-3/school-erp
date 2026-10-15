@@ -62,11 +62,11 @@ export function TimetableGrid({ periods, slots, showSection = false }: Timetable
             <table className="w-full">
                 <thead>
                     <tr className="bg-muted/50">
-                        <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Day</th>
+                        <th className="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Day</th>
                         {periods.map((period) => (
-                            <th key={period.id} className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                            <th key={period.id} className="text-muted-foreground px-4 py-3 text-left text-sm font-medium">
                                 {period.name}
-                                <span className="block text-xs font-normal text-muted-foreground/70">
+                                <span className="text-muted-foreground/70 block text-xs font-normal">
                                     {period.start_time}–{period.end_time}
                                 </span>
                             </th>
@@ -75,15 +75,15 @@ export function TimetableGrid({ periods, slots, showSection = false }: Timetable
                 </thead>
                 <tbody>
                     {DAYS.map((day) => (
-                        <tr key={day} className="border-t transition-colors hover:bg-muted/30">
-                            <td className="whitespace-nowrap px-4 py-3 text-sm font-medium capitalize">{day}</td>
+                        <tr key={day} className="hover:bg-muted/30 border-t transition-colors">
+                            <td className="px-4 py-3 text-sm font-medium whitespace-nowrap capitalize">{day}</td>
                             {periods.map((period) => {
                                 const slot = slotMap.get(`${day}-${period.id}`);
 
                                 if (period.is_break) {
                                     return (
                                         <td key={period.id} className="border-l px-4 py-3">
-                                            <div className="rounded-md bg-muted/60 px-3 py-3 text-center text-xs font-medium text-muted-foreground">
+                                            <div className="bg-muted/60 text-muted-foreground rounded-md px-3 py-3 text-center text-xs font-medium">
                                                 Break
                                             </div>
                                         </td>
@@ -93,7 +93,7 @@ export function TimetableGrid({ periods, slots, showSection = false }: Timetable
                                 if (!slot) {
                                     return (
                                         <td key={period.id} className="border-l px-4 py-3">
-                                            <div className="flex h-full min-h-[56px] items-center justify-center rounded-md border border-dashed border-border px-3 text-xs text-muted-foreground">
+                                            <div className="border-border text-muted-foreground flex h-full min-h-[56px] items-center justify-center rounded-md border border-dashed px-3 text-xs">
                                                 —
                                             </div>
                                         </td>
@@ -102,12 +102,12 @@ export function TimetableGrid({ periods, slots, showSection = false }: Timetable
 
                                 return (
                                     <td key={period.id} className="border-l px-4 py-3">
-                                        <div className="rounded-md border border-border bg-background px-3 py-2">
+                                        <div className="border-border bg-background rounded-md border px-3 py-2">
                                             <div className="text-sm font-medium">{slot.subject?.name ?? '—'}</div>
-                                            <div className="text-xs text-muted-foreground">
+                                            <div className="text-muted-foreground text-xs">
                                                 {showSection && slot.section
                                                     ? `${slot.section.class.name} · ${slot.section.name}`
-                                                    : slot.staff?.user.name ?? '—'}
+                                                    : (slot.staff?.user.name ?? '—')}
                                                 {slot.room ? ` · ${slot.room}` : ''}
                                             </div>
                                         </div>

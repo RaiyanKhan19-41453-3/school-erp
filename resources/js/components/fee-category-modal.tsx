@@ -1,20 +1,13 @@
 'use client';
 
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { useEffect, KeyboardEvent } from 'react';
+import { useForm } from '@inertiajs/react';
+import { KeyboardEvent, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface FeeCategoryModalProps {
     open: boolean;
@@ -70,7 +63,9 @@ export function FeeCategoryModal({ open, onOpenChange, category }: FeeCategoryMo
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>{category ? 'Edit Fee Category' : 'Create Fee Category'}</DialogTitle>
-                    <DialogDescription>{category ? 'Update the fee category name.' : 'Add a new fee category (e.g. Tuition, Transport, Library).'}</DialogDescription>
+                    <DialogDescription>
+                        {category ? 'Update the fee category name.' : 'Add a new fee category (e.g. Tuition, Transport, Library).'}
+                    </DialogDescription>
                 </DialogHeader>
                 <form
                     onSubmit={(e) => {
@@ -82,13 +77,7 @@ export function FeeCategoryModal({ open, onOpenChange, category }: FeeCategoryMo
                 >
                     <div className="space-y-2">
                         <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            placeholder="e.g. Tuition"
-                            autoFocus
-                        />
+                        <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="e.g. Tuition" autoFocus />
                         <InputError message={errors.name} />
                     </div>
 

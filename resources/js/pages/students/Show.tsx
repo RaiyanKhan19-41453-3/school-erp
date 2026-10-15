@@ -1,11 +1,11 @@
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { formatDMY } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pencil, UserRound } from 'lucide-react';
-import { formatDMY } from '@/lib/format';
 
 interface Guardian {
     id: number;
@@ -53,8 +53,8 @@ const breadcrumbs = (student: StudentData): BreadcrumbItem[] => [
 function InfoRow({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex justify-between gap-4 py-2">
-            <span className="text-sm text-muted-foreground">{label}</span>
-            <span className="text-sm font-medium text-right">{value}</span>
+            <span className="text-muted-foreground text-sm">{label}</span>
+            <span className="text-right text-sm font-medium">{value}</span>
         </div>
     );
 }
@@ -91,7 +91,7 @@ export default function StudentShow({ student }: { student: StudentData }) {
                             <InfoRow label="Gender" value={student.gender ? student.gender.charAt(0).toUpperCase() + student.gender.slice(1) : '—'} />
                             <InfoRow label="Admission Date" value={formatDMY(student.admission_date)} />
                             <div className="flex justify-between gap-4 py-2">
-                                <span className="text-sm text-muted-foreground">Status</span>
+                                <span className="text-muted-foreground text-sm">Status</span>
                                 <Badge variant={student.status === 'active' ? 'default' : 'secondary'}>
                                     {student.status ? student.status.charAt(0).toUpperCase() + student.status.slice(1) : '—'}
                                 </Badge>
@@ -105,27 +105,25 @@ export default function StudentShow({ student }: { student: StudentData }) {
                             <CardDescription>Linked guardians and their relationship</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            {student.guardians.length === 0 && (
-                                <p className="py-4 text-center text-sm text-muted-foreground">No guardians linked.</p>
-                            )}
+                            {student.guardians.length === 0 && <p className="text-muted-foreground py-4 text-center text-sm">No guardians linked.</p>}
                             {student.guardians.map((guardian) => (
-                                <div key={guardian.id} className="flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3">
+                                <div key={guardian.id} className="bg-card flex items-center justify-between gap-4 rounded-lg border px-4 py-3">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-                                            <UserRound className="h-4 w-4 text-muted-foreground" />
+                                        <div className="bg-muted flex h-9 w-9 items-center justify-center rounded-full">
+                                            <UserRound className="text-muted-foreground h-4 w-4" />
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm font-medium">{guardian.name}</span>
                                                 {guardian.pivot.is_primary ? <Badge>Primary</Badge> : null}
                                             </div>
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-muted-foreground text-sm">
                                                 {guardian.pivot.relationship.charAt(0).toUpperCase() + guardian.pivot.relationship.slice(1)}
                                                 {guardian.phone ? ` · ${guardian.phone}` : ''}
                                             </p>
                                         </div>
                                     </div>
-                                    {guardian.email && <span className="text-sm text-muted-foreground">{guardian.email}</span>}
+                                    {guardian.email && <span className="text-muted-foreground text-sm">{guardian.email}</span>}
                                 </div>
                             ))}
                         </CardContent>

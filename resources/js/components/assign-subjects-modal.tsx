@@ -1,22 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { cn } from '@/lib/utils';
 import InputError from '@/components/input-error';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import { useForm } from '@inertiajs/react';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface Subject {
     id: number;
@@ -104,7 +97,7 @@ export function AssignSubjectsModal({ open, onOpenChange, classId, className, su
                                 </div>
 
                                 <div className="rounded-md border">
-                                    <div className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 border-b bg-muted/50 px-3 py-2 text-xs font-medium text-muted-foreground">
+                                    <div className="bg-muted/50 text-muted-foreground grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 border-b px-3 py-2 text-xs font-medium">
                                         <Checkbox
                                             checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                             onCheckedChange={toggleAll}
@@ -125,8 +118,14 @@ export function AssignSubjectsModal({ open, onOpenChange, classId, className, su
                                                         isChecked && 'bg-accent/40',
                                                     )}
                                                 >
-                                                    <Checkbox checked={isChecked} onCheckedChange={() => toggle(subject.id)} aria-label={`Assign ${subject.name}`} />
-                                                    <span className={cn('text-sm font-medium', !isChecked && 'text-muted-foreground')}>{subject.name}</span>
+                                                    <Checkbox
+                                                        checked={isChecked}
+                                                        onCheckedChange={() => toggle(subject.id)}
+                                                        aria-label={`Assign ${subject.name}`}
+                                                    />
+                                                    <span className={cn('text-sm font-medium', !isChecked && 'text-muted-foreground')}>
+                                                        {subject.name}
+                                                    </span>
                                                     {subject.code ? <Badge variant="secondary">{subject.code}</Badge> : <span />}
                                                 </div>
                                             );

@@ -1,13 +1,13 @@
 'use client';
 
-import { Plus, X } from 'lucide-react';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, X } from 'lucide-react';
 
 interface ExistingGuardian {
     id: number;
@@ -42,7 +42,7 @@ export function GuardiansEditor({ guardians, existingGuardians, errors, onAdd, o
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
                     <Label className="text-base">Guardians</Label>
-                    <p className="text-sm text-muted-foreground">Attach existing guardians or add a new one</p>
+                    <p className="text-muted-foreground text-sm">Attach existing guardians or add a new one</p>
                 </div>
                 <Button type="button" variant="outline" size="sm" onClick={onAdd}>
                     <Plus className="h-4 w-4" />
@@ -52,7 +52,7 @@ export function GuardiansEditor({ guardians, existingGuardians, errors, onAdd, o
             <InputError message={errors.guardians} />
 
             {guardians.map((guardian, index) => (
-                <div key={index} className="rounded-lg border bg-card p-4">
+                <div key={index} className="bg-card rounded-lg border p-4">
                     <div className="mb-4 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Badge variant="secondary" className="h-6 w-6 justify-center rounded-full p-0">

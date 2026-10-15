@@ -53,6 +53,20 @@ A comprehensive School ERP (Enterprise Resource Planning) system built for Bangl
 - Overview with key statistics
 - Role-based sidebar navigation
 
+### Public School Website (CMS)
+- **Home** — hero banner, key statistics, latest notices, events and achievements
+- **Notice Board** — filter by category, search, and full notice detail pages
+- **About** — school history, mission & vision, principal's message
+- **Achievements** — featured highlights plus a year-by-year honour roll
+- **Gallery** — album filtering with a lightbox viewer
+- **Events** — upcoming and past school events
+- **Admission** — requirements checklist and application steps
+- **Contact** — enquiry form (with honeypot spam protection) and school contact details
+
+Website content is managed by admins from the **Website** section of the sidebar:
+site copy & hero text, key numbers, notices, events, achievements, gallery uploads, and
+contact messages. Uploaded images are stored on the public disk.
+
 ### User Roles
 | Role | Access |
 |------|--------|
@@ -108,6 +122,9 @@ php artisan key:generate
 # Run migrations and seed demo data
 php artisan migrate:fresh --seed
 
+# Link public storage (required for website gallery/event images)
+php artisan storage:link
+
 # Build frontend assets
 npm run build
 
@@ -137,6 +154,7 @@ The seeder includes realistic Bangladeshi demo data:
 - **Subjects**: Bangla, English, Mathematics, General Science, ICT, Islam & Moral Education, Bangladesh & Global Studies
 - **Fees**: BDT amounts (Tuition 5,000/month, Session 2,000/year, Lab 800/month)
 - **Exams**: 3 exams with marks and grading
+- **Website**: school profile copy, 10 notices, 6 events, 8 achievements and 12 gallery images
 
 ## Development
 

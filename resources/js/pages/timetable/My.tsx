@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { AcademicYearFilter } from '@/components/academic-year-filter';
+import { TimetableGrid } from '@/components/timetable-grid';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { AcademicYearFilter } from '@/components/academic-year-filter';
-import { TimetableGrid } from '@/components/timetable-grid';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -64,17 +64,17 @@ export default function MyTimetable({
                 <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                     <div>
                         <h2 className="text-xl font-semibold tracking-tight">My Timetable</h2>
-                        <p className="text-muted-foreground text-sm">
-                            {teacherName}'s weekly schedule across all sections
-                        </p>
+                        <p className="text-muted-foreground text-sm">{teacherName}'s weekly schedule across all sections</p>
                     </div>
                     <AcademicYearFilter academicYears={academicYears} value={selectedYear} onValueChange={applyYearFilter} />
                 </div>
 
                 <TimetableGrid periods={periods} slots={slots} showSection />
 
-                <p className="text-sm text-muted-foreground">
-                    {slotCount === 0 ? 'No classes assigned for this academic year.' : `${slotCount} class${slotCount === 1 ? '' : 'es'} scheduled this week.`}
+                <p className="text-muted-foreground text-sm">
+                    {slotCount === 0
+                        ? 'No classes assigned for this academic year.'
+                        : `${slotCount} class${slotCount === 1 ? '' : 'es'} scheduled this week.`}
                 </p>
             </div>
         </AppLayout>

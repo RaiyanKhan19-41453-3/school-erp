@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class School extends Model
 {
@@ -13,6 +14,11 @@ class School extends Model
         'phone',
         'email',
     ];
+
+    public function profile(): HasOne
+    {
+        return $this->hasOne(SchoolProfile::class);
+    }
 
     public function academicYears(): HasMany
     {

@@ -237,7 +237,11 @@ function AdminDashboard({ stats, studentsPerClass, attendanceTrend, feeSummary, 
                     <div className="relative mx-auto aspect-square max-h-[300px] min-h-[260px] w-full max-w-[300px]">
                         <ChartContainer config={feeChartConfig} className="size-full">
                             <PieChart>
-                                <ChartTooltip cursor={false} wrapperStyle={{ zIndex: 50 }}                                     content={<ChartTooltipContent hideLabel className="gap-2 px-4 py-3" />} />
+                                <ChartTooltip
+                                    cursor={false}
+                                    wrapperStyle={{ zIndex: 50 }}
+                                    content={<ChartTooltipContent hideLabel className="gap-2 px-4 py-3" />}
+                                />
                                 <Pie data={feeData} dataKey="value" nameKey="name" innerRadius={75} outerRadius={110} strokeWidth={6} />
                             </PieChart>
                         </ChartContainer>

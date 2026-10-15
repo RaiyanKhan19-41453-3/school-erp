@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
+import { AcademicYearFilter } from '@/components/academic-year-filter';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Combobox } from '@/components/ui/combobox';
-import { Input } from '@/components/ui/input';
-import { AcademicYearFilter } from '@/components/academic-year-filter';
-import { toast } from 'sonner';
 import { Save } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -109,7 +109,11 @@ export default function MarkEntryIndex({
     }
 
     function applySection(sectionId: string) {
-        router.get(route('mark-entry.index'), { year_id: selectedYearId || '', section_id: sectionId }, { preserveState: true, preserveScroll: true });
+        router.get(
+            route('mark-entry.index'),
+            { year_id: selectedYearId || '', section_id: sectionId },
+            { preserveState: true, preserveScroll: true },
+        );
     }
 
     function applyExam(examId: string) {
@@ -235,15 +239,17 @@ export default function MarkEntryIndex({
                         </div>
 
                         {!selectedExam && (
-                            <p className="px-4 py-8 text-center text-sm text-muted-foreground">No exams for this section's class in the selected year.</p>
+                            <p className="text-muted-foreground px-4 py-8 text-center text-sm">
+                                No exams for this section's class in the selected year.
+                            </p>
                         )}
 
                         {selectedExam && !selectedSubject && (
-                            <p className="px-4 py-8 text-center text-sm text-muted-foreground">No subjects configured for this exam yet.</p>
+                            <p className="text-muted-foreground px-4 py-8 text-center text-sm">No subjects configured for this exam yet.</p>
                         )}
 
                         {selectedExam && selectedSubject && students.length === 0 && (
-                            <p className="px-4 py-8 text-center text-sm text-muted-foreground">No active students in this section.</p>
+                            <p className="text-muted-foreground px-4 py-8 text-center text-sm">No active students in this section.</p>
                         )}
 
                         {selectedExam && selectedSubject && students.length > 0 && (
@@ -251,10 +257,10 @@ export default function MarkEntryIndex({
                                 <table className="w-full">
                                     <thead>
                                         <tr className="bg-muted/50">
-                                            <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Student</th>
-                                            <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Admission No</th>
-                                            <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Marks (max {fullMarks})</th>
-                                            <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Remarks</th>
+                                            <th className="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Student</th>
+                                            <th className="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Admission No</th>
+                                            <th className="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Marks (max {fullMarks})</th>
+                                            <th className="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Remarks</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -264,9 +270,9 @@ export default function MarkEntryIndex({
                                             const belowPass = !Number.isNaN(value) && value < passMarks;
 
                                             return (
-                                                <tr key={student.id} className="border-t transition-colors hover:bg-muted/30">
+                                                <tr key={student.id} className="hover:bg-muted/30 border-t transition-colors">
                                                     <td className="px-4 py-3 text-sm font-medium">{student.name}</td>
-                                                    <td className="px-4 py-3 text-sm text-muted-foreground">{student.admission_number}</td>
+                                                    <td className="text-muted-foreground px-4 py-3 text-sm">{student.admission_number}</td>
                                                     <td className="px-4 py-3">
                                                         <Input
                                                             type="number"
@@ -277,7 +283,7 @@ export default function MarkEntryIndex({
                                                             disabled={!canEnter}
                                                             className={`w-32 ${exceedsMax ? 'border-destructive' : ''}`}
                                                         />
-                                                        {exceedsMax && <span className="text-xs text-destructive">Exceeds max {fullMarks}</span>}
+                                                        {exceedsMax && <span className="text-destructive text-xs">Exceeds max {fullMarks}</span>}
                                                         {!exceedsMax && belowPass && <span className="text-xs text-amber-600">Below pass marks</span>}
                                                     </td>
                                                     <td className="px-4 py-3">
@@ -298,12 +304,12 @@ export default function MarkEntryIndex({
 
                         {canEnter && students.length > 0 && (
                             <div className="flex flex-col items-end gap-2 border-t px-4 py-3">
-                                {errors.records && <span className="text-sm text-destructive">{errors.records}</span>}
+                                {errors.records && <span className="text-destructive text-sm">{errors.records}</span>}
                                 {Object.entries(errors)
                                     .filter(([key]) => key.startsWith('records.'))
                                     .slice(0, 3)
                                     .map(([key, message]) => (
-                                        <span key={key} className="text-sm text-destructive">
+                                        <span key={key} className="text-destructive text-sm">
                                             {String(message)}
                                         </span>
                                     ))}

@@ -1,14 +1,14 @@
-import { useMemo, useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
-import { Badge } from '@/components/ui/badge';
-import { Combobox } from '@/components/ui/combobox';
 import { AcademicYearFilter } from '@/components/academic-year-filter';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { TimetableSlotModal } from '@/components/timetable-slot-modal';
-import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { Combobox } from '@/components/ui/combobox';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -131,7 +131,11 @@ export default function TimetableIndex({
     function applySectionFilter(value: string) {
         setSelectedSection(value);
 
-        router.get(route('timetable.index'), { year_id: selectedYear, class_id: selectedClass, section_id: value }, { preserveState: true, preserveScroll: true });
+        router.get(
+            route('timetable.index'),
+            { year_id: selectedYear, class_id: selectedClass, section_id: value },
+            { preserveState: true, preserveScroll: true },
+        );
     }
 
     const openAddModal = (period: Period, day: string) => {
@@ -222,11 +226,11 @@ export default function TimetableIndex({
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-muted/50">
-                                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Day</th>
+                                    <th className="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Day</th>
                                     {periods.map((period) => (
-                                        <th key={period.id} className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                                        <th key={period.id} className="text-muted-foreground px-4 py-3 text-left text-sm font-medium">
                                             {period.name}
-                                            <span className="block text-xs font-normal text-muted-foreground/70">
+                                            <span className="text-muted-foreground/70 block text-xs font-normal">
                                                 {period.start_time}–{period.end_time}
                                             </span>
                                         </th>
@@ -235,15 +239,15 @@ export default function TimetableIndex({
                             </thead>
                             <tbody>
                                 {DAYS.map((day) => (
-                                    <tr key={day} className="border-t transition-colors hover:bg-muted/30">
-                                        <td className="whitespace-nowrap px-4 py-3 text-sm font-medium capitalize">{day}</td>
+                                    <tr key={day} className="hover:bg-muted/30 border-t transition-colors">
+                                        <td className="px-4 py-3 text-sm font-medium whitespace-nowrap capitalize">{day}</td>
                                         {periods.map((period) => {
                                             const slot = slotMap.get(`${day}-${period.id}`);
 
                                             if (period.is_break) {
                                                 return (
                                                     <td key={period.id} className="border-l px-4 py-3">
-                                                        <div className="rounded-md bg-muted/60 px-3 py-3 text-center text-xs font-medium text-muted-foreground">
+                                                        <div className="bg-muted/60 text-muted-foreground rounded-md px-3 py-3 text-center text-xs font-medium">
                                                             Break
                                                         </div>
                                                     </td>
@@ -256,7 +260,7 @@ export default function TimetableIndex({
                                                         <button
                                                             type="button"
                                                             onClick={() => openAddModal(period, day)}
-                                                            className="flex h-full min-h-[56px] w-full items-center justify-center gap-1 rounded-md border border-dashed border-border px-3 text-xs text-muted-foreground hover:border-primary hover:text-primary"
+                                                            className="border-border text-muted-foreground hover:border-primary hover:text-primary flex h-full min-h-[56px] w-full items-center justify-center gap-1 rounded-md border border-dashed px-3 text-xs"
                                                         >
                                                             <Plus className="h-3.5 w-3.5" />
                                                             Add
@@ -267,10 +271,14 @@ export default function TimetableIndex({
 
                                             return (
                                                 <td key={period.id} className="border-l px-4 py-3">
-                                                    <div className="group relative rounded-md border border-border bg-background px-3 py-2">
-                                                        <button type="button" onClick={() => openEditModal(period, day, slot)} className="block w-full text-left">
+                                                    <div className="group border-border bg-background relative rounded-md border px-3 py-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openEditModal(period, day, slot)}
+                                                            className="block w-full text-left"
+                                                        >
                                                             <div className="text-sm font-medium">{slot.subject?.name ?? '—'}</div>
-                                                            <div className="text-xs text-muted-foreground">
+                                                            <div className="text-muted-foreground text-xs">
                                                                 {slot.staff?.user.name ?? '—'}
                                                                 {slot.room ? ` · ${slot.room}` : ''}
                                                             </div>
@@ -279,7 +287,7 @@ export default function TimetableIndex({
                                                             type="button"
                                                             onClick={() => setDeletingSlot(slot)}
                                                             title="Remove slot"
-                                                            className="absolute right-1 top-1 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
+                                                            className="text-muted-foreground hover:text-destructive absolute top-1 right-1 rounded p-0.5 opacity-0 transition-opacity group-hover:opacity-100"
                                                         >
                                                             <Trash2 className="h-3.5 w-3.5" />
                                                         </button>
@@ -295,7 +303,7 @@ export default function TimetableIndex({
                 )}
 
                 {activeSection && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center gap-2 text-sm">
                         Building timetable for{' '}
                         <Badge variant="secondary">
                             {activeClass?.name} · {activeSection.name}

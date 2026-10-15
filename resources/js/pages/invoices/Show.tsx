@@ -1,16 +1,16 @@
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/date-picker';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePicker } from '@/components/date-picker';
+import AppLayout from '@/layouts/app-layout';
 import { formatDMY } from '@/lib/format';
-import { toast } from 'sonner';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -97,7 +97,10 @@ export default function InvoiceShow({
             <Head title={`Invoice ${invoice.invoice_number}`} />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-2">
-                    <Link href={canRecordPayment ? route('invoices.index') : route('invoices.my')} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+                    <Link
+                        href={canRecordPayment ? route('invoices.index') : route('invoices.my')}
+                        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
+                    >
                         <ArrowLeft className="h-4 w-4" />
                         Back to invoices
                     </Link>
@@ -107,7 +110,8 @@ export default function InvoiceShow({
                     <div>
                         <h2 className="text-xl font-semibold tracking-tight">{invoice.invoice_number}</h2>
                         <p className="text-muted-foreground text-sm">
-                            {invoice.student.name} · {invoice.student.admission_number} · {invoice.student.section?.class?.name} - {invoice.student.section?.name}
+                            {invoice.student.name} · {invoice.student.admission_number} · {invoice.student.section?.class?.name} -{' '}
+                            {invoice.student.section?.name}
                             {invoice.period ? ` · Period ${invoice.period}` : ''}
                         </p>
                     </div>
@@ -124,7 +128,7 @@ export default function InvoiceShow({
                                 <div key={item.id} className="flex items-center justify-between border-b pb-2 text-sm">
                                     <div>
                                         <div>{item.description}</div>
-                                        <div className="text-xs text-muted-foreground">
+                                        <div className="text-muted-foreground text-xs">
                                             {item.fee_structure ? item.fee_structure.fee_category?.name : 'Ad-hoc charge'}
                                         </div>
                                     </div>
@@ -135,15 +139,17 @@ export default function InvoiceShow({
                                 <span>Total</span>
                                 <span>৳{parseFloat(invoice.total_amount).toFixed(2)}</span>
                             </div>
-                            <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <div className="text-muted-foreground flex items-center justify-between text-sm">
                                 <span>Paid</span>
                                 <span>৳{parseFloat(amountPaid).toFixed(2)}</span>
                             </div>
                             <div className="flex items-center justify-between pt-2 text-lg font-semibold">
                                 <span>Balance Due</span>
-                                <span className={parseFloat(balanceDue) > 0 ? 'text-destructive' : 'text-primary'}>৳{parseFloat(balanceDue).toFixed(2)}</span>
+                                <span className={parseFloat(balanceDue) > 0 ? 'text-destructive' : 'text-primary'}>
+                                    ৳{parseFloat(balanceDue).toFixed(2)}
+                                </span>
                             </div>
-                            <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <div className="text-muted-foreground flex items-center justify-between text-sm">
                                 <span>Due Date</span>
                                 <span>{formatDMY(invoice.due_date)}</span>
                             </div>
@@ -154,65 +160,65 @@ export default function InvoiceShow({
                         <div className="rounded-lg border p-6">
                             <h3 className="mb-4 text-sm font-semibold">Record Payment</h3>
                             {parseFloat(balanceDue) <= 0 ? (
-                                <p className="text-sm text-muted-foreground">This invoice is fully paid. No further payments can be recorded.</p>
+                                <p className="text-muted-foreground text-sm">This invoice is fully paid. No further payments can be recorded.</p>
                             ) : (
                                 <form onSubmit={submit} className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="amount">Amount</Label>
-                                    <Input
-                                        id="amount"
-                                        type="number"
-                                        step="0.01"
-                                        min="0.01"
-                                        max={balanceDue}
-                                        value={data.amount}
-                                        onChange={(e) => setData('amount', e.target.value)}
-                                        placeholder={`Up to ৳${parseFloat(balanceDue).toFixed(2)}`}
-                                    />
-                                    <InputError message={errors.amount} />
-                                </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="amount">Amount</Label>
+                                        <Input
+                                            id="amount"
+                                            type="number"
+                                            step="0.01"
+                                            min="0.01"
+                                            max={balanceDue}
+                                            value={data.amount}
+                                            onChange={(e) => setData('amount', e.target.value)}
+                                            placeholder={`Up to ৳${parseFloat(balanceDue).toFixed(2)}`}
+                                        />
+                                        <InputError message={errors.amount} />
+                                    </div>
 
-                                <div className="space-y-2">
-                                    <Label>Payment Method</Label>
-                                    <Select value={data.payment_method} onValueChange={(v) => setData('payment_method', v)}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {PAYMENT_METHODS.map((m) => (
-                                                <SelectItem key={m.value} value={m.value}>
-                                                    {m.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <InputError message={errors.payment_method} />
-                                </div>
+                                    <div className="space-y-2">
+                                        <Label>Payment Method</Label>
+                                        <Select value={data.payment_method} onValueChange={(v) => setData('payment_method', v)}>
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {PAYMENT_METHODS.map((m) => (
+                                                    <SelectItem key={m.value} value={m.value}>
+                                                        {m.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError message={errors.payment_method} />
+                                    </div>
 
-                                <div className="space-y-2">
-                                    <Label>Payment Date</Label>
-                                    <DatePicker
-                                        value={data.paid_at}
-                                        onChange={(v) => setData('paid_at', v)}
-                                        placeholder="DD/MM/YYYY (defaults to today)"
-                                    />
-                                    <InputError message={errors.paid_at} />
-                                </div>
+                                    <div className="space-y-2">
+                                        <Label>Payment Date</Label>
+                                        <DatePicker
+                                            value={data.paid_at}
+                                            onChange={(v) => setData('paid_at', v)}
+                                            placeholder="DD/MM/YYYY (defaults to today)"
+                                        />
+                                        <InputError message={errors.paid_at} />
+                                    </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="remarks">Remarks (optional)</Label>
-                                    <Input
-                                        id="remarks"
-                                        value={data.remarks}
-                                        onChange={(e) => setData('remarks', e.target.value)}
-                                        placeholder="e.g. Cheque #1234"
-                                    />
-                                    <InputError message={errors.remarks} />
-                                </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="remarks">Remarks (optional)</Label>
+                                        <Input
+                                            id="remarks"
+                                            value={data.remarks}
+                                            onChange={(e) => setData('remarks', e.target.value)}
+                                            placeholder="e.g. Cheque #1234"
+                                        />
+                                        <InputError message={errors.remarks} />
+                                    </div>
 
-                                <Button type="submit" disabled={processing}>
-                                    {processing ? 'Recording...' : 'Record Payment'}
-                                </Button>
+                                    <Button type="submit" disabled={processing}>
+                                        {processing ? 'Recording...' : 'Record Payment'}
+                                    </Button>
                                 </form>
                             )}
                         </div>
@@ -222,12 +228,12 @@ export default function InvoiceShow({
                 <div className="rounded-lg border p-6">
                     <h3 className="mb-4 text-sm font-semibold">Payment History</h3>
                     {invoice.payments.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No payments recorded yet.</p>
+                        <p className="text-muted-foreground text-sm">No payments recorded yet.</p>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="bg-muted/50 text-left text-sm font-medium text-muted-foreground">
+                                    <tr className="bg-muted/50 text-muted-foreground text-left text-sm font-medium">
                                         <th className="px-4 py-3">Date</th>
                                         <th className="px-4 py-3">Method</th>
                                         <th className="px-4 py-3">Status</th>
@@ -248,7 +254,7 @@ export default function InvoiceShow({
                                             </td>
                                             <td className="px-4 py-3 text-right font-medium">৳{parseFloat(payment.amount).toFixed(2)}</td>
                                             <td className="px-4 py-3">{payment.recorder?.name ?? '—'}</td>
-                                            <td className="px-4 py-3 text-muted-foreground">{payment.remarks ?? '—'}</td>
+                                            <td className="text-muted-foreground px-4 py-3">{payment.remarks ?? '—'}</td>
                                         </tr>
                                     ))}
                                 </tbody>

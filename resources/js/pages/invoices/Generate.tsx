@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { AcademicYearFilter } from '@/components/academic-year-filter';
+import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
+import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Combobox } from '@/components/ui/combobox';
-import { AcademicYearFilter } from '@/components/academic-year-filter';
-import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
-import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -69,17 +69,15 @@ export default function GenerateInvoices({
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-6">
                     <h2 className="text-xl font-semibold tracking-tight">Generate Invoices</h2>
-                    <p className="text-muted-foreground text-sm">Bulk-create invoices for every active student in a class based on its fee structures</p>
+                    <p className="text-muted-foreground text-sm">
+                        Bulk-create invoices for every active student in a class based on its fee structures
+                    </p>
                 </div>
 
                 <div className="max-w-2xl rounded-lg border p-6">
                     <form onSubmit={submit} className="space-y-6">
                         <div className="space-y-2">
-                            <AcademicYearFilter
-                                academicYears={academicYears}
-                                value={data.year_id}
-                                onValueChange={applyYear}
-                            />
+                            <AcademicYearFilter academicYears={academicYears} value={data.year_id} onValueChange={applyYear} />
                             <InputError message={errors.year_id} />
                         </div>
 
@@ -95,8 +93,9 @@ export default function GenerateInvoices({
                             />
                             <InputError message={errors.class_id} />
                             {selectedClass && (
-                                <p className="text-sm text-muted-foreground">
-                                    This will create one invoice per active student in {selectedClass.name}, summing all of the class's fee structures. Students who already have an invoice for the selected period are skipped.
+                                <p className="text-muted-foreground text-sm">
+                                    This will create one invoice per active student in {selectedClass.name}, summing all of the class's fee
+                                    structures. Students who already have an invoice for the selected period are skipped.
                                 </p>
                             )}
                         </div>
@@ -118,7 +117,7 @@ export default function GenerateInvoices({
                     </form>
 
                     {queued && (
-                        <div className="mt-6 rounded-md border border-primary/30 bg-primary/5 p-4 text-sm text-muted-foreground">
+                        <div className="border-primary/30 bg-primary/5 text-muted-foreground mt-6 rounded-md border p-4 text-sm">
                             Invoice generation is being processed in the background. Check the invoice list in a moment.
                         </div>
                     )}

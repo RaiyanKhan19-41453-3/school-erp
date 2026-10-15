@@ -1,22 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import { SectionsEditor } from '@/components/sections-editor';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-} from '@/components/ui/dialog';
-import { KeyboardEvent } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useForm } from '@inertiajs/react';
+import { KeyboardEvent, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface SectionForm {
     [key: string]: string | number | undefined;
@@ -62,9 +54,7 @@ export function EditClassModal({ class: classData, open, onOpenChange }: EditCla
     }
 
     function setSection(index: number, field: keyof SectionForm, value: string | number) {
-        const sections = data.sections.map((section, i) =>
-            i === index ? { ...section, [field]: value } : section,
-        );
+        const sections = data.sections.map((section, i) => (i === index ? { ...section, [field]: value } : section));
         setData('sections', sections);
     }
 
@@ -111,22 +101,11 @@ export function EditClassModal({ class: classData, open, onOpenChange }: EditCla
                 >
                     <div className="space-y-2">
                         <Label htmlFor="edit-name">Class Name</Label>
-                        <Input
-                            id="edit-name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            placeholder="e.g. Grade 3"
-                        />
+                        <Input id="edit-name" value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="e.g. Grade 3" />
                         <InputError message={errors.name} />
                     </div>
 
-                    <SectionsEditor
-                        sections={data.sections}
-                        errors={errors}
-                        onAdd={addSection}
-                        onRemove={removeSection}
-                        onFieldChange={setSection}
-                    />
+                    <SectionsEditor sections={data.sections} errors={errors} onAdd={addSection} onRemove={removeSection} onFieldChange={setSection} />
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

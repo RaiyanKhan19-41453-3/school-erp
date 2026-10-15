@@ -1,9 +1,9 @@
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
+import { formatDMY } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { formatDMY } from '@/lib/format';
 import { Eye } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -39,13 +39,13 @@ export default function MyInvoices({ invoices }: { invoices: Invoice[] }) {
                 </div>
 
                 {invoices.length === 0 ? (
-                    <p className="rounded-lg border p-8 text-center text-sm text-muted-foreground">No invoices available yet.</p>
+                    <p className="text-muted-foreground rounded-lg border p-8 text-center text-sm">No invoices available yet.</p>
                 ) : (
                     <div className="rounded-lg border">
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="bg-muted/50 text-left text-sm font-medium text-muted-foreground">
+                                    <tr className="bg-muted/50 text-muted-foreground text-left text-sm font-medium">
                                         <th className="px-4 py-3">Invoice No</th>
                                         <th className="px-4 py-3">Period</th>
                                         <th className="px-4 py-3">Due Date</th>
@@ -58,7 +58,7 @@ export default function MyInvoices({ invoices }: { invoices: Invoice[] }) {
                                     {invoices.map((invoice) => (
                                         <tr key={invoice.id} className="border-t text-sm">
                                             <td className="px-4 py-3 font-medium">{invoice.invoice_number}</td>
-                                            <td className="px-4 py-3 text-muted-foreground">{invoice.period ?? '—'}</td>
+                                            <td className="text-muted-foreground px-4 py-3">{invoice.period ?? '—'}</td>
                                             <td className="px-4 py-3">{formatDMY(invoice.due_date)}</td>
                                             <td className="px-4 py-3 text-right font-medium">৳{parseFloat(invoice.total_amount).toFixed(2)}</td>
                                             <td className="px-4 py-3">

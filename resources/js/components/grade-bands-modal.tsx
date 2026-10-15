@@ -1,22 +1,15 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
-import { Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { useForm } from '@inertiajs/react';
+import { Plus, Trash2 } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
+import { toast } from 'sonner';
 
 interface Band {
     [key: string]: string | number | null;
@@ -36,16 +29,7 @@ interface GradeBandsModalProps {
     bands: Band[];
 }
 
-const SCALE_COLORS = [
-    'bg-emerald-500',
-    'bg-green-500',
-    'bg-lime-500',
-    'bg-yellow-400',
-    'bg-amber-500',
-    'bg-orange-500',
-    'bg-rose-500',
-    'bg-red-600',
-];
+const SCALE_COLORS = ['bg-emerald-500', 'bg-green-500', 'bg-lime-500', 'bg-yellow-400', 'bg-amber-500', 'bg-orange-500', 'bg-rose-500', 'bg-red-600'];
 
 function toNumber(value: string): number | null {
     if (value === '' || value === null || value === undefined) return null;
@@ -82,14 +66,14 @@ export function GradeBandsModal({ open, onOpenChange, scaleId, scaleName, bands 
     }
 
     function addBand() {
-        setData('bands', [
-            ...data.bands,
-            { id: null, label: '', min_percentage: '', max_percentage: '', grade_point: '', remarks: '' },
-        ]);
+        setData('bands', [...data.bands, { id: null, label: '', min_percentage: '', max_percentage: '', grade_point: '', remarks: '' }]);
     }
 
     function removeBand(index: number) {
-        setData('bands', data.bands.filter((_, i) => i !== index));
+        setData(
+            'bands',
+            data.bands.filter((_, i) => i !== index),
+        );
     }
 
     function moveBand(index: number, direction: -1 | 1) {
@@ -189,8 +173,8 @@ export function GradeBandsModal({ open, onOpenChange, scaleId, scaleName, bands 
                 <DialogHeader>
                     <DialogTitle>Grade Bands — {scaleName}</DialogTitle>
                     <DialogDescription>
-                        Each band is one grade. The percentage of a student's marks decides which band they fall into. Bands must not overlap and
-                        must stay within 0–100.
+                        Each band is one grade. The percentage of a student's marks decides which band they fall into. Bands must not overlap and must
+                        stay within 0–100.
                     </DialogDescription>
                 </DialogHeader>
                 <form
@@ -225,11 +209,11 @@ export function GradeBandsModal({ open, onOpenChange, scaleId, scaleName, bands 
                                 })}
                             </div>
                         ) : (
-                            <div className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
+                            <div className="text-muted-foreground rounded-md border border-dashed p-4 text-center text-sm">
                                 Fill in valid percentage ranges to see the preview.
                             </div>
                         )}
-                        <p className="text-xs text-muted-foreground">Bands are sorted from lowest to highest percentage.</p>
+                        <p className="text-muted-foreground text-xs">Bands are sorted from lowest to highest percentage.</p>
                     </div>
 
                     <div className="space-y-2">
@@ -237,7 +221,7 @@ export function GradeBandsModal({ open, onOpenChange, scaleId, scaleName, bands 
                         <div className="overflow-x-auto rounded-md border">
                             <table className="w-full min-w-[700px] text-sm">
                                 <thead>
-                                    <tr className="border-b bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                                    <tr className="bg-muted/50 text-muted-foreground border-b text-left text-xs tracking-wide uppercase">
                                         <th className="px-3 py-2 font-medium">Grade</th>
                                         <th className="px-3 py-2 font-medium">Min %</th>
                                         <th className="px-3 py-2 font-medium">Max %</th>
@@ -334,8 +318,14 @@ export function GradeBandsModal({ open, onOpenChange, scaleId, scaleName, bands 
                                                                 ↓
                                                             </Button>
                                                         </div>
-                                                        <Button type="button" variant="ghost" size="icon" onClick={() => removeBand(index)} title="Remove band">
-                                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => removeBand(index)}
+                                                            title="Remove band"
+                                                        >
+                                                            <Trash2 className="text-destructive h-4 w-4" />
                                                         </Button>
                                                     </div>
                                                 </td>
@@ -351,7 +341,7 @@ export function GradeBandsModal({ open, onOpenChange, scaleId, scaleName, bands 
                                 <Plus className="mr-1 h-4 w-4" /> Add Band
                             </Button>
                             {issues.length > 0 && (
-                                <div className="text-sm font-medium text-destructive">
+                                <div className="text-destructive text-sm font-medium">
                                     {issues.length} issue{issues.length > 1 ? 's' : ''} to fix
                                 </div>
                             )}
@@ -359,7 +349,7 @@ export function GradeBandsModal({ open, onOpenChange, scaleId, scaleName, bands 
 
                         <div className="space-y-1">
                             {data.bands.some((band, index) => issuesFor(index).length > 0) && (
-                                <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+                                <div className="border-destructive/40 bg-destructive/5 text-destructive rounded-md border p-3 text-sm">
                                     {data.bands.map(
                                         (band, index) =>
                                             issuesFor(index).length > 0 && (

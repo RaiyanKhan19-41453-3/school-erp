@@ -1,25 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { DatePicker } from '@/components/date-picker';
+import InputError from '@/components/input-error';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { useForm } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface Subject {
     id: number;
@@ -172,10 +165,7 @@ export function ExamSubjectsModal({ open, onOpenChange, examId, examName, classS
 
         if (removedWithMarks.length > 0) {
             setPendingRemoval({
-                marksCount: removedWithMarks.reduce(
-                    (sum, s) => sum + (existingBySubject.get(s.subject_id)?.marks_count ?? 0),
-                    0,
-                ),
+                marksCount: removedWithMarks.reduce((sum, s) => sum + (existingBySubject.get(s.subject_id)?.marks_count ?? 0), 0),
                 subjectNames: removedWithMarks.map((s) => s.name),
             });
 
@@ -220,7 +210,9 @@ export function ExamSubjectsModal({ open, onOpenChange, examId, examName, classS
                 >
                     <div className="space-y-2">
                         {formSubjects.length === 0 ? (
-                            <p className="text-muted-foreground text-sm">This class has no subjects assigned yet. Assign subjects to the class first.</p>
+                            <p className="text-muted-foreground text-sm">
+                                This class has no subjects assigned yet. Assign subjects to the class first.
+                            </p>
                         ) : (
                             <>
                                 <div className="flex items-center justify-between">
@@ -234,7 +226,7 @@ export function ExamSubjectsModal({ open, onOpenChange, examId, examName, classS
                                 </div>
 
                                 <div className="rounded-md border">
-                                    <div className="grid grid-cols-[2.5rem_1fr_6.5rem_6.5rem_10rem] items-center gap-2 border-b bg-muted/50 px-3 py-2 text-xs font-medium text-muted-foreground">
+                                    <div className="bg-muted/50 text-muted-foreground grid grid-cols-[2.5rem_1fr_6.5rem_6.5rem_10rem] items-center gap-2 border-b px-3 py-2 text-xs font-medium">
                                         <Checkbox
                                             checked={allSelected ? true : someSelected ? 'indeterminate' : false}
                                             onCheckedChange={toggleAll}
@@ -259,7 +251,11 @@ export function ExamSubjectsModal({ open, onOpenChange, examId, examName, classS
                                                         isChecked && 'bg-accent/40',
                                                     )}
                                                 >
-                                                    <Checkbox checked={isChecked} onCheckedChange={() => toggle(index)} aria-label={`Include ${subject.name}`} />
+                                                    <Checkbox
+                                                        checked={isChecked}
+                                                        onCheckedChange={() => toggle(index)}
+                                                        aria-label={`Include ${subject.name}`}
+                                                    />
                                                     <div className="flex min-w-0 items-center gap-2">
                                                         <span className={cn('truncate text-sm font-medium', !isChecked && 'text-muted-foreground')}>
                                                             {subject.name}
@@ -298,9 +294,7 @@ export function ExamSubjectsModal({ open, onOpenChange, examId, examName, classS
                                                             disabled={!isChecked}
                                                         />
                                                     </div>
-                                                    {error && (
-                                                        <div className="col-span-5 -mt-1 text-xs text-destructive">{error}</div>
-                                                    )}
+                                                    {error && <div className="text-destructive col-span-5 -mt-1 text-xs">{error}</div>}
                                                 </div>
                                             );
                                         })}

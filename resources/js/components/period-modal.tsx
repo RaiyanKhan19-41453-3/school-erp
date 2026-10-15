@@ -1,21 +1,14 @@
 'use client';
 
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import InputError from '@/components/input-error';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { useEffect, KeyboardEvent } from 'react';
+import { useForm } from '@inertiajs/react';
+import { KeyboardEvent, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface Period {
     id: number;
@@ -104,35 +97,19 @@ export function PeriodModal({ open, onOpenChange, period }: PeriodModalProps) {
                 >
                     <div className="space-y-2">
                         <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            placeholder="e.g. Period 1"
-                            autoFocus
-                        />
+                        <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="e.g. Period 1" autoFocus />
                         <InputError message={errors.name} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="start_time">Start Time</Label>
-                            <Input
-                                id="start_time"
-                                type="time"
-                                value={data.start_time}
-                                onChange={(e) => setData('start_time', e.target.value)}
-                            />
+                            <Input id="start_time" type="time" value={data.start_time} onChange={(e) => setData('start_time', e.target.value)} />
                             <InputError message={errors.start_time} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="end_time">End Time</Label>
-                            <Input
-                                id="end_time"
-                                type="time"
-                                value={data.end_time}
-                                onChange={(e) => setData('end_time', e.target.value)}
-                            />
+                            <Input id="end_time" type="time" value={data.end_time} onChange={(e) => setData('end_time', e.target.value)} />
                             <InputError message={errors.end_time} />
                         </div>
                     </div>
@@ -150,11 +127,7 @@ export function PeriodModal({ open, onOpenChange, period }: PeriodModalProps) {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        <Checkbox
-                            id="is_break"
-                            checked={data.is_break}
-                            onCheckedChange={(checked) => setData('is_break', checked === true)}
-                        />
+                        <Checkbox id="is_break" checked={data.is_break} onCheckedChange={(checked) => setData('is_break', checked === true)} />
                         <Label htmlFor="is_break" className="font-normal">
                             This is a break / recess
                         </Label>

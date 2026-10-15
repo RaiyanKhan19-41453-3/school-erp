@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { AcademicYearFilter } from '@/components/academic-year-filter';
+import { DataTable } from '@/components/data-table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { formatDMY } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { DataTable } from '@/components/data-table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Combobox } from '@/components/ui/combobox';
-import { AcademicYearFilter } from '@/components/academic-year-filter';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { formatDMY } from '@/lib/format';
 import { Eye, Plus } from 'lucide-react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -60,7 +60,15 @@ export default function InvoicesIndex({
     academicYears,
 }: {
     invoices: PaginatedData<Invoice>;
-    filters: { search: string; sort: string; direction: string; per_page: number; class_id: number | null; status: string | null; year_id: number | null };
+    filters: {
+        search: string;
+        sort: string;
+        direction: string;
+        per_page: number;
+        class_id: number | null;
+        status: string | null;
+        year_id: number | null;
+    };
     classes: SchoolClass[];
     academicYears: AcademicYear[];
 }) {
@@ -175,7 +183,7 @@ export default function InvoicesIndex({
                             render: (_: string, row: Invoice) => (
                                 <div>
                                     <div className="font-medium">{row.student?.name ?? '—'}</div>
-                                    <div className="text-xs text-muted-foreground">{row.student?.admission_number}</div>
+                                    <div className="text-muted-foreground text-xs">{row.student?.admission_number}</div>
                                 </div>
                             ),
                         },
@@ -202,9 +210,7 @@ export default function InvoicesIndex({
                             label: 'Status',
                             sortable: true,
                             render: (status: string) => (
-                                <Badge variant={STATUS_VARIANTS[status] ?? 'secondary'}>
-                                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                                </Badge>
+                                <Badge variant={STATUS_VARIANTS[status] ?? 'secondary'}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>
                             ),
                         },
                     ]}

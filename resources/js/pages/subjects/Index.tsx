@@ -1,14 +1,13 @@
-import { useState } from 'react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
+import { DataTable } from '@/components/data-table';
+import { SubjectModal } from '@/components/subject-modal';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
-import { DataTable } from '@/components/data-table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { SubjectModal } from '@/components/subject-modal';
+import { Head, useForm } from '@inertiajs/react';
 import { Pencil, Trash2 } from 'lucide-react';
-import { useForm } from '@inertiajs/react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -85,7 +84,8 @@ export default function SubjectsIndex({
                         {
                             key: 'code',
                             label: 'Code',
-                            render: (code: string | null) => (code ? <Badge variant="outline">{code}</Badge> : <span className="text-muted-foreground">—</span>),
+                            render: (code: string | null) =>
+                                code ? <Badge variant="outline">{code}</Badge> : <span className="text-muted-foreground">—</span>,
                         },
                         {
                             key: 'classes_count',
@@ -101,7 +101,7 @@ export default function SubjectsIndex({
                                 <Pencil className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="icon" onClick={() => setDeletingSubject(row)} title="Delete">
-                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <Trash2 className="text-destructive h-4 w-4" />
                             </Button>
                         </div>
                     )}

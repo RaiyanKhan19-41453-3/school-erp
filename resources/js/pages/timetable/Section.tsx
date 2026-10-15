@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { AcademicYearFilter } from '@/components/academic-year-filter';
+import { TimetableGrid } from '@/components/timetable-grid';
+import { Combobox } from '@/components/ui/combobox';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { Combobox } from '@/components/ui/combobox';
-import { AcademicYearFilter } from '@/components/academic-year-filter';
-import { TimetableGrid } from '@/components/timetable-grid';
+import { useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -88,7 +88,7 @@ export default function SectionTimetable({
                 <div className="mb-6">
                     <h2 className="text-xl font-semibold tracking-tight">Section Timetable</h2>
                     <p className="text-muted-foreground text-sm">
-                        {isAdmin ? 'View the weekly timetable for any section' : 'Your section\'s weekly timetable'}
+                        {isAdmin ? 'View the weekly timetable for any section' : "Your section's weekly timetable"}
                     </p>
                 </div>
 
@@ -117,8 +117,8 @@ export default function SectionTimetable({
                 ) : (
                     <>
                         <TimetableGrid periods={periods} slots={slots} />
-                        <p className="text-sm text-muted-foreground">
-                            Timetable for <span className="font-medium text-foreground">{selectedClassLabel}</span>
+                        <p className="text-muted-foreground text-sm">
+                            Timetable for <span className="text-foreground font-medium">{selectedClassLabel}</span>
                         </p>
                     </>
                 )}

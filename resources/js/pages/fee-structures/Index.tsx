@@ -1,16 +1,15 @@
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { DataTable } from '@/components/data-table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Combobox } from '@/components/ui/combobox';
 import { AcademicYearFilter } from '@/components/academic-year-filter';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { DataTable } from '@/components/data-table';
 import { FeeStructureModal } from '@/components/fee-structure-modal';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Pencil, Trash2 } from 'lucide-react';
-import { useForm } from '@inertiajs/react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -198,9 +197,7 @@ export default function FeeStructuresIndex({
                             key: 'frequency',
                             label: 'Frequency',
                             sortable: true,
-                            render: (frequency: string) => (
-                                <Badge variant="secondary">{FREQUENCY_LABELS[frequency] ?? frequency}</Badge>
-                            ),
+                            render: (frequency: string) => <Badge variant="secondary">{FREQUENCY_LABELS[frequency] ?? frequency}</Badge>,
                         },
                         {
                             key: 'due_day',
@@ -216,20 +213,14 @@ export default function FeeStructuresIndex({
                                 <Pencil className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="icon" onClick={() => setDeletingStructure(row)} title="Delete">
-                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <Trash2 className="text-destructive h-4 w-4" />
                             </Button>
                         </div>
                     )}
                 />
             </div>
 
-            <FeeStructureModal
-                open={createModalOpen}
-                onOpenChange={setCreateModalOpen}
-                structure={null}
-                classes={classes}
-                categories={categories}
-            />
+            <FeeStructureModal open={createModalOpen} onOpenChange={setCreateModalOpen} structure={null} classes={classes} categories={categories} />
             <FeeStructureModal
                 open={editModalOpen}
                 onOpenChange={setEditModalOpen}

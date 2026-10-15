@@ -10,6 +10,31 @@
     --font-sans:
         'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
+    --font-display: 'Playfair Display', ui-serif, Georgia, 'Times New Roman', serif;
+
+    --color-brand-50: #f4f7fb;
+    --color-brand-100: #e8eef6;
+    --color-brand-200: #cfdff0;
+    --color-brand-300: #a8c3de;
+    --color-brand-400: #7497bd;
+    --color-brand-500: #4d739d;
+    --color-brand-600: #395a80;
+    --color-brand-700: #2c4767;
+    --color-brand-800: #1f3550;
+    --color-brand-900: #14263c;
+    --color-brand-950: #0a1729;
+    --color-gold-100: #faf3e0;
+    --color-gold-200: #f3e3b9;
+    --color-gold-300: #e9cd84;
+    --color-gold-400: #ddb254;
+    --color-gold-500: #cf9a2e;
+    --color-gold-600: #a97c22;
+    --color-gold-700: #825f1c;
+    --color-cream-50: #fbf9f4;
+    --color-cream-100: #f6f1e6;
+    --color-cream-200: #ece2cd;
+    --color-cream-300: #ddcdac;
+
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -150,5 +175,12 @@
 
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+@layer components {
+    .site-dot-pattern {
+        background-image: radial-gradient(rgba(255, 255, 255, 0.13) 1px, transparent 1px);
+        background-size: 22px 22px;
     }
 }

@@ -1,21 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { router, useForm, usePage } from '@inertiajs/react';
-import { Plus, X } from 'lucide-react';
-import { toast } from 'sonner';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-} from '@/components/ui/dialog';
+import { router, useForm, usePage } from '@inertiajs/react';
+import { Plus, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface Section {
     id: number;
@@ -100,12 +94,12 @@ export function ManageSectionsModal({ classId, open, onOpenChange }: ManageSecti
 
                 <div className="space-y-4">
                     {classData?.sections.length === 0 && (
-                        <p className="py-4 text-center text-sm text-muted-foreground">No sections yet. Add one below.</p>
+                        <p className="text-muted-foreground py-4 text-center text-sm">No sections yet. Add one below.</p>
                     )}
 
                     <div className="space-y-2">
                         {classData?.sections.map((section) => (
-                            <div key={section.id} className="flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3">
+                            <div key={section.id} className="bg-card flex items-center justify-between gap-4 rounded-lg border px-4 py-3">
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm font-medium">{section.name}</span>
                                     <Badge variant="secondary">{section.capacity} capacity</Badge>

@@ -10,15 +10,21 @@ import {
     CalendarCheck,
     CalendarCheck2,
     CalendarClock,
+    CalendarDays,
     ClipboardList,
     Clock,
     FileText,
     Folder,
     GraduationCap,
+    Images,
     LayoutGrid,
+    LayoutTemplate,
     ListChecks,
+    Mail,
+    Newspaper,
     PencilLine,
     ReceiptText,
+    Trophy,
     UserCog,
     Users,
     Wallet,
@@ -125,6 +131,39 @@ const adminNavItems: NavItem[] = [
     },
 ];
 
+const websiteNavItems: NavItem[] = [
+    {
+        title: 'Website Content',
+        url: '/website/content',
+        icon: LayoutTemplate,
+    },
+    {
+        title: 'Website Notices',
+        url: '/website/notices',
+        icon: Newspaper,
+    },
+    {
+        title: 'Website Events',
+        url: '/website/events',
+        icon: CalendarDays,
+    },
+    {
+        title: 'Website Achievements',
+        url: '/website/achievements',
+        icon: Trophy,
+    },
+    {
+        title: 'Website Gallery',
+        url: '/website/gallery-items',
+        icon: Images,
+    },
+    {
+        title: 'Website Messages',
+        url: '/website/messages',
+        icon: Mail,
+    },
+];
+
 const studentParentNavItems: NavItem[] = [
     {
         title: 'My Invoices',
@@ -184,6 +223,7 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={[...dashboardNavItem, ...mainNav, ...staffNav, ...teacherNav, ...extraNav]} />
+                {isAdmin && <NavMain label="Website" items={websiteNavItems} />}
             </SidebarContent>
 
             <SidebarFooter>

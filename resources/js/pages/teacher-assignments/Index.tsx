@@ -1,16 +1,16 @@
-import { useMemo, useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { DataTable } from '@/components/data-table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Combobox } from '@/components/ui/combobox';
 import { AcademicYearFilter } from '@/components/academic-year-filter';
 import { AssignTeacherModal } from '@/components/assign-teacher-modal';
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import { toast } from 'sonner';
+import { DataTable } from '@/components/data-table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, router } from '@inertiajs/react';
 import { Star, UserPlus, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -73,7 +73,16 @@ export default function TeacherAssignmentsIndex({
     selectedYearIsCurrent,
 }: {
     sections: PaginatedData<SectionRow>;
-    filters: { search: string; sort: string; direction: string; per_page: number; class_id: number | null; section_id: number | null; teacher_id: number | null; year_id: number | null };
+    filters: {
+        search: string;
+        sort: string;
+        direction: string;
+        per_page: number;
+        class_id: number | null;
+        section_id: number | null;
+        teacher_id: number | null;
+        year_id: number | null;
+    };
     staff: StaffMember[];
     classes: SchoolClass[];
     academicYears: AcademicYear[];
@@ -118,15 +127,17 @@ export default function TeacherAssignmentsIndex({
         }
 
         const seen = new Set<number>();
-        return activeClass.sections.flatMap((section) => section.teachers).filter((teacher) => {
-            if (seen.has(teacher.id)) {
-                return false;
-            }
+        return activeClass.sections
+            .flatMap((section) => section.teachers)
+            .filter((teacher) => {
+                if (seen.has(teacher.id)) {
+                    return false;
+                }
 
-            seen.add(teacher.id);
+                seen.add(teacher.id);
 
-            return true;
-        });
+                return true;
+            });
     }, [activeClass, staff]);
 
     function applyFilter(key: 'class_id' | 'section_id' | 'teacher_id', value: string) {
@@ -192,14 +203,18 @@ export default function TeacherAssignmentsIndex({
         const { section, teacher } = promotingTeacher;
         setPromotingTeacher(null);
 
-        router.put(route('teacher-assignments.set-class-teacher', [section.id, teacher.id]), {}, {
-            onSuccess: () => {
-                toast.success(`${teacher.user.name} is now the class teacher`);
+        router.put(
+            route('teacher-assignments.set-class-teacher', [section.id, teacher.id]),
+            {},
+            {
+                onSuccess: () => {
+                    toast.success(`${teacher.user.name} is now the class teacher`);
+                },
+                onError: () => {
+                    toast.error('Failed to update class teacher');
+                },
             },
-            onError: () => {
-                toast.error('Failed to update class teacher');
-            },
-        });
+        );
     };
 
     return (
@@ -227,7 +242,10 @@ export default function TeacherAssignmentsIndex({
                     <div className="w-56 space-y-1.5">
                         <span className="text-sm font-medium">Section</span>
                         <Combobox
-                            options={[{ value: 'all', label: 'All' }, ...(activeClass?.sections ?? []).map((s) => ({ value: String(s.id), label: s.name }))]}
+                            options={[
+                                { value: 'all', label: 'All' },
+                                ...(activeClass?.sections ?? []).map((s) => ({ value: String(s.id), label: s.name })),
+                            ]}
                             value={selectedSection}
                             onValueChange={(v) => applyFilter('section_id', v)}
                             disabled={!activeClass}
@@ -239,7 +257,13 @@ export default function TeacherAssignmentsIndex({
                     <div className="w-56 space-y-1.5">
                         <span className="text-sm font-medium">Teacher</span>
                         <Combobox
-                            options={[{ value: 'all', label: 'All' }, ...teacherOptions.map((s) => ({ value: String(s.id), label: `${s.user.name}${'employee_id' in s && s.employee_id ? ` (${s.employee_id})` : ''}` }))]}
+                            options={[
+                                { value: 'all', label: 'All' },
+                                ...teacherOptions.map((s) => ({
+                                    value: String(s.id),
+                                    label: `${s.user.name}${'employee_id' in s && s.employee_id ? ` (${s.employee_id})` : ''}`,
+                                })),
+                            ]}
                             value={selectedTeacher}
                             onValueChange={(v) => applyFilter('teacher_id', v)}
                             placeholder="All teachers"
@@ -275,13 +299,21 @@ export default function TeacherAssignmentsIndex({
                                 ) : (
                                     <div className="flex flex-wrap items-center gap-1">
                                         {teachers.map((teacher) => (
-                                            <Badge key={teacher.id} variant={teacher.pivot.is_class_teacher ? 'default' : 'secondary'} className="gap-1">
+                                            <Badge
+                                                key={teacher.id}
+                                                variant={teacher.pivot.is_class_teacher ? 'default' : 'secondary'}
+                                                className="gap-1"
+                                            >
                                                 <button
                                                     type="button"
                                                     disabled={teacher.pivot.is_class_teacher || !selectedYearIsCurrent}
                                                     onClick={() => promoteClassTeacher(row, teacher)}
                                                     title={teacher.pivot.is_class_teacher ? 'Class teacher' : 'Make class teacher'}
-                                                    className={teacher.pivot.is_class_teacher ? 'text-yellow-400' : 'text-muted-foreground cursor-pointer transition-colors hover:text-yellow-500 disabled:cursor-not-allowed'}
+                                                    className={
+                                                        teacher.pivot.is_class_teacher
+                                                            ? 'text-yellow-400'
+                                                            : 'text-muted-foreground cursor-pointer transition-colors hover:text-yellow-500 disabled:cursor-not-allowed'
+                                                    }
                                                 >
                                                     <Star className="h-3 w-3" fill={teacher.pivot.is_class_teacher ? 'currentColor' : 'none'} />
                                                 </button>
@@ -289,7 +321,7 @@ export default function TeacherAssignmentsIndex({
                                                 <button
                                                     type="button"
                                                     disabled={!selectedYearIsCurrent}
-                                                    className="ml-1 text-muted-foreground hover:text-destructive disabled:cursor-not-allowed"
+                                                    className="text-muted-foreground hover:text-destructive ml-1 disabled:cursor-not-allowed"
                                                     onClick={() => setRemovingTeacher({ section: row, teacher })}
                                                     title="Remove teacher"
                                                 >
@@ -304,19 +336,20 @@ export default function TeacherAssignmentsIndex({
                     data={sections}
                     filters={filters}
                     actions={(row) => (
-                        <Button variant="ghost" size="icon" onClick={() => openAssignModal(row)} title="Assign teacher" disabled={!selectedYearIsCurrent}>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openAssignModal(row)}
+                            title="Assign teacher"
+                            disabled={!selectedYearIsCurrent}
+                        >
                             <UserPlus className="h-4 w-4" />
                         </Button>
                     )}
                 />
             </div>
 
-            <AssignTeacherModal
-                section={assigningSection}
-                staff={staff}
-                open={modalOpen}
-                onOpenChange={setModalOpen}
-            />
+            <AssignTeacherModal section={assigningSection} staff={staff} open={modalOpen} onOpenChange={setModalOpen} />
 
             <ConfirmDialog
                 open={removingTeacher !== null}

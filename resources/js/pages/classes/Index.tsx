@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { DataTable } from '@/components/data-table';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { AcademicYearFilter } from '@/components/academic-year-filter';
+import { AssignSubjectsModal } from '@/components/assign-subjects-modal';
 import { CreateClassModal } from '@/components/create-class-modal';
+import { DataTable } from '@/components/data-table';
 import { EditClassModal } from '@/components/edit-class-modal';
 import { ManageSectionsModal } from '@/components/manage-sections-modal';
-import { AssignSubjectsModal } from '@/components/assign-subjects-modal';
-import { BookOpenCheck, Layers, Pencil } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
 import { formatDMY } from '@/lib/format';
+import { type BreadcrumbItem } from '@/types';
+import { Head, router } from '@inertiajs/react';
+import { BookOpenCheck, Layers, Pencil } from 'lucide-react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -111,96 +111,87 @@ export default function ClassesIndex({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Classes" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-
-            <div className="mb-6 flex items-center justify-between">
-                <div>
-                    <h2 className="text-xl font-semibold tracking-tight">Classes</h2>
-                    <p className="text-muted-foreground text-sm">Manage classes and their sections</p>
-                </div>
-                {selectedYearIsCurrent ? (
-                    <Button onClick={() => setCreateModalOpen(true)}>Add Class</Button>
-                ) : (
-                    <Button disabled title="Classes are created for the current academic year only">
-                        Add Class
-                    </Button>
-                )}
-            </div>
-
-            <div className="mb-4 flex flex-wrap items-end gap-4">
-                <AcademicYearFilter academicYears={academicYears} value={selectedYear} onValueChange={applyYearFilter} />
-            </div>
-
-            <DataTable
-                routeName="classes.index"
-                searchPlaceholder="Search classes..."
-                extraParams={{
-                    year_id: selectedYear,
-                }}
-                columns={[
-                    { key: 'name', label: 'Class Name', sortable: true },
-                    {
-                        key: 'sections',
-                        label: 'Sections',
-                        render: (sections: Section[]) =>
-                            sections?.map((s) => (
-                                <Badge key={s.id} variant="secondary" className="mr-1">
-                                    {s.name} ({s.capacity})
-                                </Badge>
-                            )),
-                    },
-                    {
-                        key: 'subjects',
-                        label: 'Subjects',
-                        render: (subs: Subject[]) => (
-                            <div className="flex max-w-md flex-wrap gap-1">
-                                {subs?.length ? (
-                                    subs.map((s) => (
-                                        <Badge key={s.id} variant="outline" className="mr-1">
-                                            {s.name}
-                                        </Badge>
-                                    ))
-                                ) : (
-                                    <span className="text-muted-foreground text-sm">No subjects</span>
-                                )}
-                            </div>
-                        ),
-                    },
-                    {
-                        key: 'created_at',
-                        label: 'Created',
-                        sortable: true,
-                        render: (date: string) => formatDMY(date),
-                    },
-                ]}
-                data={classes}
-                filters={filters}
-                actions={(row) => (
-                    <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => openSubjectsModal(row)} title="Assign subjects">
-                            <BookOpenCheck className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => openSectionsModal(row)} title="Manage sections">
-                            <Layers className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => openEditModal(row)} title="Edit">
-                            <Pencil className="h-4 w-4" />
-                        </Button>
+                <div className="mb-6 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-xl font-semibold tracking-tight">Classes</h2>
+                        <p className="text-muted-foreground text-sm">Manage classes and their sections</p>
                     </div>
-                )}
-            />
+                    {selectedYearIsCurrent ? (
+                        <Button onClick={() => setCreateModalOpen(true)}>Add Class</Button>
+                    ) : (
+                        <Button disabled title="Classes are created for the current academic year only">
+                            Add Class
+                        </Button>
+                    )}
+                </div>
+
+                <div className="mb-4 flex flex-wrap items-end gap-4">
+                    <AcademicYearFilter academicYears={academicYears} value={selectedYear} onValueChange={applyYearFilter} />
+                </div>
+
+                <DataTable
+                    routeName="classes.index"
+                    searchPlaceholder="Search classes..."
+                    extraParams={{
+                        year_id: selectedYear,
+                    }}
+                    columns={[
+                        { key: 'name', label: 'Class Name', sortable: true },
+                        {
+                            key: 'sections',
+                            label: 'Sections',
+                            render: (sections: Section[]) =>
+                                sections?.map((s) => (
+                                    <Badge key={s.id} variant="secondary" className="mr-1">
+                                        {s.name} ({s.capacity})
+                                    </Badge>
+                                )),
+                        },
+                        {
+                            key: 'subjects',
+                            label: 'Subjects',
+                            render: (subs: Subject[]) => (
+                                <div className="flex max-w-md flex-wrap gap-1">
+                                    {subs?.length ? (
+                                        subs.map((s) => (
+                                            <Badge key={s.id} variant="outline" className="mr-1">
+                                                {s.name}
+                                            </Badge>
+                                        ))
+                                    ) : (
+                                        <span className="text-muted-foreground text-sm">No subjects</span>
+                                    )}
+                                </div>
+                            ),
+                        },
+                        {
+                            key: 'created_at',
+                            label: 'Created',
+                            sortable: true,
+                            render: (date: string) => formatDMY(date),
+                        },
+                    ]}
+                    data={classes}
+                    filters={filters}
+                    actions={(row) => (
+                        <div className="flex items-center justify-end gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => openSubjectsModal(row)} title="Assign subjects">
+                                <BookOpenCheck className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => openSectionsModal(row)} title="Manage sections">
+                                <Layers className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => openEditModal(row)} title="Edit">
+                                <Pencil className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                />
             </div>
 
             <CreateClassModal open={createModalOpen} onOpenChange={setCreateModalOpen} />
-            <EditClassModal
-                class={editingClass}
-                open={editModalOpen}
-                onOpenChange={setEditModalOpen}
-            />
-            <ManageSectionsModal
-                classId={sectionsClassId}
-                open={sectionsModalOpen}
-                onOpenChange={setSectionsModalOpen}
-            />
+            <EditClassModal class={editingClass} open={editModalOpen} onOpenChange={setEditModalOpen} />
+            <ManageSectionsModal classId={sectionsClassId} open={sectionsModalOpen} onOpenChange={setSectionsModalOpen} />
             <AssignSubjectsModal
                 open={subjectsModalOpen}
                 onOpenChange={setSubjectsModalOpen}

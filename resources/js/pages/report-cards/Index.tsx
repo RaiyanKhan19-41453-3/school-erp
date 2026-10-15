@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { AcademicYearFilter } from '@/components/academic-year-filter';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Combobox } from '@/components/ui/combobox';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Combobox } from '@/components/ui/combobox';
-import { AcademicYearFilter } from '@/components/academic-year-filter';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronRight, ClipboardList } from 'lucide-react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -61,11 +61,7 @@ export default function ReportCardsIndex({
         setSelectedClass(classId);
         setSelectedSection('');
         setSelectedStudent('');
-        router.get(
-            route('report-cards.index'),
-            { year_id: selectedYearId || '', class_id: classId },
-            { preserveState: true, preserveScroll: true },
-        );
+        router.get(route('report-cards.index'), { year_id: selectedYearId || '', class_id: classId }, { preserveState: true, preserveScroll: true });
     }
 
     function applySection(sectionId: string) {
@@ -95,9 +91,7 @@ export default function ReportCardsIndex({
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="mb-6">
                     <h2 className="text-xl font-semibold tracking-tight">Report Cards</h2>
-                    <p className="text-muted-foreground text-sm">
-                        {isStaff ? 'View report cards for any student' : 'View your report cards'}
-                    </p>
+                    <p className="text-muted-foreground text-sm">{isStaff ? 'View report cards for any student' : 'View your report cards'}</p>
                 </div>
 
                 <div className="mb-4 flex flex-wrap items-end gap-4">
@@ -147,7 +141,7 @@ export default function ReportCardsIndex({
 
                 {exams.length === 0 ? (
                     <div className="rounded-lg border">
-                        <p className="px-4 py-12 text-center text-sm text-muted-foreground">
+                        <p className="text-muted-foreground px-4 py-12 text-center text-sm">
                             {isStaff && !selectedStudentId
                                 ? filtersEmpty
                                     ? 'Select a class and section to narrow down students, then pick a student.'
@@ -170,7 +164,7 @@ export default function ReportCardsIndex({
                                         <Badge variant="secondary">{exam.class?.name}</Badge>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="mb-3 text-xs text-muted-foreground">
+                                        <div className="text-muted-foreground mb-3 text-xs">
                                             {exam.grading_scale ? `Graded with "${exam.grading_scale.name}"` : 'Percentages only'}
                                         </div>
                                         {studentId ? (

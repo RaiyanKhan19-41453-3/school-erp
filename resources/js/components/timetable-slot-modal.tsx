@@ -1,22 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import InputError from '@/components/input-error';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useForm } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface Subject {
     id: number;
@@ -57,17 +50,7 @@ interface TimetableSlotModalProps {
     academicYearId: number | null;
 }
 
-export function TimetableSlotModal({
-    open,
-    onOpenChange,
-    period,
-    day,
-    slot,
-    subjects,
-    staff,
-    sectionId,
-    academicYearId,
-}: TimetableSlotModalProps) {
+export function TimetableSlotModal({ open, onOpenChange, period, day, slot, subjects, staff, sectionId, academicYearId }: TimetableSlotModalProps) {
     const { data, setData, post, put, processing, errors, reset, transform } = useForm({
         section_id: '',
         academic_year_id: '',
@@ -140,12 +123,14 @@ export function TimetableSlotModal({
                     <DialogHeader>
                         <DialogTitle>
                             {slot ? 'Edit Timetable Slot' : 'Add Timetable Slot'}
-                            <span className="ml-2 text-sm font-normal text-muted-foreground">
+                            <span className="text-muted-foreground ml-2 text-sm font-normal">
                                 {day.charAt(0).toUpperCase() + day.slice(1)} · {period?.name}
                             </span>
                         </DialogTitle>
                         <DialogDescription>
-                            {slot ? 'Update the subject, teacher and room for this slot.' : 'Assign a subject, teacher and optional room to this slot.'}
+                            {slot
+                                ? 'Update the subject, teacher and room for this slot.'
+                                : 'Assign a subject, teacher and optional room to this slot.'}
                         </DialogDescription>
                     </DialogHeader>
                     <form

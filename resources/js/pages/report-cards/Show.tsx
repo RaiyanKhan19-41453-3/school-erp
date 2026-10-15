@@ -1,9 +1,9 @@
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, CheckCircle2, Download, XCircle } from 'lucide-react';
 
 const breadcrumbs = (student: { name: string }): BreadcrumbItem[] => [
@@ -74,7 +74,10 @@ export default function ReportCardShow({
                             </Button>
                         </Link>
                         {canDownload && (
-                            <Button size="sm" onClick={() => (window.location.href = route('report-cards.pdf', { exam: exam.id, student: student.id }))}>
+                            <Button
+                                size="sm"
+                                onClick={() => (window.location.href = route('report-cards.pdf', { exam: exam.id, student: student.id }))}
+                            >
                                 <Download className="h-4 w-4" /> Download PDF
                             </Button>
                         )}
@@ -86,7 +89,7 @@ export default function ReportCardShow({
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 <CardTitle className="text-lg">{student.name}</CardTitle>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-muted-foreground text-sm">
                                     Admission: {student.admission_number} · {exam.academic_year}
                                 </p>
                             </div>
@@ -96,8 +99,8 @@ export default function ReportCardShow({
                         </div>
                         {!totals.is_complete && (
                             <p className="mt-2 text-sm text-amber-600">
-                                {totals.missing_subjects} of {totals.total_subjects} subjects still need marks. Totals below cover the {totals.marked_subjects} marked{' '}
-                                {totals.marked_subjects === 1 ? 'subject' : 'subjects'} only.
+                                {totals.missing_subjects} of {totals.total_subjects} subjects still need marks. Totals below cover the{' '}
+                                {totals.marked_subjects} marked {totals.marked_subjects === 1 ? 'subject' : 'subjects'} only.
                             </p>
                         )}
                     </CardHeader>
@@ -106,16 +109,16 @@ export default function ReportCardShow({
                             <table className="w-full">
                                 <thead>
                                     <tr className="bg-muted/50">
-                                        <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Subject</th>
-                                        <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Marks</th>
-                                        <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">%</th>
-                                        <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Grade</th>
-                                        <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Result</th>
+                                        <th className="text-muted-foreground px-4 py-3 text-left text-sm font-medium">Subject</th>
+                                        <th className="text-muted-foreground px-4 py-3 text-right text-sm font-medium">Marks</th>
+                                        <th className="text-muted-foreground px-4 py-3 text-right text-sm font-medium">%</th>
+                                        <th className="text-muted-foreground px-4 py-3 text-right text-sm font-medium">Grade</th>
+                                        <th className="text-muted-foreground px-4 py-3 text-right text-sm font-medium">Result</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {subjects.map((subject) => (
-                                        <tr key={subject.subject} className="border-t transition-colors hover:bg-muted/30">
+                                        <tr key={subject.subject} className="hover:bg-muted/30 border-t transition-colors">
                                             <td className="px-4 py-3 text-sm font-medium">
                                                 {subject.subject}
                                                 {!subject.has_mark && (
@@ -123,7 +126,7 @@ export default function ReportCardShow({
                                                         Pending
                                                     </Badge>
                                                 )}
-                                                {subject.remarks && <span className="ml-2 text-xs text-muted-foreground">({subject.remarks})</span>}
+                                                {subject.remarks && <span className="text-muted-foreground ml-2 text-xs">({subject.remarks})</span>}
                                             </td>
                                             <td className="px-4 py-3 text-right text-sm">
                                                 {subject.has_mark ? `${subject.marks_obtained} / ${subject.full_marks}` : `— / ${subject.full_marks}`}
@@ -134,7 +137,7 @@ export default function ReportCardShow({
                                                     <>
                                                         {subject.grade_label ?? '—'}
                                                         {subject.grade_point !== null && subject.grade_point !== undefined && (
-                                                            <span className="ml-1 text-muted-foreground">({subject.grade_point})</span>
+                                                            <span className="text-muted-foreground ml-1">({subject.grade_point})</span>
                                                         )}
                                                     </>
                                                 ) : (
@@ -143,18 +146,18 @@ export default function ReportCardShow({
                                             </td>
                                             <td className="px-4 py-3 text-right">
                                                 {!subject.has_mark ? (
-                                                    <span className="text-xs text-muted-foreground">Awaiting marks</span>
+                                                    <span className="text-muted-foreground text-xs">Awaiting marks</span>
                                                 ) : subject.passed ? (
                                                     <CheckCircle2 className="ml-auto h-5 w-5 text-emerald-600" />
                                                 ) : (
-                                                    <XCircle className="ml-auto h-5 w-5 text-destructive" />
+                                                    <XCircle className="text-destructive ml-auto h-5 w-5" />
                                                 )}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                                 <tfoot>
-                                    <tr className="border-t bg-muted/50 font-medium">
+                                    <tr className="bg-muted/50 border-t font-medium">
                                         <td className="px-4 py-3 text-sm">
                                             Total: {totals.marks_obtained} / {totals.full_marks} ({totals.percentage}%)
                                         </td>
@@ -163,7 +166,7 @@ export default function ReportCardShow({
                                         <td className="px-4 py-3 text-right text-sm font-semibold">
                                             {totals.grade_label ?? '—'}
                                             {totals.grade_point !== null && totals.grade_point !== undefined && (
-                                                <span className="ml-1 text-muted-foreground">({totals.grade_point})</span>
+                                                <span className="text-muted-foreground ml-1">({totals.grade_point})</span>
                                             )}
                                         </td>
                                         <td className="px-4 py-3 text-right text-sm">

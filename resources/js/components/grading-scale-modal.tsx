@@ -1,20 +1,13 @@
 'use client';
 
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { useEffect, KeyboardEvent } from 'react';
+import { useForm } from '@inertiajs/react';
+import { KeyboardEvent, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface GradingScaleModalProps {
     open: boolean;
@@ -70,7 +63,9 @@ export function GradingScaleModal({ open, onOpenChange, scale }: GradingScaleMod
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>{scale ? 'Edit Grading Scale' : 'Create Grading Scale'}</DialogTitle>
-                    <DialogDescription>{scale ? 'Update the grading scale name.' : 'Add a new grading scale (e.g. Standard, A-F).'}</DialogDescription>
+                    <DialogDescription>
+                        {scale ? 'Update the grading scale name.' : 'Add a new grading scale (e.g. Standard, A-F).'}
+                    </DialogDescription>
                 </DialogHeader>
                 <form
                     onSubmit={(e) => {
@@ -82,13 +77,7 @@ export function GradingScaleModal({ open, onOpenChange, scale }: GradingScaleMod
                 >
                     <div className="space-y-2">
                         <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            placeholder="e.g. Standard"
-                            autoFocus
-                        />
+                        <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="e.g. Standard" autoFocus />
                         <InputError message={errors.name} />
                     </div>
 
