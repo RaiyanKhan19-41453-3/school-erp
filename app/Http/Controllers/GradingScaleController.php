@@ -19,7 +19,7 @@ class GradingScaleController extends Controller
 
         $perPage = max(1, min(request()->integer('per_page', 10), 100));
         $page = max(1, request()->integer('page', 1));
-        $search = request()->string('search')->value();
+        $search = $this->queryString('search');
 
         $query = GradingScale::where('school_id', auth()->user()->school_id)
             ->withCount('gradeBands')

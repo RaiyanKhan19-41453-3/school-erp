@@ -27,9 +27,9 @@ class TeacherAssignmentController extends Controller
 
         $perPage = max(1, min(request()->integer('per_page', 10), 100));
         $page = max(1, request()->integer('page', 1));
-        $sort = request()->string('sort', 'name')->value();
-        $direction = request()->string('direction', 'asc')->value();
-        $search = request()->string('search')->value();
+        $sort = $this->queryString('sort', 'name');
+        $direction = $this->queryString('direction', 'asc');
+        $search = $this->queryString('search');
         $classId = request()->integer('class_id');
         $sectionId = request()->integer('section_id');
         $teacherId = request()->integer('teacher_id');

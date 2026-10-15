@@ -17,9 +17,9 @@ class AcademicYearController extends Controller
 
         $perPage = max(1, min(request()->integer('per_page', 10), 100));
         $page = max(1, request()->integer('page', 1));
-        $sort = request()->string('sort', 'start_date')->value();
-        $direction = request()->string('direction', 'desc')->value();
-        $search = request()->string('search')->value();
+        $sort = $this->queryString('sort', 'start_date');
+        $direction = $this->queryString('direction', 'desc');
+        $search = $this->queryString('search');
 
         $allowedSorts = ['name', 'start_date', 'end_date', 'is_current', 'created_at'];
         if (! in_array($sort, $allowedSorts)) {

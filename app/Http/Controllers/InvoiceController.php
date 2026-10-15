@@ -30,11 +30,11 @@ class InvoiceController extends Controller
 
         $perPage = max(1, min(request()->integer('per_page', 10), 100));
         $page = max(1, request()->integer('page', 1));
-        $sort = request()->string('sort', 'created_at')->value();
-        $direction = strtolower(request()->string('direction', 'desc')->value());
-        $search = request()->string('search')->value();
+        $sort = $this->queryString('sort', 'created_at');
+        $direction = strtolower($this->queryString('direction', 'desc'));
+        $search = $this->queryString('search');
         $classId = request()->integer('class_id');
-        $status = request()->string('status')->value();
+        $status = $this->queryString('status');
 
         $allowedSorts = ['invoice_number', 'student_name', 'class_name', 'due_date', 'total_amount', 'created_at'];
         if (! in_array($sort, $allowedSorts)) {

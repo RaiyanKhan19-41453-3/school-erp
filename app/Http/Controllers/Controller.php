@@ -24,4 +24,16 @@ abstract class Controller
 
         return mb_substr($value, 0, $maxLength);
     }
+
+    /**
+     * Safely read a query-string value as a Y-m-d date string.
+     *
+     * Non-string or malformed input falls back to null.
+     */
+    protected function queryDate(string $key): ?string
+    {
+        $value = $this->queryString($key, '', 10);
+
+        return preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1 ? $value : null;
+    }
 }

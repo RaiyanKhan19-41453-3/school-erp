@@ -17,10 +17,10 @@ class PeriodController extends Controller
 
         $perPage = max(1, min(request()->integer('per_page', 10), 100));
         $page = max(1, request()->integer('page', 1));
-        $search = request()->string('search')->value();
+        $search = $this->queryString('search');
         $allowedSorts = ['name', 'start_time', 'end_time', 'sort_order', 'created_at'];
-        $sort = in_array(request()->string('sort')->value(), $allowedSorts) ? request()->string('sort')->value() : 'sort_order';
-        $direction = in_array(request()->string('direction')->value(), ['asc', 'desc']) ? request()->string('direction')->value() : 'asc';
+        $sort = in_array($this->queryString('sort'), $allowedSorts) ? $this->queryString('sort') : 'sort_order';
+        $direction = in_array($this->queryString('direction'), ['asc', 'desc']) ? $this->queryString('direction') : 'asc';
 
         $query = Period::where('school_id', auth()->user()->school_id);
 

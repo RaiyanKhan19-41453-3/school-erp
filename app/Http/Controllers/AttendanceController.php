@@ -27,7 +27,7 @@ class AttendanceController extends Controller
         $schoolId = $user->school_id;
         $academicYearId = $this->selectedAcademicYearId($schoolId);
 
-        $date = request()->string('date', now()->toDateString())->value();
+        $date = $this->queryString('date', now()->toDateString());
 
         if (! $this->isValidDate($date)) {
             $date = now()->toDateString();

@@ -31,6 +31,16 @@ test('users can not authenticate with invalid password', function () {
     $this->assertGuest();
 });
 
+test('login rejects array email input without server errors', function () {
+    $response = $this->post('/login', [
+        'email' => ['not-an-email'],
+        'password' => 'password',
+    ]);
+
+    $response->assertSessionHasErrors('email');
+    $this->assertGuest();
+});
+
 test('users can logout', function () {
     $user = User::factory()->create();
 

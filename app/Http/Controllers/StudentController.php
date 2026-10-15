@@ -30,14 +30,14 @@ class StudentController extends Controller
 
         $perPage = max(1, min(request()->integer('per_page', 10), 100));
         $page = max(1, request()->integer('page', 1));
-        $sort = request()->string('sort', 'created_at')->value();
-        $direction = request()->string('direction', 'desc')->value();
-        $search = request()->string('search')->value();
+        $sort = $this->queryString('sort', 'created_at');
+        $direction = $this->queryString('direction', 'desc');
+        $search = $this->queryString('search');
         $classId = request()->integer('class_id');
         $sectionId = request()->integer('section_id');
-        $gender = request()->string('gender')->value();
-        $admissionFrom = request()->date('admission_from');
-        $admissionTo = request()->date('admission_to');
+        $gender = $this->queryString('gender');
+        $admissionFrom = $this->queryDate('admission_from');
+        $admissionTo = $this->queryDate('admission_to');
 
         $allowedSorts = ['name', 'admission_number', 'admission_date', 'created_at'];
         if (! in_array($sort, $allowedSorts)) {
@@ -109,8 +109,8 @@ class StudentController extends Controller
                 'class_id' => $classId,
                 'section_id' => $sectionId,
                 'gender' => $gender ?: null,
-                'admission_from' => $admissionFrom?->toDateString(),
-                'admission_to' => $admissionTo?->toDateString(),
+                'admission_from' => $admissionFrom,
+                'admission_to' => $admissionTo,
                 'year_id' => $academicYearId,
             ],
             'academicYears' => $this->academicYears($schoolId),
