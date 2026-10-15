@@ -17,12 +17,13 @@ interface SubjectRow {
     code: string | null;
     full_marks: number;
     pass_marks: number;
-    marks_obtained: number;
-    percentage: number;
+    marks_obtained: number | null;
+    percentage: number | null;
     grade_label: string | null;
     grade_point: string | null;
     grade_remarks: string | null;
     passed: boolean;
+    has_mark: boolean;
     remarks: string | null;
 }
 
@@ -35,6 +36,9 @@ interface Totals {
     grade_remarks: string | null;
     passed_subjects: number;
     total_subjects: number;
+    marked_subjects: number;
+    missing_subjects: number;
+    is_complete: boolean;
 }
 
 export default function ReportCardShow({
@@ -86,10 +90,16 @@ export default function ReportCardShow({
                                     Admission: {student.admission_number} · {exam.academic_year}
                                 </p>
                             </div>
-                            <Badge variant={allPassed ? 'default' : 'destructive'}>
-                                {allPassed ? 'Promoted to next class' : 'Needs improvement'}
+                            <Badge variant={allPassed && totals.is_complete ? 'default' : 'destructive'}>
+                                {totals.is_complete ? (allPassed ? 'Promoted to next class' : 'Needs improvement') : 'Incomplete — marks pending'}
                             </Badge>
                         </div>
+                        {!totals.is_complete && (
+                            <p className="mt-2 text-sm text-amber-600">
+                                {totals.missing_subjects} of {totals.total_subjects} subjects still need marks. Totals below cover the {totals.marked_subjects} marked{' '}
+                                {totals.marked_subjects === 1 ? 'subject' : 'subjects'} only.
+                            </p>
+                        )}
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto">
@@ -108,20 +118,33 @@ export default function ReportCardShow({
                                         <tr key={subject.subject} className="border-t transition-colors hover:bg-muted/30">
                                             <td className="px-4 py-3 text-sm font-medium">
                                                 {subject.subject}
+                                                {!subject.has_mark && (
+                                                    <Badge variant="outline" className="ml-2">
+                                                        Pending
+                                                    </Badge>
+                                                )}
                                                 {subject.remarks && <span className="ml-2 text-xs text-muted-foreground">({subject.remarks})</span>}
                                             </td>
                                             <td className="px-4 py-3 text-right text-sm">
-                                                {subject.marks_obtained} / {subject.full_marks}
+                                                {subject.has_mark ? `${subject.marks_obtained} / ${subject.full_marks}` : `— / ${subject.full_marks}`}
                                             </td>
-                                            <td className="px-4 py-3 text-right text-sm">{subject.percentage}%</td>
+                                            <td className="px-4 py-3 text-right text-sm">{subject.has_mark ? `${subject.percentage}%` : '—'}</td>
                                             <td className="px-4 py-3 text-right text-sm font-semibold">
-                                                {subject.grade_label ?? '—'}
-                                                {subject.grade_point !== null && subject.grade_point !== undefined && (
-                                                    <span className="ml-1 text-muted-foreground">({subject.grade_point})</span>
+                                                {subject.has_mark ? (
+                                                    <>
+                                                        {subject.grade_label ?? '—'}
+                                                        {subject.grade_point !== null && subject.grade_point !== undefined && (
+                                                            <span className="ml-1 text-muted-foreground">({subject.grade_point})</span>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    '—'
                                                 )}
                                             </td>
                                             <td className="px-4 py-3 text-right">
-                                                {subject.passed ? (
+                                                {!subject.has_mark ? (
+                                                    <span className="text-xs text-muted-foreground">Awaiting marks</span>
+                                                ) : subject.passed ? (
                                                     <CheckCircle2 className="ml-auto h-5 w-5 text-emerald-600" />
                                                 ) : (
                                                     <XCircle className="ml-auto h-5 w-5 text-destructive" />

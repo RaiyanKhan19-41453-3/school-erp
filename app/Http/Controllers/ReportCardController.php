@@ -131,17 +131,36 @@ class ReportCardController extends Controller
     {
         $exam->load(['class', 'academicYear', 'gradingScale.gradeBands', 'examSubjects.subject']);
 
+        $marksBySubject = $exam->examSubjects->mapWithKeys(function (ExamSubject $examSubject) use ($student) {
+            $mark = $examSubject->marks()
+                ->where('student_id', $student->id)
+                ->first();
+
+            return [$examSubject->id => $mark];
+        });
+
         $examSubjects = $exam->examSubjects
-            ->map(function (ExamSubject $examSubject) use ($exam, $student, $calculator) {
-                $mark = $examSubject->marks()
-                    ->where('student_id', $student->id)
-                    ->first();
+            ->map(function (ExamSubject $examSubject) use ($exam, $calculator, $marksBySubject) {
+                $mark = $marksBySubject->get($examSubject->id);
+                $fullMarks = (float) $examSubject->full_marks;
 
                 if (! $mark) {
-                    return null;
+                    return [
+                        'subject' => $examSubject->subject?->name ?? '—',
+                        'code' => $examSubject->subject?->code,
+                        'full_marks' => $fullMarks,
+                        'pass_marks' => (float) $examSubject->pass_marks,
+                        'marks_obtained' => null,
+                        'percentage' => null,
+                        'grade_label' => null,
+                        'grade_point' => null,
+                        'grade_remarks' => null,
+                        'passed' => false,
+                        'has_mark' => false,
+                        'remarks' => null,
+                    ];
                 }
 
-                $fullMarks = (float) $examSubject->full_marks;
                 $obtained = (float) $mark->marks_obtained;
                 $percentage = $calculator->percentage($obtained, $fullMarks);
                 $grade = $calculator->gradeFor($exam, $obtained, $fullMarks);
@@ -157,14 +176,15 @@ class ReportCardController extends Controller
                     'grade_point' => $grade?->grade_point,
                     'grade_remarks' => $grade?->remarks,
                     'passed' => $obtained >= (float) $examSubject->pass_marks,
+                    'has_mark' => true,
                     'remarks' => $mark->remarks,
                 ];
             })
-            ->filter()
             ->values();
 
-        $totalMarks = $examSubjects->sum('marks_obtained');
-        $totalFull = $examSubjects->sum('full_marks');
+        $marked = $examSubjects->where('has_mark', true);
+        $totalMarks = $marked->sum('marks_obtained');
+        $totalFull = $marked->sum('full_marks');
         $overallPercentage = $calculator->percentage($totalMarks, $totalFull);
         $overallGrade = $exam->gradingScale
             ? $calculator->gradeForPercentage($exam->gradingScale, $overallPercentage)
@@ -191,8 +211,11 @@ class ReportCardController extends Controller
                 'grade_label' => $overallGrade?->label,
                 'grade_point' => $overallGrade?->grade_point,
                 'grade_remarks' => $overallGrade?->remarks,
-                'passed_subjects' => $examSubjects->where('passed', true)->count(),
+                'passed_subjects' => $marked->where('passed', true)->count(),
                 'total_subjects' => $examSubjects->count(),
+                'marked_subjects' => $marked->count(),
+                'missing_subjects' => $examSubjects->count() - $marked->count(),
+                'is_complete' => $examSubjects->isNotEmpty() && $marked->count() === $examSubjects->count(),
             ],
         ];
     }

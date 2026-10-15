@@ -61,12 +61,14 @@ class GenerateInvoicesJob implements ShouldQueue
 
         DB::transaction(function () use ($students, $structures, $academicYear, $period, $dueDate) {
             foreach ($students as $student) {
-                $alreadyGenerated = Invoice::where('student_id', $student->id)
+                $existing = Invoice::where('student_id', $student->id)
                     ->where('academic_year_id', $academicYear->id)
                     ->where('period', $period)
-                    ->exists();
+                    ->first();
 
-                if ($alreadyGenerated) {
+                if ($existing) {
+                    $this->addMissingItems($existing, $structures);
+
                     continue;
                 }
 
@@ -106,6 +108,30 @@ class GenerateInvoicesJob implements ShouldQueue
                 }
             }
         });
+    }
+
+    private function addMissingItems(Invoice $invoice, iterable $structures): void
+    {
+        $existingStructureIds = $invoice->items()->pluck('fee_structure_id')->all();
+        $missing = collect($structures)->whereNotIn('id', $existingStructureIds);
+
+        if ($missing->isEmpty()) {
+            return;
+        }
+
+        foreach ($missing as $structure) {
+            InvoiceItem::create([
+                'invoice_id' => $invoice->id,
+                'fee_structure_id' => $structure->id,
+                'description' => $structure->feeCategory->name,
+                'amount' => $structure->amount,
+            ]);
+        }
+
+        $invoice->update([
+            'total_amount' => (float) $invoice->total_amount + (float) $missing->sum(fn ($s) => (float) $s->amount),
+        ]);
+        $invoice->recalculateStatus();
     }
 
     private function nextInvoiceNumber(): string

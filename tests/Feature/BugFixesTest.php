@@ -1,9 +1,13 @@
 <?php
 
+use App\Jobs\GenerateInvoicesJob;
 use App\Models\AcademicYear;
 use App\Models\Attendance;
 use App\Models\Exam;
 use App\Models\ExamSubject;
+use App\Models\FeeCategory;
+use App\Models\FeeStructure;
+use App\Models\Guardian;
 use App\Models\Invoice;
 use App\Models\Mark;
 use App\Models\Payment;
@@ -191,4 +195,83 @@ test('marks exceeding full marks are rejected', function () {
         ->assertSessionHasErrors('records');
 
     expect(Mark::count())->toBe(0);
+});
+
+test('parent with two children can switch between them on the dashboard', function () {
+    ['school' => $school, 'section' => $section] = bugFixSchool();
+
+    $s1 = Student::create(['school_id' => $school->id, 'section_id' => $section->id, 'name' => 'Child One', 'admission_number' => 'C1', 'date_of_birth' => '2015-01-01', 'gender' => 'male', 'admission_date' => '2025-01-01', 'status' => 'active']);
+    $s2 = Student::create(['school_id' => $school->id, 'section_id' => $section->id, 'name' => 'Child Two', 'admission_number' => 'C2', 'date_of_birth' => '2016-01-01', 'gender' => 'female', 'admission_date' => '2025-01-01', 'status' => 'active']);
+
+    $parentUser = User::factory()->create(['school_id' => $school->id])->assignRole('parent');
+    $guardian = Guardian::create(['user_id' => $parentUser->id, 'name' => 'Parent', 'phone' => '123']);
+    $guardian->students()->attach([$s1->id => ['relationship' => 'father', 'is_primary' => true], $s2->id => ['relationship' => 'father', 'is_primary' => false]]);
+
+    $this->actingAs($parentUser)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('isParent', true)
+            ->has('children', 2)
+            ->where('selectedChildId', $s1->id));
+
+    // Switch to the second child.
+    $this->actingAs($parentUser)
+        ->get(route('dashboard', ['child_id' => $s2->id]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('selectedChildId', $s2->id));
+});
+
+test('invoice generation adds missing items when a new fee structure appears', function () {
+    ['school' => $school, 'year' => $year, 'class' => $class, 'section' => $section] = bugFixSchool();
+
+    $cat1 = FeeCategory::create(['school_id' => $school->id, 'name' => 'Tuition']);
+    $cat2 = FeeCategory::create(['school_id' => $school->id, 'name' => 'Library']);
+    $fs1 = FeeStructure::create(['school_id' => $school->id, 'academic_year_id' => $year->id, 'class_id' => $class->id, 'fee_category_id' => $cat1->id, 'amount' => 5000, 'frequency' => 'monthly', 'due_day' => 10]);
+
+    $student = Student::create(['school_id' => $school->id, 'section_id' => $section->id, 'name' => 'S1', 'admission_number' => 'INV1', 'date_of_birth' => '2015-01-01', 'gender' => 'male', 'admission_date' => '2025-01-01', 'status' => 'active']);
+
+    (new GenerateInvoicesJob($school->id, $class->id, $year->id))->handle();
+
+    $invoice = Invoice::where('student_id', $student->id)->first();
+    expect($invoice)->not->toBeNull()
+        ->and((float) $invoice->total_amount)->toBe(5000.0)
+        ->and($invoice->items()->count())->toBe(1);
+
+    // New fee structure appears later.
+    $fs2 = FeeStructure::create(['school_id' => $school->id, 'academic_year_id' => $year->id, 'class_id' => $class->id, 'fee_category_id' => $cat2->id, 'amount' => 500, 'frequency' => 'annual', 'due_day' => 10]);
+
+    (new GenerateInvoicesJob($school->id, $class->id, $year->id))->handle();
+
+    $invoice->refresh();
+    expect(Invoice::where('student_id', $student->id)->count())->toBe(1)
+        ->and((float) $invoice->total_amount)->toBe(5500.0)
+        ->and($invoice->items()->count())->toBe(2);
+});
+
+test('report card flags missing marks as incomplete', function () {
+    ['school' => $school, 'year' => $year, 'class' => $class, 'section' => $section] = bugFixSchool();
+
+    $math = Subject::create(['school_id' => $school->id, 'name' => 'Math', 'code' => 'M']);
+    $eng = Subject::create(['school_id' => $school->id, 'name' => 'English', 'code' => 'E']);
+    $exam = Exam::create(['school_id' => $school->id, 'academic_year_id' => $year->id, 'class_id' => $class->id, 'name' => 'Final']);
+    $es1 = ExamSubject::create(['exam_id' => $exam->id, 'subject_id' => $math->id, 'full_marks' => 100, 'pass_marks' => 40]);
+    ExamSubject::create(['exam_id' => $exam->id, 'subject_id' => $eng->id, 'full_marks' => 100, 'pass_marks' => 40]);
+
+    $student = Student::create(['school_id' => $school->id, 'section_id' => $section->id, 'name' => 'S1', 'admission_number' => 'RC1', 'date_of_birth' => '2015-01-01', 'gender' => 'male', 'admission_date' => '2025-01-01', 'status' => 'active']);
+    $teacher = User::factory()->create(['school_id' => $school->id])->assignRole('teacher');
+    Mark::create(['exam_subject_id' => $es1->id, 'student_id' => $student->id, 'marks_obtained' => 80, 'entered_by' => $teacher->id]);
+
+    $admin = User::factory()->create(['school_id' => $school->id])->assignRole('admin');
+
+    $this->actingAs($admin)
+        ->get(route('report-cards.show', ['exam' => $exam->id, 'student' => $student->id]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('subjects', fn ($subjects) => count($subjects) === 2)
+            ->where('totals.total_subjects', 2)
+            ->where('totals.marked_subjects', 1)
+            ->where('totals.missing_subjects', 1)
+            ->where('totals.is_complete', false));
 });

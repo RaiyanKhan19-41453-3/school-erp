@@ -34,7 +34,7 @@ class DashboardController extends Controller
         } elseif ($roles->contains('student')) {
             $props = array_merge($props, $this->studentStats($user->id));
         } elseif ($roles->contains('parent')) {
-            $props = array_merge($props, $this->parentStats($user->id));
+            $props = array_merge($props, $this->parentStats($user->id, $request->integer('child_id') ?: null));
         }
 
         return Inertia::render('dashboard', $props);
@@ -207,18 +207,35 @@ class DashboardController extends Controller
             return ['stats' => [], 'attendancePie' => [], 'upcomingExams' => []];
         }
 
-        return $this->childStats($student);
+        return array_merge($this->childStats($student), [
+            'isParent' => false,
+            'children' => [],
+            'selectedChildId' => $student->id,
+        ]);
     }
 
-    private function parentStats(int $userId): array
+    private function parentStats(int $userId, ?int $childId = null): array
     {
         $guardian = Guardian::with('students.section.class')->where('user_id', $userId)->first();
 
         if (! $guardian || $guardian->students->isEmpty()) {
-            return ['stats' => [], 'attendancePie' => [], 'upcomingExams' => []];
+            return ['stats' => [], 'attendancePie' => [], 'upcomingExams' => [], 'isParent' => true, 'children' => [], 'selectedChildId' => null];
         }
 
-        return $this->childStats($guardian->students->first());
+        $children = $guardian->students->sortBy('name')->values();
+        $selected = $childId ? $children->firstWhere('id', $childId) : null;
+        $selected ??= $children->first();
+
+        return array_merge($this->childStats($selected), [
+            'isParent' => true,
+            'children' => $children->map(fn (Student $child) => [
+                'id' => $child->id,
+                'name' => $child->name,
+                'class' => $child->section?->class?->name ?? '—',
+                'section' => $child->section?->name ?? '—',
+            ])->values()->all(),
+            'selectedChildId' => $selected->id,
+        ]);
     }
 
     private function childStats(Student $student): array

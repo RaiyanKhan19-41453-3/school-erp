@@ -43,6 +43,10 @@
         </tr>
     </table>
 
+    @if (! ($totals['is_complete'] ?? true))
+        <p style="color: #92400e;">Incomplete — {{ $totals['missing_subjects'] }} of {{ $totals['total_subjects'] }} subjects still need marks. Totals below cover the {{ $totals['marked_subjects'] }} marked subjects only.</p>
+    @endif
+
     <table class="results">
         <thead>
             <tr>
@@ -58,20 +62,41 @@
                 <tr>
                     <td>
                         {{ $subject['subject'] }}
+                        @if (! ($subject['has_mark'] ?? true))
+                            <span style="color: #6b7280;">(Pending)</span>
+                        @endif
                         @if ($subject['remarks'])
                             <span style="color: #6b7280;">({{ $subject['remarks'] }})</span>
                         @endif
                     </td>
-                    <td class="num">{{ $subject['marks_obtained'] }} / {{ $subject['full_marks'] }}</td>
-                    <td class="num">{{ $subject['percentage'] }}%</td>
                     <td class="num">
-                        {{ $subject['grade_label'] ?? '—' }}
-                        @if ($subject['grade_point'] !== null && $subject['grade_point'] !== '')
-                            ({{ $subject['grade_point'] }})
+                        @if ($subject['has_mark'] ?? true)
+                            {{ $subject['marks_obtained'] }} / {{ $subject['full_marks'] }}
+                        @else
+                            — / {{ $subject['full_marks'] }}
+                        @endif
+                    </td>
+                    <td class="num">
+                        @if ($subject['has_mark'] ?? true)
+                            {{ $subject['percentage'] }}%
+                        @else
+                            —
+                        @endif
+                    </td>
+                    <td class="num">
+                        @if ($subject['has_mark'] ?? true)
+                            {{ $subject['grade_label'] ?? '—' }}
+                            @if ($subject['grade_point'] !== null && $subject['grade_point'] !== '')
+                                ({{ $subject['grade_point'] }})
+                            @endif
+                        @else
+                            —
                         @endif
                     </td>
                     <td>
-                        @if ($subject['passed'])
+                        @if (! ($subject['has_mark'] ?? true))
+                            <span class="badge">Pending</span>
+                        @elseif ($subject['passed'])
                             <span class="badge pass">Pass</span>
                         @else
                             <span class="badge fail">Fail</span>

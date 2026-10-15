@@ -2,10 +2,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { Combobox } from '@/components/ui/combobox';
 import { Skeleton } from '@/components/ui/skeleton';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { CalendarCheck, CalendarClock, GraduationCap, LayoutGrid, Users, Wallet } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, Pie, PieChart, XAxis, YAxis } from 'recharts';
 
@@ -42,6 +43,9 @@ interface DashboardProps extends SharedData {
     markDistribution?: { name: string; avg_percentage: number }[];
     sections?: { id: number; name: string; class: string; is_class_teacher: boolean }[];
     upcomingExams?: { id: number; name: string; start_date: string; end_date: string }[];
+    isParent?: boolean;
+    children?: { id: number; name: string; class: string; section: string }[];
+    selectedChildId?: number | null;
 }
 
 const STAT_ICONS: Record<string, typeof Users> = {
@@ -425,15 +429,34 @@ function TeacherDashboard({ stats, sections, attendancePie, markDistribution }: 
     );
 }
 
-function StudentDashboard({ stats, attendancePie, upcomingExams }: DashboardProps) {
+function StudentDashboard({ stats, attendancePie, upcomingExams, isParent, children, selectedChildId }: DashboardProps) {
     const attendanceData = Object.entries(attendancePie ?? {}).map(([status, value]) => ({
         name: status,
         value: value as number,
         fill: `var(--color-${status})`,
     }));
 
+    function applyChild(childId: string) {
+        router.get(route('dashboard'), { child_id: childId }, { preserveState: true, preserveScroll: true });
+    }
+
     return (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {isParent && children && children.length > 1 && (
+                <div className="md:col-span-2 xl:col-span-4">
+                    <div className="w-72 space-y-2">
+                        <label className="text-sm font-medium">Child</label>
+                        <Combobox
+                            options={children.map((c) => ({ value: String(c.id), label: `${c.name} (${c.class} - ${c.section})` }))}
+                            value={selectedChildId ? String(selectedChildId) : ''}
+                            onValueChange={applyChild}
+                            placeholder="Select a child"
+                            searchPlaceholder="Search children..."
+                            emptyText="No children found."
+                        />
+                    </div>
+                </div>
+            )}
             {stats.map((stat) => (
                 <StatCard key={stat.label} stat={stat} />
             ))}
