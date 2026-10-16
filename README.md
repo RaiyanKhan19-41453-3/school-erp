@@ -49,6 +49,11 @@ A comprehensive School ERP (Enterprise Resource Planning) system built for Bangl
 - **Payment Recording** — Track payments with method and status
 - **My Invoices** — Parent/student invoice view
 
+### Reports
+- **Fee Dues** — Students with outstanding balances (invoices minus completed payments, aggregated per student) with class, section and academic-year filters plus billed/paid/outstanding totals
+- **Fee Collection** — Payments received in a date range with a per-method breakdown and class, section, method and academic-year filters
+- **CSV Export** — Both reports export to Excel-friendly CSV using the currently applied filters; the dues export includes a grand-total row
+
 ### Dashboard
 - Overview with key statistics
 - Role-based sidebar navigation
@@ -71,7 +76,7 @@ contact messages. Uploaded images are stored on the public disk.
 | Role | Access |
 |------|--------|
 | Super Admin | Full access to all modules |
-| Admin | Academic management, timetable builder, reports |
+| Admin | Academic management, timetable builder, fee reports & CSV exports |
 | Teacher | Attendance, mark entry, my timetable, report cards |
 | Student | View own attendance, timetable, report cards |
 | Parent | View child's attendance, invoices, report cards |
@@ -153,6 +158,7 @@ The seeder includes realistic Bangladeshi demo data:
 - **Guardians**: 30 guardians with Bangladeshi occupations
 - **Subjects**: Bangla, English, Mathematics, General Science, ICT, Islam & Moral Education, Bangladesh & Global Studies
 - **Fees**: BDT amounts (Tuition 5,000/month, Session 2,000/year, Lab 800/month)
+- **Invoices & Payments**: an itemised invoice per active student, with a 5,000 BDT partial payment recorded for every fourth student
 - **Exams**: 3 exams with marks and grading
 - **Website**: school profile copy, 10 notices, 6 events, 8 achievements and 12 gallery images
 
