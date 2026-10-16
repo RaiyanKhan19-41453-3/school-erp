@@ -6,6 +6,7 @@ import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
     Award,
+    Banknote,
     BookOpen,
     CalendarCheck,
     CalendarCheck2,
@@ -13,6 +14,7 @@ import {
     CalendarDays,
     ClipboardList,
     Clock,
+    Coins,
     FileText,
     Folder,
     GraduationCap,
@@ -131,6 +133,19 @@ const adminNavItems: NavItem[] = [
     },
 ];
 
+const reportsNavItems: NavItem[] = [
+    {
+        title: 'Fee Dues',
+        url: '/reports/fee-dues',
+        icon: Coins,
+    },
+    {
+        title: 'Fee Collection',
+        url: '/reports/fee-collection',
+        icon: Banknote,
+    },
+];
+
 const websiteNavItems: NavItem[] = [
     {
         title: 'Website Content',
@@ -223,6 +238,7 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={[...dashboardNavItem, ...mainNav, ...staffNav, ...teacherNav, ...extraNav]} />
+                {isAdmin && <NavMain label="Reports" items={reportsNavItems} />}
                 {isAdmin && <NavMain label="Website" items={websiteNavItems} />}
             </SidebarContent>
 

@@ -18,6 +18,11 @@ class InvoicePolicy
         return $user->hasAnyRole(['student', 'parent']);
     }
 
+    public function viewReports(User $user): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'admin']);
+    }
+
     public function view(User $user, Invoice $invoice): bool
     {
         if (! SameSchool::check($user, $invoice->student?->school_id)) {

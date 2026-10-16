@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FeeCategoryController;
+use App\Http\Controllers\FeeReportController;
 use App\Http\Controllers\FeeStructureController;
 use App\Http\Controllers\GalleryItemController;
 use App\Http\Controllers\GradingScaleController;
@@ -106,6 +107,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('invoices/my', [InvoiceController::class, 'myInvoices'])->name('invoices.my');
     Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
     Route::post('invoices/{invoice}/payments', [InvoiceController::class, 'recordPayment'])->name('invoices.payments.store');
+
+    Route::get('reports/fee-dues', [FeeReportController::class, 'dues'])->name('reports.fee-dues');
+    Route::get('reports/fee-dues/export', [FeeReportController::class, 'exportDues'])->name('reports.fee-dues.export');
+    Route::get('reports/fee-collection', [FeeReportController::class, 'collection'])->name('reports.fee-collection');
+    Route::get('reports/fee-collection/export', [FeeReportController::class, 'exportCollection'])->name('reports.fee-collection.export');
 
     Route::prefix('website')->name('website.')->group(function () {
         Route::resource('notices', NoticeController::class)
