@@ -17,6 +17,7 @@ import {
     Coins,
     FileText,
     Folder,
+    Globe,
     GraduationCap,
     Images,
     LayoutGrid,
@@ -38,6 +39,14 @@ const dashboardNavItem: NavItem[] = [
         title: 'Dashboard',
         url: '/dashboard',
         icon: LayoutGrid,
+    },
+];
+
+const viewWebsiteNavItem: NavItem[] = [
+    {
+        title: 'View Website',
+        url: '/',
+        icon: Globe,
     },
 ];
 
@@ -237,7 +246,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={[...dashboardNavItem, ...mainNav, ...staffNav, ...teacherNav, ...extraNav]} />
+                <NavMain items={[...dashboardNavItem, ...viewWebsiteNavItem, ...mainNav, ...staffNav, ...teacherNav, ...extraNav]} />
                 {isAdmin && <NavMain label="Reports" items={reportsNavItems} />}
                 {isAdmin && <NavMain label="Website" items={websiteNavItems} />}
             </SidebarContent>

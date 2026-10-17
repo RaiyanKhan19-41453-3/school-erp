@@ -13,7 +13,7 @@ export function formatDMY(value: string): string {
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-export function formatDate(value?: string | null): string {
+export function formatDate(value?: string | null, locale: 'en' | 'bn' = 'en'): string {
     if (!value) {
         return '';
     }
@@ -21,12 +21,16 @@ export function formatDate(value?: string | null): string {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {
         return '';
+    }
+
+    if (locale === 'bn') {
+        return new Intl.DateTimeFormat('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
     }
 
     return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 }
 
-export function formatTime(value?: string | null): string {
+export function formatTime(value?: string | null, locale: 'en' | 'bn' = 'en'): string {
     if (!value) {
         return '';
     }
@@ -36,7 +40,7 @@ export function formatTime(value?: string | null): string {
         return '';
     }
 
-    return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(date);
+    return new Intl.DateTimeFormat(locale === 'bn' ? 'bn-BD' : undefined, { hour: 'numeric', minute: '2-digit' }).format(date);
 }
 
 export function toDateTimeLocal(value?: string | null): string {

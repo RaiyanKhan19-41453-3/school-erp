@@ -5,9 +5,19 @@ export type Appearance = 'light' | 'dark' | 'system';
 const prefersDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 const applyTheme = (appearance: Appearance) => {
+    const root = document.documentElement;
+
+    // The public website always runs in light mode; never let the portal's
+    // stored or system dark preference leak into it.
+    if (root.classList.contains('public-site')) {
+        root.classList.remove('dark');
+
+        return;
+    }
+
     const isDark = appearance === 'dark' || (appearance === 'system' && prefersDark());
 
-    document.documentElement.classList.toggle('dark', isDark);
+    root.classList.toggle('dark', isDark);
 };
 
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -17,13 +27,29 @@ const handleSystemThemeChange = () => {
     applyTheme(currentAppearance || 'system');
 };
 
+let listening = false;
+
 export function initializeTheme() {
     const savedAppearance = (localStorage.getItem('appearance') as Appearance) || 'system';
 
     applyTheme(savedAppearance);
 
-    // Add the event listener for system theme changes...
+    if (listening) {
+        return;
+    }
+
+    listening = true;
     mediaQuery.addEventListener('change', handleSystemThemeChange);
+}
+
+/**
+ * Re-apply the visitor's stored theme. Used when leaving the public website
+ * (which always runs in light mode) and entering the portal or auth pages.
+ */
+export function syncAppearance() {
+    const savedAppearance = (localStorage.getItem('appearance') as Appearance) || 'system';
+
+    applyTheme(savedAppearance);
 }
 
 export function useAppearance() {

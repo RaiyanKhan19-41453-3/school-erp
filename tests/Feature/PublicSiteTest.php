@@ -240,3 +240,26 @@ test('public pages survive malformed array query parameters', function () {
     $this->get('/gallery?album[]=x')->assertOk();
     $this->get('/events?page[]=1')->assertOk();
 });
+
+test('visitors can switch the public interface language', function () {
+    publicSiteSchool();
+
+    $this->get(route('home'))
+        ->assertInertia(fn ($page) => $page->where('siteLocale', 'en'));
+
+    $this->get(route('site.language', 'bn'))->assertRedirect();
+
+    $this->get(route('home'))
+        ->assertInertia(fn ($page) => $page->where('siteLocale', 'bn'));
+
+    $this->get(route('site.language', 'en'))->assertRedirect();
+
+    $this->get(route('home'))
+        ->assertInertia(fn ($page) => $page->where('siteLocale', 'en'));
+});
+
+test('unsupported public interface languages are rejected', function () {
+    publicSiteSchool();
+
+    $this->get(route('site.language', 'fr'))->assertNotFound();
+});

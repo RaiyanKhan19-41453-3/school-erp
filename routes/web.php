@@ -41,6 +41,8 @@ Route::post('contact', [PublicSiteController::class, 'submitContact'])
     ->middleware('throttle:5,1')
     ->name('site.contact.store');
 
+Route::get('language/{lang}', [PublicSiteController::class, 'language'])->name('site.language');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

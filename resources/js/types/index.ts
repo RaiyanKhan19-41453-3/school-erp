@@ -24,6 +24,7 @@ export interface NavItem {
 
 export interface SharedData {
     name: string;
+    siteLocale?: 'en' | 'bn';
     quote: { message: string; author: string };
     auth: Auth;
     [key: string]: unknown;

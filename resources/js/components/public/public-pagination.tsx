@@ -1,3 +1,4 @@
+import { usePublicLocale } from '@/i18n/public';
 import { cn } from '@/lib/utils';
 import { type PaginatedData } from '@/types';
 import { router } from '@inertiajs/react';
@@ -10,6 +11,7 @@ interface PublicPaginationProps {
 }
 
 export function PublicPagination({ paginator, routeName, params = {} }: PublicPaginationProps) {
+    const locale = usePublicLocale();
     if (paginator.last_page <= 1) {
         return null;
     }
@@ -27,13 +29,13 @@ export function PublicPagination({ paginator, routeName, params = {} }: PublicPa
     const pages = Array.from({ length: end - start + 1 }, (_, index) => start + index);
 
     return (
-        <nav className="mt-10 flex items-center justify-center gap-2" aria-label="Pagination">
+        <nav className="mt-10 flex items-center justify-center gap-2" aria-label={locale === 'bn' ? 'পৃষ্ঠাবিন্যাস' : 'Pagination'}>
             <button
                 type="button"
                 onClick={() => go(paginator.current_page - 1)}
                 disabled={paginator.current_page === 1}
-                className="border-brand-900/15 text-brand-900 hover:border-gold-500 hover:text-gold-600 flex h-9 w-9 items-center justify-center rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="Previous page"
+                className="border-brand-900/25 text-brand-900 hover:border-brand-700 hover:text-brand-700 flex h-9 w-9 items-center justify-center border transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label={locale === 'bn' ? 'পূর্ববর্তী পৃষ্ঠা' : 'Previous page'}
             >
                 <ChevronLeft className="h-4 w-4" />
             </button>
@@ -43,10 +45,10 @@ export function PublicPagination({ paginator, routeName, params = {} }: PublicPa
                     type="button"
                     onClick={() => go(page)}
                     className={cn(
-                        'h-9 min-w-9 rounded-full px-3 text-sm font-medium transition-colors',
+                        'h-9 min-w-9 border px-3 text-sm font-semibold transition-colors',
                         page === paginator.current_page
-                            ? 'bg-brand-900 text-cream-50'
-                            : 'border-brand-900/15 text-brand-900 hover:border-gold-500 hover:text-gold-600 border',
+                            ? 'border-brand-950 bg-brand-800 text-cream-50'
+                            : 'border-brand-900/25 text-brand-900 hover:border-brand-700 hover:text-brand-700',
                     )}
                 >
                     {page}
@@ -56,8 +58,8 @@ export function PublicPagination({ paginator, routeName, params = {} }: PublicPa
                 type="button"
                 onClick={() => go(paginator.current_page + 1)}
                 disabled={paginator.current_page === paginator.last_page}
-                className="border-brand-900/15 text-brand-900 hover:border-gold-500 hover:text-gold-600 flex h-9 w-9 items-center justify-center rounded-full border transition-colors disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="Next page"
+                className="border-brand-900/25 text-brand-900 hover:border-brand-700 hover:text-brand-700 flex h-9 w-9 items-center justify-center border transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label={locale === 'bn' ? 'পরবর্তী পৃষ্ঠা' : 'Next page'}
             >
                 <ChevronRight className="h-4 w-4" />
             </button>

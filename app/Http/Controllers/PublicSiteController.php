@@ -44,7 +44,25 @@ class PublicSiteController extends Controller
                 ->orderByDesc('achieved_on')
                 ->take(3)
                 ->get(),
+            'gallery' => $this->galleryQuery($school)
+                ->orderBy('sort_order')
+                ->orderByDesc('id')
+                ->take(6)
+                ->get(),
+            'principal' => [
+                'name' => $profile?->principal_name,
+                'message' => $profile?->principal_message ? str($profile->principal_message)->limit(260) : null,
+            ],
         ]);
+    }
+
+    public function language(string $lang): RedirectResponse
+    {
+        abort_unless(in_array($lang, ['en', 'bn'], true), 404);
+
+        session(['public_locale' => $lang]);
+
+        return redirect()->back(fallback: route('home'));
     }
 
     public function about(): Response

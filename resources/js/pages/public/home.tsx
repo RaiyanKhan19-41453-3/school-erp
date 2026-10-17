@@ -1,14 +1,17 @@
-import { AchievementCard } from '@/components/public/achievement-card';
 import { EmptyState } from '@/components/public/empty-state';
-import { EventCard } from '@/components/public/event-card';
-import { NoticeCard } from '@/components/public/notice-card';
+import { EventRow } from '@/components/public/event-card';
+import { NoticeRow } from '@/components/public/notice-card';
+import { Ornament } from '@/components/public/ornament';
 import { SectionHeading } from '@/components/public/section-heading';
 import { SiteCta } from '@/components/public/site-cta';
+import { WidgetPanel } from '@/components/public/widget';
+import { usePublicLocale, useT } from '@/i18n/public';
 import PublicLayout from '@/layouts/public-layout';
 import { formatDate } from '@/lib/format';
-import { type PublicAchievement, type PublicEvent, type PublicNotice, type SiteInfo, type SiteStats } from '@/types';
+import { type PublicAchievement, type PublicEvent, type PublicGalleryItem, type PublicNotice, type SiteInfo, type SiteStats } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowRight, BookOpen, FlaskConical, MonitorSmartphone, Newspaper, Sparkles, Trophy } from 'lucide-react';
+import { ArrowRight, GraduationCap, Images } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface HomeProps {
     site: SiteInfo;
@@ -18,253 +21,367 @@ interface HomeProps {
     notices: PublicNotice[];
     events: PublicEvent[];
     achievements: PublicAchievement[];
+    gallery: PublicGalleryItem[];
+    principal: { name: string | null; message: string | null };
 }
 
-const features = [
-    {
-        icon: BookOpen,
-        title: 'Academic Excellence',
-        description: 'A rigorous national curriculum delivered by experienced, caring teachers.',
-    },
-    {
-        icon: FlaskConical,
-        title: 'Modern Laboratories',
-        description: 'Fully equipped science and computer labs where curiosity meets practice.',
-    },
-    {
-        icon: MonitorSmartphone,
-        title: 'Digital Classrooms',
-        description: 'Multimedia classrooms that make every lesson vivid and interactive.',
-    },
-    {
-        icon: Trophy,
-        title: 'Sports & Culture',
-        description: 'Football, cricket, debate, music and art — talent grows in every direction.',
-    },
-];
-
-export default function Home({ site, stats, hero, aboutExcerpt, notices, events, achievements }: HomeProps) {
-    const initials = site.name
+function principalInitials(name: string | null): string {
+    return (name ?? '')
         .split(/\s+/)
         .filter((word) => /^[A-Za-z]/.test(word))
         .slice(0, 2)
         .map((word) => word.charAt(0).toUpperCase())
         .join('');
+}
 
-    const statBand = [
-        { value: stats?.years ?? '—', label: 'Years of Excellence' },
-        { value: stats?.students ?? '—', label: 'Students Enrolled' },
-        { value: stats?.teachers ?? '—', label: 'Dedicated Teachers' },
-        { value: stats?.pass_rate ?? '—', label: 'SSC Pass Rate' },
-    ];
-
+export default function Home({ site, stats, hero, aboutExcerpt, notices, events, achievements, gallery, principal }: HomeProps) {
+    const t = useT();
+    const locale = usePublicLocale();
     const sessionYear = new Date().getFullYear();
+    const photos = gallery.filter((item) => item.image_url).slice(0, 6);
+
+    const statsBand = [
+        { value: stats?.years ?? '', label: t('Years of Excellence') },
+        { value: stats?.students ?? '', label: t('Students') },
+        { value: stats?.teachers ?? '', label: t('Teachers') },
+        { value: stats?.pass_rate ?? '', label: t('SSC Pass Rate') },
+    ].filter((stat) => stat.value !== '');
+
+    const [slide, setSlide] = useState(0);
+
+    useEffect(() => {
+        if (photos.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+
+        const timer = window.setInterval(() => {
+            setSlide((current) => (current + 1) % photos.length);
+        }, 5000);
+
+        return () => window.clearInterval(timer);
+    }, [photos.length]);
+
+    const activePhoto = photos[slide] ?? null;
+    const initials = principalInitials(principal.name);
 
     return (
         <PublicLayout site={site}>
-            <Head title="Home" />
+            <Head title={locale === 'bn' ? 'হোম' : 'Home'} />
 
-            <section className="relative overflow-hidden">
-                <div
-                    className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(207,154,46,0.16),transparent_45%),radial-gradient(circle_at_bottom_left,rgba(20,38,60,0.08),transparent_40%)]"
-                    aria-hidden
-                />
-                <div className="relative mx-auto grid max-w-7xl gap-16 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:py-24">
-                    <div>
-                        <p className="border-gold-300 bg-gold-100/80 text-gold-700 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold tracking-wide uppercase">
-                            <Sparkles className="h-3.5 w-3.5" />
-                            Admissions open · Session {sessionYear}–{sessionYear + 1}
-                        </p>
-                        <h1 className="font-display text-brand-950 mt-6 text-4xl leading-[1.08] font-semibold sm:text-5xl lg:text-6xl">
-                            {hero.title ?? `Welcome to ${site.name}`}
-                        </h1>
-                        <p className="text-brand-900/70 mt-6 max-w-xl text-base leading-relaxed sm:text-lg">
-                            {hero.subtitle ??
-                                'Quality education from Play Group to Class 10 — combining academic rigour, modern facilities and a warm, values-driven community.'}
-                        </p>
-                        <div className="mt-8 flex flex-wrap items-center gap-3">
-                            <Link
-                                href={route('site.admission')}
-                                className="bg-brand-900 text-cream-50 shadow-brand-900/20 hover:bg-brand-800 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition-colors"
-                            >
-                                Apply for Admission
-                                <ArrowRight className="h-4 w-4" />
-                            </Link>
-                            <Link
-                                href={route('site.about')}
-                                className="border-brand-900/20 text-brand-900 hover:border-gold-500 hover:text-gold-700 inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold transition-colors"
-                            >
-                                Discover Our Story
-                            </Link>
-                        </div>
-                        <div className="text-brand-900/60 mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
-                            <span className="inline-flex items-center gap-2">
-                                <span className="bg-gold-500 h-1.5 w-1.5 rounded-full" />
-                                {stats?.years ?? '25+'} years of trust
-                            </span>
-                            <span className="inline-flex items-center gap-2">
-                                <span className="bg-gold-500 h-1.5 w-1.5 rounded-full" />
-                                {stats?.students ?? '1,450+'} happy students
-                            </span>
-                            <span className="inline-flex items-center gap-2">
-                                <span className="bg-gold-500 h-1.5 w-1.5 rounded-full" />
-                                {stats?.pass_rate ?? '98%'} SSC pass rate
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-                        <div className="bg-gold-200/50 absolute -inset-6 rounded-[2.5rem] blur-2xl" aria-hidden />
-                        <div className="from-brand-800 via-brand-900 to-brand-950 text-cream-50 relative overflow-hidden rounded-[2rem] bg-linear-to-br p-8 shadow-2xl">
-                            <div className="site-dot-pattern absolute inset-0 opacity-40" aria-hidden />
-                            <div className="relative">
-                                <div className="flex items-center justify-between">
-                                    <span className="bg-cream-50/10 font-display text-gold-300 ring-gold-400/60 flex h-14 w-14 items-center justify-center rounded-full text-xl font-semibold ring-1">
-                                        {initials}
-                                    </span>
-                                    <span className="text-gold-400 text-xs font-semibold tracking-[0.3em] uppercase">Excellence in Learning</span>
-                                </div>
-                                <p className="font-display mt-14 text-3xl leading-snug font-medium">
-                                    A premier seat of learning built on curiosity, care and community.
-                                </p>
-                                <div className="mt-10 grid grid-cols-3 gap-3 text-center">
-                                    {[
-                                        { label: 'Students', value: stats?.students ?? '—' },
-                                        { label: 'Teachers', value: stats?.teachers ?? '—' },
-                                        { label: 'Pass rate', value: stats?.pass_rate ?? '—' },
-                                    ].map((item) => (
-                                        <div key={item.label} className="bg-cream-50/5 ring-cream-50/10 rounded-2xl px-2 py-3 ring-1">
-                                            <p className="font-display text-gold-300 text-xl font-semibold">{item.value}</p>
-                                            <p className="text-cream-100/70 mt-0.5 text-[11px] tracking-wide uppercase">{item.label}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        {notices[0] && (
-                            <Link
-                                href={route('site.notices.show', notices[0].id)}
-                                className="border-brand-900/10 absolute -bottom-6 -left-4 hidden w-72 rounded-2xl border bg-white p-4 shadow-xl transition hover:-translate-y-0.5 sm:block"
-                            >
-                                <p className="text-gold-600 text-[11px] font-semibold tracking-[0.22em] uppercase">Latest notice</p>
-                                <p className="font-display text-brand-950 mt-1.5 line-clamp-2 text-sm leading-snug font-semibold">
-                                    {notices[0].title}
-                                </p>
-                                <p className="text-brand-900/55 mt-1 text-xs">{formatDate(notices[0].published_at)}</p>
-                            </Link>
-                        )}
-                    </div>
-                </div>
-            </section>
-
-            <section className="bg-brand-900">
-                <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-12 sm:px-6 lg:grid-cols-4 lg:px-8">
-                    {statBand.map((stat) => (
-                        <div key={stat.label} className="text-center lg:text-left">
-                            <p className="font-display text-gold-400 text-3xl font-semibold sm:text-4xl">{stat.value}</p>
-                            <p className="text-cream-100/70 mt-1.5 text-xs font-medium tracking-wider uppercase">{stat.label}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-                <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-                    <div>
-                        <SectionHeading
-                            eyebrow="Welcome"
-                            title={`About ${site.name}`}
-                            description={aboutExcerpt ?? 'A community built on knowledge, discipline and character.'}
-                        />
-                        <div className="mt-8 flex flex-wrap items-center gap-3">
-                            <Link
-                                href={route('site.about')}
-                                className="border-brand-900/20 text-brand-900 hover:border-gold-500 hover:text-gold-700 inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors"
-                            >
-                                More about us
-                                <ArrowRight className="h-4 w-4" />
-                            </Link>
-                        </div>
-                    </div>
-                    <div className="grid gap-5 sm:grid-cols-2">
-                        {features.map((feature) => (
-                            <div key={feature.title} className="border-brand-900/10 rounded-2xl border bg-white p-6 shadow-sm">
-                                <span className="bg-gold-100 text-gold-700 flex h-11 w-11 items-center justify-center rounded-full">
-                                    <feature.icon className="h-5 w-5" />
-                                </span>
-                                <h3 className="font-display text-brand-950 mt-4 text-lg font-semibold">{feature.title}</h3>
-                                <p className="text-brand-900/65 mt-2 text-sm leading-relaxed">{feature.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            <section className="bg-cream-100 py-16 lg:py-24">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading
-                        eyebrow="Notice board"
-                        title="Latest from the school"
-                        description="Routines, holidays, exams and announcements — everything parents and students need to know."
-                        action={{ label: 'View all notices', href: route('site.notices') }}
-                    />
-                    <div className="mt-10">
-                        {notices.length > 0 ? (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {notices.map((notice) => (
-                                    <NoticeCard key={notice.id} notice={notice} />
+            {/* ── Notice ticker ─────────────────────────────────────── */}
+            {notices.length > 0 && (
+                <div className="border-brand-900/15 border-b bg-white">
+                    <div className="mx-auto flex max-w-7xl items-stretch px-4 sm:px-6 lg:px-8">
+                        <span className="bg-brand-800 text-cream-50 flex shrink-0 items-center px-3.5 text-[9px] font-bold tracking-[0.22em] uppercase sm:mr-4">
+                            {t('Latest Notices')}
+                        </span>
+                        <div className="site-ticker relative hidden flex-1 items-center overflow-hidden sm:flex">
+                            <div className="site-ticker-track flex w-max items-center whitespace-nowrap">
+                                {[0, 1].map((copy) => (
+                                    <div key={copy} className="flex items-center" aria-hidden={copy === 1}>
+                                        {notices.map((notice) => (
+                                            <Link
+                                                key={`${copy}-${notice.id}`}
+                                                href={route('site.notices.show', notice.id)}
+                                                className="group mr-12 flex items-center gap-2.5 py-2.5 text-sm"
+                                                tabIndex={copy === 1 ? -1 : undefined}
+                                            >
+                                                {notice.published_at && (
+                                                    <span className="text-brand-700 text-xs">{formatDate(notice.published_at, locale)}</span>
+                                                )}
+                                                <span className="decoration-brand-700 font-semibold underline-offset-4 group-hover:underline">
+                                                    {notice.title}
+                                                </span>
+                                                <span className="text-brand-400" aria-hidden>
+                                                    •
+                                                </span>
+                                            </Link>
+                                        ))}
+                                    </div>
                                 ))}
                             </div>
-                        ) : (
-                            <EmptyState icon={Newspaper} title="No notices yet" description="Published notices will appear here." />
+                        </div>
+                        <Link
+                            href={route('site.notices')}
+                            className="text-brand-700 hover:text-brand-950 flex items-center py-2.5 pl-6 text-[10px] font-semibold tracking-[0.16em] whitespace-nowrap uppercase sm:p-0 sm:pl-4"
+                        >
+                            {t('View all →')}
+                        </Link>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Hero ──────────────────────────────────────────────── */}
+            <section className="py-12 lg:py-16">
+                <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8">
+                    <div>
+                        <p className="border-brand-800 text-brand-800 inline-flex w-fit -rotate-1 border px-3 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase">
+                            {t('Admission Open')} · {t('Session {from}–{to}', { from: sessionYear, to: sessionYear + 1 })}
+                        </p>
+
+                        <h1 className="font-display text-brand-950 mt-6 text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl lg:text-[3.4rem]">
+                            {hero.title ?? t('Welcome to {name}', { name: site.name })}
+                        </h1>
+
+                        <p className="font-display text-brand-700 mt-4 text-xl italic">{site.tagline ?? t('Knowledge · Discipline · Character')}</p>
+
+                        <p className="text-brand-900/75 mt-5 max-w-xl text-[15px] leading-relaxed">
+                            {hero.subtitle ?? t('A community built on knowledge, discipline and character.')}
+                        </p>
+
+                        <div className="mt-8 flex flex-wrap gap-3">
+                            <Link
+                                href={route('site.admission')}
+                                className="bg-brand-800 text-cream-50 hover:bg-brand-950 border-brand-950 border px-6 py-3.5 text-[11px] font-semibold tracking-[0.16em] uppercase transition-colors"
+                            >
+                                {t('Apply for Admission')}
+                            </Link>
+                            <Link
+                                href={route('site.notices')}
+                                className="border-brand-950 text-brand-950 hover:bg-brand-950 hover:text-cream-50 border px-6 py-3.5 text-[11px] font-semibold tracking-[0.16em] uppercase transition-colors"
+                            >
+                                {t('Browse Notices')}
+                            </Link>
+                        </div>
+
+                        {statsBand.length > 0 && (
+                            <div className="border-brand-950 mt-10 grid grid-cols-2 border-y sm:grid-cols-4">
+                                {statsBand.map((stat, index) => (
+                                    <div
+                                        key={stat.label}
+                                        className={
+                                            index > 0
+                                                ? 'border-brand-900/25 border-t px-4 py-4 sm:border-t-0 sm:border-l sm:first:border-l-0'
+                                                : 'px-4 py-4'
+                                        }
+                                    >
+                                        <p className="font-display text-brand-800 text-2xl leading-none font-semibold sm:text-3xl">{stat.value}</p>
+                                        <p className="text-brand-900/60 mt-2 text-[9px] font-semibold tracking-[0.16em] uppercase">{stat.label}</p>
+                                    </div>
+                                ))}
+                            </div>
                         )}
+                    </div>
+
+                    {/* Framed campus photograph */}
+                    <figure className="border-brand-950/30 self-start border bg-white p-2.5 shadow-[4px_4px_0_rgba(27,53,42,0.10)]">
+                        <div className="bg-cream-100 relative aspect-4/3 overflow-hidden">
+                            {photos.length > 0 ? (
+                                <>
+                                    {photos.map((photo, index) => (
+                                        <img
+                                            key={photo.id}
+                                            src={photo.image_url ?? ''}
+                                            alt={photo.title ?? photo.album}
+                                            loading={index === 0 ? 'eager' : 'lazy'}
+                                            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+                                            style={index === slide ? undefined : { opacity: 0 }}
+                                            aria-hidden={index !== slide}
+                                        />
+                                    ))}
+                                    {photos.length > 1 && (
+                                        <div className="absolute right-3 bottom-3 flex gap-1.5">
+                                            {photos.map((photo, index) => (
+                                                <button
+                                                    key={photo.id}
+                                                    type="button"
+                                                    onClick={() => setSlide(index)}
+                                                    aria-label={t('Show photo {n}', { n: index + 1 })}
+                                                    className={
+                                                        index === slide
+                                                            ? 'bg-cream-50 border-brand-950/40 h-2 w-5 border'
+                                                            : 'bg-cream-50/70 hover:bg-cream-50 border-brand-950/30 h-2 w-2 border transition-colors'
+                                                    }
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="text-cream-50 flex h-full flex-col items-center justify-center px-8 text-center">
+                                    <span className="border-cream-100/60 ring-cream-100/20 flex h-16 w-16 items-center justify-center rounded-full border-2 ring-2 ring-inset">
+                                        <GraduationCap className="h-7 w-7" />
+                                    </span>
+                                    <p className="font-display mt-5 max-w-md text-2xl leading-snug font-semibold">
+                                        {hero.title ?? t('Welcome to {name}', { name: site.name })}
+                                    </p>
+                                    <p className="text-cream-100/70 mt-2 text-sm">{site.tagline ?? t('Knowledge · Discipline · Character')}</p>
+                                </div>
+                            )}
+                        </div>
+                        <figcaption className="flex items-center justify-between gap-3 px-1 pt-3 pb-0.5 text-[9px] font-semibold tracking-[0.18em] uppercase">
+                            <span className="text-brand-900/60 truncate">{activePhoto ? activePhoto.album : site.name}</span>
+                            <Link
+                                href={route('site.gallery')}
+                                className="text-brand-700 hover:text-brand-950 shrink-0 underline-offset-4 hover:underline"
+                            >
+                                {t('View all photos')} →
+                            </Link>
+                        </figcaption>
+                    </figure>
+                </div>
+            </section>
+
+            {/* ── Welcome + principal ───────────────────────────────── */}
+            <section className="border-brand-900/15 border-y bg-white">
+                <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
+                    <SectionHeading eyebrow={t('Welcome')} title={t('Welcome to {name}', { name: site.name })} />
+
+                    <div className="mt-10 grid gap-12 lg:grid-cols-[1.15fr_0.85fr]">
+                        <div>
+                            <div className="text-brand-900/80 [&>p:first-child]:first-letter:font-display [&>p:first-child]:first-letter:text-brand-700 text-[15px] leading-[1.85] [&>p:first-child]:first-letter:float-left [&>p:first-child]:first-letter:mr-2.5 [&>p:first-child]:first-letter:text-5xl [&>p:first-child]:first-letter:leading-[0.9] [&>p:first-child]:first-letter:font-semibold">
+                                {(aboutExcerpt ?? t('A community built on knowledge, discipline and character.'))
+                                    .split(/\n{2,}/)
+                                    .map((paragraph, index) => (
+                                        <p key={index} className={index > 0 ? 'mt-4' : undefined}>
+                                            {paragraph}
+                                        </p>
+                                    ))}
+                            </div>
+                            <Link
+                                href={route('site.about')}
+                                className="text-brand-700 hover:text-brand-950 mt-6 inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] uppercase underline-offset-4 hover:underline"
+                            >
+                                {t('Read more about us')}
+                                <ArrowRight className="h-3.5 w-3.5" />
+                            </Link>
+                        </div>
+
+                        <div className="border-brand-900/20 bg-cream-50 self-start border">
+                            <div className="border-brand-950 border-b px-5 py-3">
+                                <p className="text-brand-700 text-[10px] font-semibold tracking-[0.24em] uppercase">
+                                    {t("From the Principal's Desk")}
+                                </p>
+                            </div>
+                            <div className="px-5 py-5">
+                                <p className="font-display text-brand-950/25 text-4xl leading-none font-semibold" aria-hidden>
+                                    “
+                                </p>
+                                <p className="font-display text-brand-950 -mt-2 text-[15px] leading-relaxed italic">
+                                    {principal.message ?? site.tagline ?? t('Knowledge · Discipline · Character')}
+                                </p>
+                                <div className="border-brand-900/20 mt-5 flex items-center gap-3 border-t pt-4">
+                                    <span className="border-brand-950 text-brand-950 ring-brand-950/10 font-display flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 bg-white text-sm font-semibold ring-2 ring-inset">
+                                        {initials}
+                                    </span>
+                                    <div>
+                                        <p className="font-display text-brand-950 text-sm font-semibold">{principal.name ?? t('The Principal')}</p>
+                                        <p className="text-brand-900/55 mt-0.5 text-[9px] font-semibold tracking-[0.2em] uppercase">
+                                            {t('Principal')}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-                <SectionHeading
-                    eyebrow="School calendar"
-                    title="Upcoming events"
-                    description="Sports days, science fairs and parent meetings — come and be part of them."
-                    action={{ label: 'All events', href: route('site.events') }}
-                />
-                <div className="mt-10">
-                    {events.length > 0 ? (
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            {events.map((event) => (
-                                <EventCard key={event.id} event={event} />
+            {/* ── Notice board + sidebars ───────────────────────────── */}
+            <section className="py-14 lg:py-16">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <SectionHeading eyebrow={t('Notices')} title={t('Notice Board')} action={{ label: t('View All'), href: route('site.notices') }} />
+
+                    <div className="mt-10 grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+                        <div className="border-brand-900/20 border bg-white">
+                            <div className="border-brand-950 grid grid-cols-[64px_1fr] border-b-2 px-5 pt-4 pb-2 text-[9px] font-semibold tracking-[0.2em] uppercase sm:grid-cols-[64px_1fr_120px]">
+                                <span>{t('Date')}</span>
+                                <span>{t('Notice')}</span>
+                                <span className="hidden text-right sm:block">{t('Category')}</span>
+                            </div>
+                            {notices.length > 0 ? (
+                                notices.map((notice) => <NoticeRow key={notice.id} notice={notice} />)
+                            ) : (
+                                <p className="text-brand-900/60 px-5 py-6 text-sm">{t('No notices have been published yet.')}</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-8">
+                            <WidgetPanel title={t('Upcoming Events')} action={{ label: t('All Events'), href: route('site.events') }}>
+                                {events.length > 0 ? (
+                                    <div>
+                                        {events.slice(0, 3).map((event) => (
+                                            <EventRow key={event.id} event={event} />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-brand-900/60 px-5 py-6 text-sm">{t('No upcoming events right now.')}</p>
+                                )}
+                            </WidgetPanel>
+
+                            <WidgetPanel title={t('Recent Achievements')} action={{ label: t('All Achievements'), href: route('site.achievements') }}>
+                                {achievements.length > 0 ? (
+                                    <ul>
+                                        {achievements.slice(0, 3).map((achievement, index) => (
+                                            <li
+                                                key={achievement.id}
+                                                className="border-brand-900/10 flex items-baseline gap-4 border-b px-5 py-4 last:border-b-0"
+                                            >
+                                                <span className="font-display text-brand-700 w-6 shrink-0 text-sm font-semibold">
+                                                    {String(index + 1).padStart(2, '0')}
+                                                </span>
+                                                <div className="min-w-0">
+                                                    <p className="text-brand-950 line-clamp-1 text-sm font-semibold">{achievement.title}</p>
+                                                    <p className="mt-1 text-xs">
+                                                        {achievement.student_name ? (
+                                                            <span className="text-brand-700 font-semibold">{achievement.student_name}</span>
+                                                        ) : (
+                                                            <span className="text-brand-900/50">{t('Student achievement')}</span>
+                                                        )}
+                                                        {achievement.achieved_on && (
+                                                            <span className="text-brand-900/50">
+                                                                {' '}
+                                                                · {formatDate(achievement.achieved_on, locale)}
+                                                            </span>
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-brand-900/60 px-5 py-6 text-sm">{t('Achievements will be announced here.')}</p>
+                                )}
+                            </WidgetPanel>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Gallery strip ─────────────────────────────────────── */}
+            <section className="border-brand-900/15 border-t bg-white">
+                <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
+                    <SectionHeading
+                        eyebrow={t('Gallery')}
+                        title={t('Photo Gallery')}
+                        action={{ label: t('View all photos'), href: route('site.gallery') }}
+                    />
+
+                    {photos.length > 0 ? (
+                        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+                            {photos.map((photo) => (
+                                <Link
+                                    key={photo.id}
+                                    href={route('site.gallery')}
+                                    className="group border-brand-900/25 bg-cream-50 hover:border-brand-950 block border p-1.5 transition-all hover:shadow-[3px_3px_0_rgba(27,53,42,0.10)]"
+                                >
+                                    <span className="block aspect-4/3 overflow-hidden">
+                                        <img
+                                            src={photo.image_url ?? ''}
+                                            alt={photo.title ?? photo.album}
+                                            loading="lazy"
+                                            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                                        />
+                                    </span>
+                                </Link>
                             ))}
                         </div>
                     ) : (
-                        <EmptyState title="Nothing scheduled yet" description="Upcoming events will be announced soon." />
+                        <div className="mt-10">
+                            <EmptyState icon={Images} title={t('No photos yet')} description={t('Photographs from our campus will appear here.')} />
+                        </div>
                     )}
-                </div>
-            </section>
-
-            <section className="bg-cream-100 py-16 lg:py-24">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading
-                        eyebrow="Proud moments"
-                        title="Recent achievements"
-                        description="Olympiads, sports and culture — our students keep making us proud."
-                        action={{ label: 'All achievements', href: route('site.achievements') }}
-                    />
-                    <div className="mt-10">
-                        {achievements.length > 0 ? (
-                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {achievements.map((achievement) => (
-                                    <AchievementCard key={achievement.id} achievement={achievement} featured={achievement.is_featured} />
-                                ))}
-                            </div>
-                        ) : (
-                            <EmptyState
-                                icon={Trophy}
-                                title="Achievements coming soon"
-                                description="Our students' proud moments will be showcased here."
-                            />
-                        )}
-                    </div>
+                    <Ornament className="mt-10" />
                 </div>
             </section>
 

@@ -1,26 +1,63 @@
+import { DoubleRule, Ornament } from '@/components/public/ornament';
 import { cn } from '@/lib/utils';
-import { type ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
+
+interface Crumb {
+    label: string;
+    href?: string;
+}
 
 interface PageHeroProps {
-    eyebrow?: string;
-    title: string;
+    title: ReactNode;
     description?: string | null;
+    breadcrumbs?: Crumb[];
     children?: ReactNode;
     className?: string;
 }
 
-export function PageHero({ eyebrow, title, description, children, className }: PageHeroProps) {
+/**
+ * Page title band: centered prospectus-style heading on paper cream, with
+ * small-cap breadcrumbs and a thick–thin rule closing the band.
+ */
+export function PageHero({ title, description, breadcrumbs, children, className }: PageHeroProps) {
     return (
-        <section className={cn('bg-brand-950 text-cream-50 relative overflow-hidden', className)}>
-            <div className="site-dot-pattern absolute inset-0 opacity-60" aria-hidden />
-            <div className="bg-gold-500/20 absolute -top-24 -right-24 h-72 w-72 rounded-full blur-3xl" aria-hidden />
-            <div className="bg-brand-500/20 absolute -bottom-32 -left-16 h-72 w-72 rounded-full blur-3xl" aria-hidden />
-            <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
-                {eyebrow && <p className="text-gold-400 mb-3 text-xs font-semibold tracking-[0.3em] uppercase">{eyebrow}</p>}
-                <h1 className="font-display text-3xl leading-tight font-semibold sm:text-4xl lg:text-5xl">{title}</h1>
-                {description && <p className="text-cream-100/80 mt-4 max-w-2xl text-sm leading-relaxed sm:text-base">{description}</p>}
-                {children}
+        <section className={cn('bg-cream-100', className)}>
+            <div className="mx-auto max-w-4xl px-4 py-11 text-center sm:px-6 lg:px-8 lg:py-14">
+                {breadcrumbs && breadcrumbs.length > 0 && (
+                    <nav aria-label="Breadcrumb">
+                        <ol className="flex flex-wrap items-center justify-center gap-2 text-[10px] font-semibold tracking-[0.2em] uppercase">
+                            {breadcrumbs.map((crumb, index) => (
+                                <Fragment key={`${crumb.label}-${index}`}>
+                                    {index > 0 && (
+                                        <li aria-hidden className="text-brand-900/35">
+                                            ›
+                                        </li>
+                                    )}
+                                    <li>
+                                        {crumb.href ? (
+                                            <a
+                                                href={crumb.href}
+                                                className="text-brand-900/60 hover:text-brand-700 underline-offset-4 hover:underline"
+                                            >
+                                                {crumb.label}
+                                            </a>
+                                        ) : (
+                                            <span className="text-brand-950">{crumb.label}</span>
+                                        )}
+                                    </li>
+                                </Fragment>
+                            ))}
+                        </ol>
+                    </nav>
+                )}
+                <h1 className="font-display text-brand-950 mx-auto mt-4 max-w-3xl text-4xl leading-[1.08] font-semibold tracking-tight sm:text-5xl">
+                    {title}
+                </h1>
+                {description && <p className="text-brand-900/70 mx-auto mt-4 max-w-2xl text-sm leading-relaxed sm:text-base">{description}</p>}
+                <Ornament className="mt-6" />
+                {children && <div className="mt-7 flex flex-wrap items-center justify-center gap-3">{children}</div>}
             </div>
+            <DoubleRule />
         </section>
     );
 }
